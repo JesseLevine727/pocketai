@@ -10,3 +10,6 @@ rtl/ibex-orig/
 rtl/ibex/
 riscv-compliance/
 *.deb
+*.o
+*.elf
+*.a
