@@ -1,0 +1,100 @@
+diff --git a/riscv-test-suite/rv32Zicsr/Makefile b/riscv-test-suite/rv32Zicsr/Makefile
+index 54fdb6ac..beb897f6 100644
+--- a/riscv-test-suite/rv32Zicsr/Makefile
++++ b/riscv-test-suite/rv32Zicsr/Makefile
+@@ -46,7 +46,7 @@ tests += $$($(1)_tests)
+ 
+ endef
+ 
+-$(eval $(call compile_template,rv32Zicsr,-march=rv32i -mabi=ilp32))
++$(eval $(call compile_template,rv32Zicsr,-march=rv32i_zicsr -mabi=ilp32))
+ 
+ test_log = $(patsubst %.elf,%.log,$(target_tests))
+ 
+diff --git a/riscv-test-suite/rv32Zifencei/Makefile b/riscv-test-suite/rv32Zifencei/Makefile
+index 23dceba7..f8296251 100644
+--- a/riscv-test-suite/rv32Zifencei/Makefile
++++ b/riscv-test-suite/rv32Zifencei/Makefile
+@@ -46,7 +46,7 @@ tests += $$($(1)_tests)
+ 
+ endef
+ 
+-$(eval $(call compile_template,rv32Zifencei,-march=rv32i -mabi=ilp32))
++$(eval $(call compile_template,rv32Zifencei,-march=rv32i_zicsr_zifencei -mabi=ilp32))
+ 
+ test_log = $(patsubst %.elf,%.log,$(target_tests))
+ 
+diff --git a/riscv-test-suite/rv32i/Makefile b/riscv-test-suite/rv32i/Makefile
+index c40ca8a3..b430cbc5 100644
+--- a/riscv-test-suite/rv32i/Makefile
++++ b/riscv-test-suite/rv32i/Makefile
+@@ -46,7 +46,7 @@ tests += $$($(1)_tests)
+ 
+ endef
+ 
+-$(eval $(call compile_template,rv32i,-march=rv32i -mabi=ilp32))
++$(eval $(call compile_template,rv32i,-march=rv32i_zicsr -mabi=ilp32))
+ 
+ test_log = $(patsubst %.elf,%.log,$(target_tests))
+ 
+diff --git a/riscv-test-suite/rv32i/src/I-MISALIGN_JMP-01.S b/riscv-test-suite/rv32i/src/I-MISALIGN_JMP-01.S
+index 8f54534d..def38818 100644
+--- a/riscv-test-suite/rv32i/src/I-MISALIGN_JMP-01.S
++++ b/riscv-test-suite/rv32i/src/I-MISALIGN_JMP-01.S
+@@ -279,12 +279,12 @@ RV_COMPLIANCE_CODE_BEGIN
+     # Exception handler
+ _trap_handler:
+     # increment return address
+-    csrr    x30, mbadaddr
++    csrr    x30, 0x41
+     addi    x30, x30, -2
+     csrw    mepc, x30
+ 
+-    # store low bits of mbadaddr
+-    csrr    x30, mbadaddr
++    # store low bits of 0x41
++    csrr    x30, 0x41
+     andi    x30, x30, 3
+     sw      x30, 0(x1)
+ 
+diff --git a/riscv-test-suite/rv32i/src/I-MISALIGN_LDST-01.S b/riscv-test-suite/rv32i/src/I-MISALIGN_LDST-01.S
+index 5a201878..ffcfb419 100644
+--- a/riscv-test-suite/rv32i/src/I-MISALIGN_LDST-01.S
++++ b/riscv-test-suite/rv32i/src/I-MISALIGN_LDST-01.S
+@@ -194,8 +194,8 @@ _trap_handler:
+     addi    x30, x30, 4
+     csrw    mepc, x30
+ 
+-    # store low bits of mbadaddr
+-    csrr    x30, mbadaddr
++    # store low bits of 0x41
++    csrr    x30, 0x41
+     andi    x30, x30, 3
+     sw      x30, 0(x1)
+ 
+diff --git a/riscv-test-suite/rv32im/Makefile b/riscv-test-suite/rv32im/Makefile
+index a7038ab8..d0f20052 100644
+--- a/riscv-test-suite/rv32im/Makefile
++++ b/riscv-test-suite/rv32im/Makefile
+@@ -46,7 +46,7 @@ tests += $$($(1)_tests)
+ 
+ endef
+ 
+-$(eval $(call compile_template,rv32im,-march=rv32im -mabi=ilp32))
++$(eval $(call compile_template,rv32im,-march=rv32im_zicsr -mabi=ilp32))
+ 
+ test_log = $(patsubst %.elf,%.log,$(target_tests))
+ 
+diff --git a/riscv-test-suite/rv32imc/Makefile b/riscv-test-suite/rv32imc/Makefile
+index 0585d3bf..54105da0 100644
+--- a/riscv-test-suite/rv32imc/Makefile
++++ b/riscv-test-suite/rv32imc/Makefile
+@@ -46,7 +46,7 @@ tests += $$($(1)_tests)
+ 
+ endef
+ 
+-$(eval $(call compile_template,rv32imc,-march=rv32imc -mabi=ilp32))
++$(eval $(call compile_template,rv32imc,-march=rv32imc_zicsr -mabi=ilp32))
+ 
+ test_log = $(patsubst %.elf,%.log,$(target_tests))
+ 

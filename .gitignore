@@ -1,0 +1,12 @@
+# Build artifacts
+build/
+*.log
+*.vcd
+*.vcd.gz
+*.out
+
+# External clones / tools (fetched per README, not tracked)
+rtl/ibex-orig/
+rtl/ibex/
+riscv-compliance/
+*.deb
