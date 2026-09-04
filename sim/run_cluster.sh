@@ -28,7 +28,7 @@ if [[ "${PA_CLEAN:-0}" == "1" ]]; then
   clean_args+=(--clean)
 fi
 echo "[run_cluster] building Verilator sim via FuseSoC ..."
-fusesoc --cores-root=sim/pa_cluster --cores-root=rtl/soc \
+fusesoc --cores-root=sim/pa_cluster --cores-root=rtl/soc --cores-root=rtl/gemm \
   --cores-root=rtl/ibex-orig \
   run --target=sim "${clean_args[@]}" --build pocketai:pa:pa_cluster
 

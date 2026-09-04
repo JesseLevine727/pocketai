@@ -1,6 +1,6 @@
 CAPI=2:
 name: "pocketai:pa:pa_cluster_rtl:0.1"
-description: "PocketAI-T M1b two-hart cluster RTL"
+description: "PocketAI-T two-hart cluster and M2 GEMM RTL"
 
 filesets:
   lint_verilator:
@@ -11,6 +11,7 @@ filesets:
     depend:
       - lowrisc:ibex:ibex_top
       - lowrisc:prim:util_memload
+      - pocketai:pa:pa_gemm
     files:
       - pa_cluster_top.sv
       - pa_ibex_wrapper.sv

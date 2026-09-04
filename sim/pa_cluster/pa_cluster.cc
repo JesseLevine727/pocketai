@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <string>
+#include <utility>
 
 #include "verilated.h"
 #include "verilated_toplevel.h"
@@ -117,6 +118,68 @@ bool axi_read(pa_cluster_top &top, uint32_t addr, uint32_t &data,
   return ok;
 }
 
+bool gemm_integration_test(pa_cluster_top &top) {
+  // A = {{-128,7,3},{11,-4,127}}, B = {{-1,2},{3,-7},{-2,5}}.
+  // Both harts continue executing throughout descriptor, stream, and shared
+  // scratchpad transactions, exercising the complete integration seam.
+  const uint32_t descriptor[][2] = {
+      {0x08, 2}, {0x0c, 2}, {0x10, 3}, {0x14, 0},
+      {0x18, 0x1234abcd}, {0x1c, 1}};
+  for (const auto &entry : descriptor) {
+    uint8_t response = 0xff;
+    axi_idle(top);
+    if (!axi_write(top, 0x13000 + entry[0], entry[1], 0xf, &response) ||
+        response != 0) return false;
+  }
+  axi_idle(top);
+  const uint32_t input[] = {0x00030780, 0x007ffc0b,
+                            0x000002ff, 0, 0, 0,
+                            0x0000f903, 0, 0, 0,
+                            0x000005fe, 0, 0, 0};
+  for (unsigned word = 0; word < 14; ++word) {
+    top.gemm_s_axis_valid_i = 1;
+    top.gemm_s_axis_data_i = input[word];
+    top.gemm_s_axis_last_i = word == 13;
+    top.eval();
+    unsigned wait = 0;
+    while (!top.gemm_s_axis_ready_o && wait++ < 1000) clock(top);
+    if (!top.gemm_s_axis_ready_o) return false;
+    clock(top);
+  }
+  top.gemm_s_axis_valid_i = 0;
+  top.gemm_s_axis_last_i = 0;
+  for (unsigned word = 0; word < 16; ++word) {
+    top.gemm_m_axis_ready_i = 1;
+    top.eval();
+    unsigned wait = 0;
+    while (!top.gemm_m_axis_valid_o && wait++ < 1000) clock(top);
+    const uint32_t expected = word == 0 ? 0xfede008f :
+                              word == 8 ? 0x02adfeeb : 0;
+    if (!top.gemm_m_axis_valid_o || top.gemm_m_axis_keep_o != 0xf ||
+        top.gemm_m_axis_data_o != expected ||
+        static_cast<bool>(top.gemm_m_axis_last_o) != (word == 15)) return false;
+    clock(top);
+    top.gemm_m_axis_ready_i = 0;
+    axi_idle(top);
+    if (!axi_write(top, 0x4000 + 4 * word, expected)) return false;
+    axi_idle(top);
+    uint32_t observed = 0;
+    if (!axi_read(top, 0x4000 + 4 * word, observed) || observed != expected) {
+      return false;
+    }
+  }
+  for (const auto &entry : {std::pair<uint32_t, uint32_t>{0x20, 0x1234abcd},
+                           {0x24, 25}, {0x28, 12}, {0x34, 1}, {0x38, 0}}) {
+    axi_idle(top);
+    uint32_t value = 0;
+    if (!axi_read(top, 0x13000 + entry.first, value) || value != entry.second) {
+      return false;
+    }
+  }
+  axi_idle(top);
+  return true;
+}
+
 }  // namespace
 
 int main(int argc, char **argv) {
@@ -149,6 +212,11 @@ int main(int argc, char **argv) {
   top.araddr_i = 0;
   top.arvalid_i = 0;
   top.rready_i = 1;
+  top.gemm_s_axis_data_i = 0;
+  top.gemm_s_axis_keep_i = 0xf;
+  top.gemm_s_axis_last_i = 0;
+  top.gemm_s_axis_valid_i = 0;
+  top.gemm_m_axis_ready_i = 0;
   top.eval();
 
   top.IO_RST_N = 0;
@@ -174,6 +242,8 @@ int main(int argc, char **argv) {
   const uint32_t kAxPartialData = 0xAABBCCDD;
   const uint32_t kAxPartialExpected = 0x12BB56DD;
   const uint32_t kUnmappedAddr = 0x00020000;
+  const uint32_t kGemmIdAddr = 0x00013000;
+  const uint32_t kGemmCapsAddr = 0x0001303c;
   uint32_t r0 = 0;
   uint32_t r1 = 0;
   uint32_t r2 = 0;
@@ -181,6 +251,8 @@ int main(int argc, char **argv) {
   uint32_t invalid_data = 0;
   uint8_t invalid_bresp = 0;
   uint8_t invalid_rresp = 0;
+  uint32_t gemm_id = 0;
+  uint32_t gemm_caps = 0;
   axi_idle(top);
   bool ok_pre = axi_read(top, kAxAddr1, pre);
   axi_idle(top);
@@ -201,16 +273,25 @@ int main(int argc, char **argv) {
   bool ok_bad_w = axi_write(top, kUnmappedAddr, 0, 0xF, &invalid_bresp);
   axi_idle(top);
   bool ok_bad_r = axi_read(top, kUnmappedAddr, invalid_data, &invalid_rresp);
+  axi_idle(top);
+  bool ok_gemm_id = axi_read(top, kGemmIdAddr, gemm_id);
+  axi_idle(top);
+  bool ok_gemm_caps = axi_read(top, kGemmCapsAddr, gemm_caps);
   bool axi_ok = ok_pre && ok_w0 && ok_w1 && ok_w2 && ok_wp && ok_r0 && ok_r1 &&
-                ok_r2 && ok_bad_w && ok_bad_r && pre == 0 && r0 == kAxData0 &&
+                ok_r2 && ok_bad_w && ok_bad_r && ok_gemm_id && ok_gemm_caps &&
+                pre == 0 && r0 == kAxData0 &&
                 r1 == kAxData1 && r2 == kAxPartialExpected &&
-                invalid_bresp != 0 && invalid_rresp != 0;
+                invalid_bresp != 0 && invalid_rresp != 0 &&
+                gemm_id == 0x50414732 && gemm_caps == 0x03001010;
   std::printf(axi_ok ? "AXI OK\n"
-                     : "AXI FAIL pre=%d w0=%d w1=%d w2=%d wp=%d r0=%d r1=%d r2=%d badw=%d badr=%d pre=%08x r0=%08x r1=%08x r2=%08x bresp=%u rresp=%u\n",
+                     : "AXI FAIL pre=%d w0=%d w1=%d w2=%d wp=%d r0=%d r1=%d r2=%d badw=%d badr=%d gid=%d gcaps=%d pre=%08x r0=%08x r1=%08x r2=%08x bresp=%u rresp=%u gemm_id=%08x gemm_caps=%08x\n",
               (int)ok_pre, (int)ok_w0, (int)ok_w1, (int)ok_w2, (int)ok_wp,
               (int)ok_r0, (int)ok_r1, (int)ok_r2, (int)ok_bad_w,
-              (int)ok_bad_r, pre, r0, r1, r2, (unsigned)invalid_bresp,
-              (unsigned)invalid_rresp);
+              (int)ok_bad_r, (int)ok_gemm_id, (int)ok_gemm_caps, pre, r0, r1, r2,
+              (unsigned)invalid_bresp, (unsigned)invalid_rresp, gemm_id, gemm_caps);
+
+  const bool gemm_ok = gemm_integration_test(top);
+  std::puts(gemm_ok ? "M2 CLUSTER GEMM PASS" : "M2 CLUSTER GEMM FAIL");
 
   // Firmware result block and independent golden values.
   const uint32_t kResultBase = 0x0000D000;
@@ -322,6 +403,6 @@ int main(int argc, char **argv) {
       console.find("H0 READY\n") != std::string::npos &&
       console.find("H1 READY\n") != std::string::npos;
 
-  return (axi_ok && results_checked && results_ok && top.software_done_o &&
+  return (axi_ok && gemm_ok && results_checked && results_ok && top.software_done_o &&
           console_ok) ? 0 : 1;
 }

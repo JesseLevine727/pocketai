@@ -1,0 +1,26 @@
+CAPI=2:
+name: "pocketai:pa:pa_gemm:0.1"
+description: "PocketAI-T M2 double-buffered 16x16 int8 GEMM"
+
+filesets:
+  rtl:
+    files:
+      - pa_gemm_slot.sv
+      - pa_gemm.sv
+    file_type: systemVerilogSource
+
+targets:
+  default:
+    filesets:
+      - rtl
+
+  lint:
+    default_tool: verilator
+    filesets:
+      - rtl
+    toplevel: pa_gemm
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"

@@ -1,5 +1,7 @@
 # Build artifacts
 build/
+.Xil/
+/tight_setup_hold_pins.txt
 *.log
 *.vcd
 *.vcd.gz
@@ -13,3 +15,7 @@ riscv-compliance/
 *.o
 *.elf
 *.a
+
+# Python reference models and board tools
+__pycache__/
+*.py[cod]

@@ -5,8 +5,10 @@ accelerator + SFPU, targeting GPT-2 124M (int8 weights / int16 activations)
 inference. Fabric-resident on a PYNQ Z1 (Zynq-7020), with a Sky130 ASIC
 port; the PPA report (fabric vs. silicon) is the ship-gate.
 
-M1 is closed at 95 MHz on physical PYNQ-Z1 hardware. See `PLAN.md` for
-milestones and `docs/M1_VERIFICATION.md` for the complete M1 evidence record.
+M1 and M2 are closed at 95 MHz on physical PYNQ-Z1 hardware. M2 adds a
+double-buffered signed-int8 GEMM accelerator and DDR/DMA streaming, with exact
+NumPy-checked results. M3 (SFPU) has not started. See `PLAN.md`,
+`docs/M1_VERIFICATION.md`, and `docs/M2_VERIFICATION.md` for acceptance evidence.
 
 ## Dependencies (not tracked in this repo)
 
@@ -64,6 +66,36 @@ The stock PYNQ image prompts for normal `sudo` authentication because overlay
 programming and MMIO require root. The runner preserves the board's XRT
 environment with `sudo -E`; JTAG is not used. See `docs/M1_VERIFICATION.md` for
 the qualified configuration, memory map, result ABI, and recorded evidence.
+
+## M2 verification
+
+```bash
+PA_CLEAN=1 bash sim/run_m2.sh
+PA_CLEAN=1 bash scripts/run_compliance.sh
+export PYNQ_BOARD_REPO=/path/to/board_files
+PA_CLEAN=1 bash zynq/build_m2.sh
+bash zynq/run_m2_board.sh
+```
+
+The engine accepts logical tiles up to 16x16 with K up to 768. A 4x16 physical
+array uses 64 soft MAC lanes, 25-bit accumulation, and one final int16
+saturation. Two tile buffers overlap input, compute, and output. All 1,007
+deterministic numerical cases, protocol/error tests, and M1 regressions pass.
+
+Two independent clean builds closed at +0.499/+0.486 ns setup WNS, zero TNS,
++0.018 ns hold slack, zero DSP48s, and zero DRC errors. The exact second overlay
+passed both the M1 board workload and a 16x768x768 projection: all 12,288 int16
+results and the shared-memory readback matched exactly.
+
+Measured accelerator throughput is 5.793 GMAC/s from cycle counters at 95 MHz;
+software-driven packed A/B input bandwidth is 29.821 MB/s. End-to-end latency
+is 110.649 ms (0.085 GMAC/s), including DMA, validation, and A9 publication to
+shared memory. These are not GPT-2 inference or CPU-speedup results.
+
+See `docs/NUMERICS.md` and `docs/M2_ARCHITECTURE.md` for the contract and
+`docs/M2_VERIFICATION.md` for exact artifact paths/hashes, reproduction commands,
+performance boundaries, and reviewed warnings. The +0.500 ns margin and
+100 MHz remain stretch targets; M3 requires independent timing qualification.
 
 ## Repo hygiene
 

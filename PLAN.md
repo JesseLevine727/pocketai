@@ -3,8 +3,9 @@
 ## Mission
 Design a fabric-resident AI inference SoC (2× RISC-V cores + int8 GEMM unit +
 special-function unit) on the PYNQ Z1 (Zynq-7020: 53,200 LUT, 106,400 FF,
-630 KiB BRAM, 220 DSP48; 100 MHz fabric). Run GPT-2 124M (int8 weights, int16 activations) with
-weight-streaming from DDR3. Then port the *identical* RTL to Sky130 via
+630 KiB BRAM, 220 DSP48; M1/M2 qualified at 95 MHz, 100 MHz stretch).
+Run GPT-2 124M (int8 weights, int16 activations) with weight-streaming from DDR3.
+Then port the *identical* RTL to Sky130 via
 OpenLane and deliver a **PPA report** (fabric vs silicon: area, timing,
 power, bandwidth) as a first-class deliverable.
 
@@ -26,8 +27,10 @@ power, bandwidth) as a first-class deliverable.
 ```
 
 Design rules (non-negotiable):
+
 - No Zynq DSP48 in datapath RTL → soft multipliers only (ASIC portability).
-- int8/int16 datapath only. No FP anywhere in fabric logic.
+- int8 operands / int16 external results, with widened integer accumulators
+  defined in `docs/NUMERICS.md`. No FP anywhere in fabric logic.
 - Cores own control flow; units are descriptor-driven (ptr, M, N, K, flags).
 - Every unit has a Python reference in `ref/` and a tile-level test vector.
 
@@ -104,20 +107,66 @@ Closed design decisions:
   so simulation and the A9 observe the same synthesizable hardware interface.
 
 ### M2 — GEMM unit + weight streaming  [~1 wk]
-Deliverables:
-- `rtl/gemm/`: 16×16 int8 MAC array, int16 acc, double-buffered tile I/O via descriptor FIFO.
-- Weight-streaming channel: A9 → AXI Stream → GEMM (tile 64×64), DMA of results to scratchpad.
-- `ref/gemm_ref.py` + tile test vectors (incl. negative/edge values).
 
-Verification:
-- Verilator: 1000 random int8 tiles match numpy int8 GEMM exactly; timing: measure cycles → report achieved GMAC/s at 100 MHz (expect ≥ ~25).
-- Board: `m2_gemm_stream.py` streams a 768×768 projection weight matrix from DDR3, matches NumPy on A9; report tokens/s of pure weight streaming (bandwidth check).
+**Status (2026-09-04): M2 COMPLETE — PASS.** Local numerical/protocol tests,
+M1 regression and ISA checks, two clean 95 MHz implementations, and the exact
+overlay's physical-board workload have passed. Final setup WNS is
++0.499/+0.486 ns, with zero TNS, +0.018 ns hold slack, full routing, zero DSP48s,
+zero DRC errors, and reviewed warnings. `docs/M2_VERIFICATION.md` records the
+acceptance review, source/artifact hashes, reports, board log, and limitations.
 
-Risks: MAC-array pipeline bubbles — design the feed logic before the multiplier; int8 overflow tests (saturation semantics must match ref exactly — define in docs).
+Delivered:
 
-Agents: same trio; implementer splits: (a) MAC array + sim, (b) streaming/AXI side, (c) board script — (a) and (b) touch disjoint files.
+- `rtl/gemm/`: logical 16x16 signed-int8 GEMM, K=1..768, implemented as a
+  4x16 physical soft-MAC array. Signed 25-bit accumulation preserves the full
+  dot product before deterministic saturation to int16.
+- Two ordered descriptor/tile slots with independent A/B/C storage, arbitrary
+  ready/valid stalls, partial dimensions, tagged completion/cycle/MAC counters,
+  IRQ control, full-width descriptor validation, and reset/error/abort recovery.
+- Portable accelerator RTL and a PYNQ integration using A9 GP0 control plus
+  AXI DMA through HP0 to DDR3. DMA returns results to DDR; the A9 publishes them
+  into shared scratchpad `0x43c04000..0x43c09fff` with exact readback.
+- `ref/gemm_ref.py`, deterministic vectors, five reference unit tests,
+  standalone Verilator tests, and GEMM activity while both simulated harts run.
+- `zynq/m2_run.py` and `zynq/run_m2_board.sh`: SSH-only programming and a
+  16x768x768 projection through 48 descriptors in 24 double-buffered pairs.
+
+Acceptance evidence:
+
+- `PA_CLEAN=1 bash sim/run_m2.sh` → 1000 randomized + 7 directed exact NumPy
+  comparisons, protocol/lifecycle tests, active two-hart integration, and
+  `M2 LOCAL PASS` including the complete M1 local suite.
+- `PA_CLEAN=1 bash scripts/run_compliance.sh` → 84 passing tests and the same
+  four named upstream expected failures as M1.
+- `PA_CLEAN=1 bash zynq/build_m2.sh` → two independently clean implementations
+  (`build/m2_qual1`, `build/m2_qual2`) exceeding the +0.250 ns hard setup gate.
+  Both have positive hold slack and zero unconstrained endpoints.
+- `bash zynq/run_m2_board.sh` with `M2_VIVADO_BUILD_DIR` set to the qualified
+  second build → M1's 10000-round workload and `M2 BOARD PASS`; all 12288 int16
+  results and 6144 shared words match exactly.
+- Board counters: 154752 compute/pack cycles for 9437184 MACs, yielding
+  5.793 GMAC/s at 95 MHz. Observed packed A/B input throughput is 29.821 MB/s;
+  end-to-end workload latency is 110.649 ms (0.085 GMAC/s), including DMA,
+  validation, and shared-memory publication.
+
+Closed design decisions and limits:
+
+- The 16x16 logical tile contract is preserved by a 4x16 physical array.
+  The original 256-lane / approximately 25 GMAC/s estimate was not achieved;
+  the implemented tradeoff retains FPGA space and repeatable timing margin.
+- Input streaming, widened accumulation, saturation, padding, and descriptor
+  ABI are defined in `docs/NUMERICS.md` and `docs/M2_ARCHITECTURE.md`.
+- The board projection is A9-driven with harts held in reset; M1 runs separately
+  on the identical overlay, and concurrent core/GEMM activity passes simulation.
+- Measured payload throughput is not isolated DDR peak or GPT-2 tokens/s.
+  No full-model inference, application speedup, or power claim is made.
+- +0.500 ns margin and 100 MHz remain stretch targets. M3 must close its own
+  implementation timing; M2 closure does not qualify future additions.
 
 ### M3 — SFPU: exp/LUT, RMSNorm, RoPE, SiLU  [~1.5 wk — numerics are the grind]
+
+**Status: NOT STARTED.**
+
 Deliverables:
 - `rtl/sfpu/`: exp via piecewise-linear LUT (int16 in/out, document error bound),
   reciprocal approx, dot-reduce for RMSNorm, RoPE sin/cos LUT + MAC, SiLU approx, KV gather/scatter port with head/seq offsets.

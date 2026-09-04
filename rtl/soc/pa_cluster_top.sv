@@ -1,4 +1,4 @@
-// PocketAI-T M1b -- two-hart Ibex cluster top
+// PocketAI-T two-hart Ibex cluster plus M2 GEMM
 //
 // Two Ibex "small-config" cores (hart 0 and hart 1, via `pa_ibex_wrapper`)
 // sharing one fair bus, one BRAM-inferable scratchpad, one console FIFO, the
@@ -10,6 +10,7 @@
 //   0x0000_0000  RAM      (64 KB shared scratchpad)
 //   0x0001_1000  CONSOLE  (+0 data, +4 status, +8 control/done)
 //   0x0001_2000  MBOX     (+0/+4 data, +8 status, +c W1C acknowledge)
+//   0x0001_3000  GEMM     (descriptor/control/status; see M2 architecture)
 //
 // Interrupts (level lines from `pa_mailbox`):
 //   hart 0 <-- mbox_irq0 (mbox1_to_0 pending, i.e. the hart1 -> hart0 mailbox)
@@ -21,7 +22,9 @@
 // CORE_RST_N resets only the Ibex cores and core-facing peripherals; the bus,
 // AXI bridge, and scratchpad stay live so the A9 can load firmware under reset.
 
-module pa_cluster_top (
+module pa_cluster_top #(
+  parameter bit EnableGemm = 1'b1
+) (
   input IO_CLK,
   input IO_RST_N,
   input CORE_RST_N,
@@ -44,6 +47,19 @@ module pa_cluster_top (
   output logic [ 1:0] rresp_o,
   output logic        rvalid_o,
   input  logic        rready_i,
+
+  // M2 GEMM payload streams. Packets and numerical semantics are defined in
+  // docs/NUMERICS.md. The PYNQ wrapper connects these to AXI DMA.
+  input  logic [31:0] gemm_s_axis_data_i,
+  input  logic [ 3:0] gemm_s_axis_keep_i,
+  input  logic        gemm_s_axis_last_i,
+  input  logic        gemm_s_axis_valid_i,
+  output logic        gemm_s_axis_ready_o,
+  output logic [31:0] gemm_m_axis_data_o,
+  output logic [ 3:0] gemm_m_axis_keep_o,
+  output logic        gemm_m_axis_last_o,
+  output logic        gemm_m_axis_valid_o,
+  input  logic        gemm_m_axis_ready_i,
 
   // Console observability for simulation/logic analysis. The A9 normally
   // reads the same bytes from the console FIFO through AXI.
@@ -72,10 +88,11 @@ module pa_cluster_top (
   typedef enum logic [1:0] {
     Ram,
     Uart,
-    Mbox
+    Mbox,
+    Gemm
   } bus_device_e;
 
-  localparam int unsigned NrDevices = 3;
+  localparam int unsigned NrDevices = EnableGemm ? 4 : 3;
   localparam int unsigned NrHosts   = 5;
 
   logic         host_req    [NrHosts];
@@ -97,8 +114,8 @@ module pa_cluster_top (
   logic [31:0]  device_rdata  [NrDevices];
   logic         device_err    [NrDevices];
 
-  // Device address map: RAM @0x0 (64 KB), UART @0x11000 (1 KB), MBOX @0x12000
-  // (1 KB).  The masks implement the device decode in `bus`.
+  // Device address map: RAM @0x0 (64 KB), console @0x11000, mailbox @0x12000,
+  // and M2 GEMM control @0x13000. Peripheral windows are 1 KiB.
   logic [31:0] cfg_device_addr_base [NrDevices];
   logic [31:0] cfg_device_addr_mask [NrDevices];
   assign cfg_device_addr_base[Ram]  = 32'h0;
@@ -107,6 +124,10 @@ module pa_cluster_top (
   assign cfg_device_addr_mask[Uart] = ~32'h3FF;
   assign cfg_device_addr_base[Mbox] = 32'h00012000;
   assign cfg_device_addr_mask[Mbox] = ~32'h3FF;
+  if (EnableGemm) begin : g_gemm_decode
+    assign cfg_device_addr_base[Gemm] = 32'h00013000;
+    assign cfg_device_addr_mask[Gemm] = ~32'h3FF;
+  end
 
   pa_shared_bus #(
     .NrDevices   (NrDevices),
@@ -141,7 +162,7 @@ module pa_cluster_top (
   );
 
   // Mailbox level IRQs (see `pa_mailbox`): irq0 -> hart 0, irq1 -> hart 1
-  logic mbox_irq0, mbox_irq1;
+  logic mbox_irq0, mbox_irq1, gemm_irq;
 
   // --- Core 0 (hart 0), external IRQ = mbox1_to_0 pending ---
   pa_ibex_wrapper #(
@@ -165,7 +186,7 @@ module pa_cluster_top (
     .data_wdata_o          (host_wdata[Core0D]),
     .data_rdata_i          (host_rdata[Core0D]),
     .data_err_i            (host_err[Core0D]),
-    .irq_external_i        (mbox_irq0),
+    .irq_external_i        (mbox_irq0 | gemm_irq),
     .irq_software_i        (1'b0),
     .irq_timer_i           (1'b0),
     .alert_major_internal_o(),
@@ -194,7 +215,7 @@ module pa_cluster_top (
     .data_wdata_o          (host_wdata[Core1D]),
     .data_rdata_i          (host_rdata[Core1D]),
     .data_err_i            (host_err[Core1D]),
-    .irq_external_i        (mbox_irq1),
+    .irq_external_i        (mbox_irq1 | gemm_irq),
     .irq_software_i        (1'b0),
     .irq_timer_i           (1'b0),
     .alert_major_internal_o(),
@@ -256,6 +277,40 @@ module pa_cluster_top (
     .irq0_o   (mbox_irq0),
     .irq1_o   (mbox_irq1)
   );
+
+  // --- Optional M2 double-buffered GEMM accelerator ---
+  if (EnableGemm) begin : g_gemm
+    pa_gemm u_gemm (
+      .clk_i             (clk_sys),
+      .rst_ni            (rst_sys_n),
+      .req_i             (device_req[Gemm]),
+      .we_i              (device_we[Gemm]),
+      .be_i              (device_be[Gemm]),
+      .addr_i            (device_addr[Gemm]),
+      .wdata_i           (device_wdata[Gemm]),
+      .rvalid_o          (device_rvalid[Gemm]),
+      .rdata_o           (device_rdata[Gemm]),
+      .err_o             (device_err[Gemm]),
+      .s_axis_data_i     (gemm_s_axis_data_i),
+      .s_axis_keep_i     (gemm_s_axis_keep_i),
+      .s_axis_last_i     (gemm_s_axis_last_i),
+      .s_axis_valid_i    (gemm_s_axis_valid_i),
+      .s_axis_ready_o    (gemm_s_axis_ready_o),
+      .m_axis_data_o     (gemm_m_axis_data_o),
+      .m_axis_keep_o     (gemm_m_axis_keep_o),
+      .m_axis_last_o     (gemm_m_axis_last_o),
+      .m_axis_valid_o    (gemm_m_axis_valid_o),
+      .m_axis_ready_i    (gemm_m_axis_ready_i),
+      .irq_o             (gemm_irq)
+    );
+  end else begin : g_no_gemm
+    assign gemm_s_axis_ready_o = 1'b0;
+    assign gemm_m_axis_data_o = 32'h0;
+    assign gemm_m_axis_keep_o = 4'h0;
+    assign gemm_m_axis_last_o = 1'b0;
+    assign gemm_m_axis_valid_o = 1'b0;
+    assign gemm_irq = 1'b0;
+  end
 
   // --- AXI4-Lite slave port -> bus host ---
   pa_axi_lite_bridge u_axi (

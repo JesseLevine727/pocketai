@@ -1,19 +1,15 @@
-// PocketAI-T PYNQ-Z1 AXI4-Lite module-reference wrapper.
-//
-// Vivado presents addresses relative to the assigned 128 KiB slave segment.
-// The cluster therefore sees the same 0x00000..0x1ffff map used in simulation.
+// PocketAI-T M2 PYNQ-Z1 wrapper: cluster AXI-Lite plus 32-bit GEMM streams.
 
-module pa_cluster_board #(
+module pa_cluster_m2_board #(
   parameter integer C_S_AXI_ADDR_WIDTH = 17,
   parameter integer C_S_AXI_DATA_WIDTH = 32
 ) (
   (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 S_AXI_ACLK CLK" *)
-  (* X_INTERFACE_PARAMETER = "ASSOCIATED_BUSIF S_AXI_CTRL, ASSOCIATED_RESET s_axi_aresetn" *)
+  (* X_INTERFACE_PARAMETER = "ASSOCIATED_BUSIF S_AXI_CTRL:S_AXIS_GEMM:M_AXIS_GEMM, ASSOCIATED_RESET s_axi_aresetn" *)
   input wire s_axi_aclk,
   (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 S_AXI_ARESETN RST" *)
   (* X_INTERFACE_PARAMETER = "POLARITY ACTIVE_LOW" *)
   input wire s_axi_aresetn,
-
   (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 CORE_ARESETN RST" *)
   (* X_INTERFACE_PARAMETER = "POLARITY ACTIVE_LOW" *)
   input wire core_aresetn,
@@ -52,7 +48,31 @@ module pa_cluster_board #(
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI_CTRL RVALID" *)
   output wire s_axi_rvalid,
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI_CTRL RREADY" *)
-  input wire s_axi_rready
+  input wire s_axi_rready,
+
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS_GEMM TDATA" *)
+  (* X_INTERFACE_PARAMETER = "TDATA_NUM_BYTES 4, HAS_TKEEP 1, HAS_TLAST 1, FREQ_HZ 95000000" *)
+  input wire [31:0] s_axis_gemm_tdata,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS_GEMM TKEEP" *)
+  input wire [3:0] s_axis_gemm_tkeep,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS_GEMM TLAST" *)
+  input wire s_axis_gemm_tlast,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS_GEMM TVALID" *)
+  input wire s_axis_gemm_tvalid,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 S_AXIS_GEMM TREADY" *)
+  output wire s_axis_gemm_tready,
+
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS_GEMM TDATA" *)
+  (* X_INTERFACE_PARAMETER = "TDATA_NUM_BYTES 4, HAS_TKEEP 1, HAS_TLAST 1, FREQ_HZ 95000000" *)
+  output wire [31:0] m_axis_gemm_tdata,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS_GEMM TKEEP" *)
+  output wire [3:0] m_axis_gemm_tkeep,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS_GEMM TLAST" *)
+  output wire m_axis_gemm_tlast,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS_GEMM TVALID" *)
+  output wire m_axis_gemm_tvalid,
+  (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS_GEMM TREADY" *)
+  input wire m_axis_gemm_tready
 );
 
   wire [31:0] cluster_awaddr =
@@ -61,7 +81,7 @@ module pa_cluster_board #(
       {{(32-C_S_AXI_ADDR_WIDTH){1'b0}}, s_axi_araddr};
 
   pa_cluster_top #(
-    .EnableGemm(1'b0)
+    .EnableGemm(1'b1)
   ) impl (
     .IO_CLK(s_axi_aclk),
     .IO_RST_N(s_axi_aresetn),
@@ -83,16 +103,16 @@ module pa_cluster_board #(
     .rresp_o(s_axi_rresp),
     .rvalid_o(s_axi_rvalid),
     .rready_i(s_axi_rready),
-    .gemm_s_axis_data_i(32'h0),
-    .gemm_s_axis_keep_i(4'h0),
-    .gemm_s_axis_last_i(1'b0),
-    .gemm_s_axis_valid_i(1'b0),
-    .gemm_s_axis_ready_o(),
-    .gemm_m_axis_data_o(),
-    .gemm_m_axis_keep_o(),
-    .gemm_m_axis_last_o(),
-    .gemm_m_axis_valid_o(),
-    .gemm_m_axis_ready_i(1'b0),
+    .gemm_s_axis_data_i(s_axis_gemm_tdata),
+    .gemm_s_axis_keep_i(s_axis_gemm_tkeep),
+    .gemm_s_axis_last_i(s_axis_gemm_tlast),
+    .gemm_s_axis_valid_i(s_axis_gemm_tvalid),
+    .gemm_s_axis_ready_o(s_axis_gemm_tready),
+    .gemm_m_axis_data_o(m_axis_gemm_tdata),
+    .gemm_m_axis_keep_o(m_axis_gemm_tkeep),
+    .gemm_m_axis_last_o(m_axis_gemm_tlast),
+    .gemm_m_axis_valid_o(m_axis_gemm_tvalid),
+    .gemm_m_axis_ready_i(m_axis_gemm_tready),
     .console_char_valid_o(),
     .console_char_o(),
     .software_done_o()
