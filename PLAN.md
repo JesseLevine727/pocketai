@@ -2,8 +2,8 @@
 
 ## Mission
 Design a fabric-resident AI inference SoC (2× RISC-V cores + int8 GEMM unit +
-special-function unit) on the PYNQ Z1 (Zynq-7020, ~212K LUT, 3.6 MB BRAM,
-100 MHz fabric). Run GPT-2 124M (int8 weights, int16 activations) with
+special-function unit) on the PYNQ Z1 (Zynq-7020: 53,200 LUT, 106,400 FF,
+630 KiB BRAM, 220 DSP48; 100 MHz fabric). Run GPT-2 124M (int8 weights, int16 activations) with
 weight-streaming from DDR3. Then port the *identical* RTL to Sky130 via
 OpenLane and deliver a **PPA report** (fabric vs silicon: area, timing,
 power, bandwidth) as a first-class deliverable.
@@ -44,40 +44,64 @@ pocketai/
   tests/          # unit test vectors (hex/csv)
 ```
 
+## Repo
+Remote: `https://github.com/JesseLevine727/pocketai` (branch `main`). Push after **every little milestone**: `bash git_ship.sh "message"`. Untracked (see README): `rtl/ibex-orig/` (pinned `34b070576`), `rtl/ibex/` (CVE2 fork, ignore), `riscv-compliance/` (pinned `844c666` + local patches in `patches/`), `build/`.
+
 ## Milestones
 Format: Deliverable / Verification (PASS = concrete evidence) / Risks / Agent plan.
 Each milestone ends with a `reviewer` PASS against the written criteria before the next starts.
 
 ### M1 — Cluster on fabric: bus + Ibex + scratchpad  [~1 wk]
-**Status (2026-09-03): M1a + M1b SIM PASS.** (Board bring-up still open: needs the fabric bitstream — Vivado XSA version mismatch with the pre-built board image, PC has Vivado 2025.1; `zynq/m1_boot.py` to be added once the bitstream is built.)
-- Core gate DONE: Ibex `small` config (RV32IMC), Verilator, riscv-compliance pinned @844c6660 (upstream CI commit): rv32imc 25/25, rv32im 8/8, rv32i 44/48 (4 fails = upstream expected-fail whitelist), Zicsr 6/6, Zifencei 1/1. C hello_test PASS. Ibex repo: `rtl/ibex-orig` (ignore `rtl/ibex` = CVE2 fork). Compliance runner: `/home/elfo/pocketai/riscv-compliance` @844c6660 (patched for gcc16/binutils 2.47: `_zicsr` in -march, mbadaddr→0x41). Toolchain env: `env.sh` (needs `srecord` at ~/tools/srecord on PATH/LD_LIBRARY_PATH, `VERILATOR_ROOT` bin symlink).
-- M1a smoke DONE: `rtl/soc/pa_smoke_top.sv` + `sim/run_smoke.sh` → `PA M1 BOOT`, exit 0.
-- M1b cluster DONE (sim): `rtl/soc/pa_cluster_top.sv` (2× `pa_ibex_wrapper` hart0/hart1 over lowRISC `bus` demo arbiter, shared 64 KB RAM, `pa_axi_lite_bridge` AXI4-Lite slave port, mailbox regs @0x12000-0x12008, UART @0x40400). `bash sim/run_cluster.sh` → **PASS**: firmware dual-hart boot + mailbox ping-pong (`P0`, `H1 BOOT`, `P1: PONG OK` in UART log) AND AXI4-Lite self-test through the slave port (3 writes + 3 reads incl. pre-read, all correct → `AXI OK`) while both cores boot and run; sim exits 0 via halt register.
-  - TB: `sim/pa_cluster/pa_cluster.cc` (Verilator cc + MemUtil; manual clocking; AXI master in C++).
-  - Debug log (M1b postmortem), keep for future TBs:
-    1. Arbiter: lowRISC demo `bus` is strictly priority, host 0 first. AxI (AXI bridge) is host 0 on purpose — its transfers are short; if M2+ GEMM/SFPU hosts need fairness, replace with round-robin.
-    2. TB clocking: `clock()` must be a FULL cycle (clk=1 eval, clk=0 eval), one eval per edge; a single-toggle clock makes handshake "accept" edges phase-dependent (AW accepted on a falling toggle = silent no-op). Verilator FFs only update on the rising edge.
-    3. AXI master in C++: check ready *before* the clock, then clock once to complete the handshake (handshake completes on the edge where valid&&ready are both high); deassert valid after; `axi_idle` (clear all valids + 2 cycles) between transactions; bready/rready held high.
-    4. Reset: `IO_RST_N` must be released from cycle 0 in this build; a reset asserted before the first clock edge corrupted core CSR init ("Illegal instruction" on `csrr`). Short SoC reset after 2 idle cycles is safe.
-Deliverables:
-- `rtl/bus/`: simple 32-bit shared bus (1 arbiter, 2 core masters + A9-side AXI-slave bridge).
-- 2× Ibex (PULP), 128 KB scratchpad each side in BRAM, mailbox + interrupt between cores.
-- PYNQ overlay: A9 can write scratchpad, reset cores, read results; UART for core console.
-- Bare-metal C (riscv-gnu) on cores: hello world, ping-pong across cores via mailbox.
+**Status (2026-09-04): M1 COMPLETE — PASS.** Local simulation/lint, the pinned
+ISA suites, two clean 95 MHz implementations, and two physical-board runs have
+passed. The final routed result is +0.330 ns setup WNS, 0.000 ns setup TNS,
++0.076 ns hold WNS, zero DSP48 primitives, zero DRC errors, and one explicitly
+reviewed SmartConnect no-load warning. The exact final overlay passed the
+10,000-round acceptance workload over SSH. See `docs/M1_VERIFICATION.md` for
+the commands, qualified configuration, hashes, reports, memory map, result ABI,
+and reviewed tool warnings. The preferred +0.500 ns margin and 100 MHz remain
+stretch targets, not M1 claims.
 
-Verification (PASS =):
-- Verilator: cores boot a C `coremark-lite`-style test binary; both cores alive; mailbox ping-pong count correct over 10k iterations.
-- Board: `python3 zynq/m1_boot.py` prints the same ping-pong result from UART + reads ping count from scratchpad via PYNQ.
+Delivered:
+- Two fabric-resident lowRISC Ibex harts in one pinned RV32IMC configuration:
+  iterative M, FPGA register file, writeback stage, two-cycle branches, no cache,
+  predictor, PMP, secure mode, floating point, or DSP48 multiplication.
+- A five-host, round-robin 32-bit shared bus for A9 AXI, both instruction ports,
+  and both data ports. It supports legal back-to-back requests without starvation
+  or duplicated transfers.
+- One shared 64 KiB BRAM-inferred scratchpad, a synthesizable console FIFO, and
+  two one-word mailboxes with sticky level interrupts and explicit W1C acknowledge.
+- An AXI4-Lite control/data window at `0x43c00000` plus an AXI GPIO core reset at
+  `0x43c20000`. System reset leaves the scratchpad and A9 path available while
+  core reset is asserted, so the board host can load firmware safely.
+- Bare-metal shared-image firmware that boots both harts, exercises integer and
+  stack memory, and completes exactly 10,000 interrupt-driven request/response
+  rounds with sequence and checksum validation.
+- A Vivado 2025.1 PYNQ-Z1 overlay build and an SSH board runner. JTAG is not part
+  of the M1 workflow.
 
-Risks: Ibex config flags (pipelined, writeback) vs Verilator — pin exact `ibex.yaml` early.
-Bus protocol: keep it 1-cycle req/ack, no outstanding transactions (simplicity > speed).
+Acceptance gates:
+- `PA_CLEAN=1 bash sim/run_m1.sh` → `M1 LOCAL PASS`, including focused mailbox,
+  back-to-back bus, single-core boot, dual-hart/AXI, and fatal-warning RTL lint.
+- `PA_CLEAN=1 bash scripts/run_compliance.sh` → RV32IMC 25/25, RV32IM 8/8, RV32I 44/48
+  plus the four explicit upstream expected failures, Zicsr 6/6, Zifencei 1/1.
+- `PA_CLEAN=1 bash zynq/build_m1.sh` → reproducible routed 95 MHz PYNQ-Z1
+  bitstream with at least +0.250 ns setup slack, zero setup TNS, positive hold
+  slack, zero DSP48 primitives, zero DRC errors, and no unreviewed DRC warnings.
+  The recorded result is +0.330/0.000/+0.076 ns. 100 MHz is retained as a
+  stretch target rather than an M1 blocker.
+- `bash zynq/run_m1_board.sh` → both readiness lines, exact counts/checksums,
+  zero firmware error words, and `M1 BOARD PASS` on the physical PYNQ-Z1 over SSH.
 
-Prior-art on board (READ-ONLY, do not modify): RV32IM soft core + Q-format Softmax/LayerNorm/GELU split-IP blocks already ran at 100 MHz (`/home/xilinx/tcas_*`); established bring-up pattern = sysfs bitstream + /dev/mem MMIO (see `tcas_*/run_*_board.py`). Board `import pynq` requires login shell (venv auto-activate: `ssh ... 'bash -lc ...'`). Vivado 2025.1 proven on this board — build our own BD, do NOT use PYNQ repo base.tcl (2024.1-only).
-
-Agents:
-- `explorer`: locate Ibex build/config options + PYNQ overlay packaging gotchas (read-only, returns file:line notes). [DONE 2026-09-03]
-- `implementer`: one run per file-group (bus, then SoC top, then overlay, then bare-metal tests). No two agents on same file.
-- `reviewer`: runs the Verilator sim + board script; PASS only on printed evidence.
+Closed design decisions:
+- The external source trees are revision-pinned and their required local changes
+  are tracked as patches. `scripts/check_deps.sh` rejects missing, stale, or
+  partially applied dependencies.
+- The bus has one transaction per host outstanding and a registered issue path.
+  This is the M1 protocol contract; M2 must add accelerator traffic without
+  weakening fairness or changing the existing host-visible ABI.
+- The "UART" acceptance stream is deliberately a small AXI-readable console FIFO,
+  so simulation and the A9 observe the same synthesizable hardware interface.
 
 ### M2 — GEMM unit + weight streaming  [~1 wk]
 Deliverables:

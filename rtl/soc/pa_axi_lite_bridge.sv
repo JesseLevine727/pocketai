@@ -9,8 +9,8 @@
 //   * at most one outstanding transaction (writes and reads share one
 //     request port; a new AW is only accepted once the previous
 //     transaction has fully completed)
-//   * ID / last / resp-error encoding not required; bresp/rresp are always
-//     OKAY (0)
+//   * ID / last signals are not present on AXI4-Lite
+//   * internal bus errors are returned as AXI SLVERR (2)
 //
 // Channel ordering: while a write is in flight the AR channel is not
 // accepted, and vice versa, which keeps the single host request port free
@@ -56,6 +56,7 @@ module pa_axi_lite_bridge (
     S_IDLE,     // accept AW (write) or AR (read)
     S_WAIT_W,   // AW accepted, waiting for W
     S_XFER,     // request driven to the bus, waiting for grant
+    S_WWAIT,    // write request granted, waiting for bus completion/error
     S_BRESP,    // write done, B response
     S_RWAIT,    // read request granted, waiting for rvalid
     S_RRESP     // read done, R response
@@ -67,6 +68,7 @@ module pa_axi_lite_bridge (
   logic [31:0] wdata_q;
   logic [ 3:0] wstrb_q;
   logic [31:0] rdata_q;
+  logic        err_q;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -76,9 +78,11 @@ module pa_axi_lite_bridge (
       wdata_q <= 32'h0;
       wstrb_q <= 4'h0;
       rdata_q <= 32'h0;
+      err_q   <= 1'b0;
     end else begin
       unique case (state_q)
         S_IDLE: begin
+          err_q <= 1'b0;
           if (awvalid_i) begin
             state_q <= S_WAIT_W;
             addr_q  <= awaddr_i;
@@ -98,7 +102,13 @@ module pa_axi_lite_bridge (
         end
         S_XFER: begin
           if (gnt_i) begin
-            state_q <= we_q ? S_BRESP : S_RWAIT;
+            state_q <= we_q ? S_WWAIT : S_RWAIT;
+          end
+        end
+        S_WWAIT: begin
+          if (rvalid_i) begin
+            err_q   <= err_i;
+            state_q <= S_BRESP;
           end
         end
         S_BRESP: begin
@@ -109,6 +119,7 @@ module pa_axi_lite_bridge (
         S_RWAIT: begin
           if (rvalid_i) begin
             rdata_q <= rdata_i;
+            err_q   <= err_i;
             state_q <= S_RRESP;
           end
         end
@@ -126,7 +137,7 @@ module pa_axi_lite_bridge (
   assign arready_o = (state_q == S_IDLE);
   assign wready_o  = (state_q == S_WAIT_W);
   assign bvalid_o  = (state_q == S_BRESP);
-  assign bresp_o   = 2'b00;
+  assign bresp_o   = err_q ? 2'b10 : 2'b00;
   assign rvalid_o  = (state_q == S_RRESP);
 
   assign req_o   = (state_q == S_XFER);
@@ -136,7 +147,6 @@ module pa_axi_lite_bridge (
   assign wdata_o = wdata_q;
   assign rdata_o = rdata_q;
 
-  // A decode error on the read maps to AXI SLVERR
-  assign rresp_o = err_i ? 2'b11 : 2'b00;
+  assign rresp_o = err_q ? 2'b10 : 2'b00;
 
 endmodule

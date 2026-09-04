@@ -1,0 +1,8 @@
+// M1-specific Verilator waivers. Keep these narrow and limited to immutable
+// upstream code; PocketAI RTL is linted with every warning fatal.
+`verilator_config
+
+// The FPGA register file retains this upstream configuration parameter for
+// interface parity, but this implementation has no dummy-instruction logic.
+lint_off -rule UNUSEDPARAM -file "*/rtl/ibex_register_file_fpga.sv"
+         -match "*Parameter is not used: 'DummyInstructions'*"

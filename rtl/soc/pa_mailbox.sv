@@ -10,17 +10,16 @@
 //   +0x4  mbox1_to_0  (W) 1 -> 0, (R) last value written to this register
 //       write sets pend1
 //   +0x8  status      (R) bit0 = pend0, bit1 = pend1.  Writes are ignored.
+//   +0xc  acknowledge (W1C) bit0 clears pend0, bit1 clears pend1.
 //
 // Interrupt lines are level signals:
 //   irq0_o = pend1  (core0 is interested in mbox1_to_0)
 //   irq1_o = pend0  (core1 is interested in mbox0_to_1)
 //
 // The pending bits are LEVELS: they latch when the peer writes a mailbox and
-// are never cleared (the irq lines and the status register are plain level
-// observations).  This is deliberate: +0x8 is a *shared* register, so a
-// read-clear would let one hart's poll wipe the other hart's pending bit
-// before it observed it, breaking the fixed polling contract of the
-// cluster firmware (both harts wait on the same status register).
+// remain asserted until software explicitly acknowledges that direction.
+// A shared read-clear register is intentionally avoided because one hart
+// could otherwise clear the other hart's pending message.
 
 module pa_mailbox (
   input  logic        clk_i,
@@ -43,6 +42,8 @@ module pa_mailbox (
 
   logic [31:0] data0_q, data1_q;
   logic        pend0_q, pend1_q;
+  logic        unused_addr_parts;
+  assign unused_addr_parts = ^{addr_i[31:4], addr_i[1:0]};
 
   // Merge a byte-enable write into the previous register value
   function automatic logic [31:0] merge_bytes(
@@ -85,9 +86,14 @@ module pa_mailbox (
           2'b10: begin // status @ +0x8: level read (no clear; see header)
             rdata_o  <= {30'd0, pend1_q, pend0_q};
           end
-          default: begin
+          2'b11: begin // acknowledge @ +0xc: write-one-to-clear pending bits
             rdata_o <= 32'h0;
+            if (we_i && be_i[0]) begin
+              if (wdata_i[0]) pend0_q <= 1'b0;
+              if (wdata_i[1]) pend1_q <= 1'b0;
+            end
           end
+          default: rdata_o <= 32'h0;
         endcase
       end
     end

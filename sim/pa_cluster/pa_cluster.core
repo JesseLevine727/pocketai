@@ -1,27 +1,16 @@
 CAPI=2:
 # PocketAI-T M1b: two-hart Ibex cluster (Verilator, FUSESoC).
 #
-# Same proven dependency pattern as pa_smoke.core: lowRISC ibex_top (small
-# config via pa_ibex_wrapper) + sim_shared (bus/ram_1p/simulator_ctrl), plus
-# our own cluster RTL (rtl/soc/) and the Verilator testbench in this
-# directory.
+# The synthesizable/project RTL is a separate core under rtl/soc. Keeping this
+# manifest simulation-only prevents out-of-tree source references and lets the
+# run script use narrow core roots that cannot discover rtl/ibex accidentally.
 name: "pocketai:pa:pa_cluster:0.1"
 description: "PocketAI-T M1b two-hart Ibex cluster"
 
 filesets:
-  files_rtl:
-    depend:
-      - lowrisc:ibex:ibex_top
-      - lowrisc:ibex:sim_shared
-    files:
-      - ../../rtl/soc/pa_cluster_top.sv
-      - ../../rtl/soc/pa_ibex_wrapper.sv
-      - ../../rtl/soc/pa_mailbox.sv
-      - ../../rtl/soc/pa_axi_lite_bridge.sv
-    file_type: systemVerilogSource
-
   files_verilator:
     depend:
+      - pocketai:pa:pa_cluster_rtl
       - lowrisc:dv_verilator:memutil_verilator
       - lowrisc:dv_verilator:simutil_verilator
     files:
@@ -31,7 +20,6 @@ targets:
   sim:
     default_tool: verilator
     filesets:
-      - files_rtl
       - tool_verilator ? (files_verilator)
     toplevel: pa_cluster_top
     tools:

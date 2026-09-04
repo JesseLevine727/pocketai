@@ -1,8 +1,10 @@
 // PocketAI-T M1a -- ibex_core wrapper
 //
-// Wraps lowRISC ibex_top configured with the "small" configuration from
-// ibex_configs.yaml (RV32IMC, 2-stage pipeline, no I-cache, no branch
-// predictor, no PMP, no Secure/CHERI). It exposes only the plain instruction
+// Wraps lowRISC ibex_top in an FPGA-oriented RV32IMC configuration (iterative
+// M extension, staged LSU request, writeback stage, two-cycle branch handling,
+// no I-cache, no
+// branch predictor, no PMP, no
+// Secure/CHERI). It exposes only the plain instruction
 // and data memory ports (ibex "immediate grant, 1-cycle latency" protocol),
 // the interrupt lines and reset, and hides all the optional/RVFI/trvk/
 // lockstep/scramble/debug plumbing that is unused here.
@@ -26,6 +28,7 @@ module pa_ibex_wrapper
   input  logic        instr_rvalid_i,
   output logic [31:0] instr_addr_o,
   input  logic [31:0] instr_rdata_i,
+  input  logic        instr_err_i,
 
   // Data port (slave: drives addr/we/be/wdata, waits for rvalid)
   output logic        data_req_o,
@@ -36,6 +39,7 @@ module pa_ibex_wrapper
   output logic [31:0] data_addr_o,
   output logic [31:0] data_wdata_o,
   input  logic [31:0] data_rdata_i,
+  input  logic        data_err_i,
 
   // Interrupts (only external is wired up by the SoC)
   input  logic        irq_external_i,
@@ -47,7 +51,7 @@ module pa_ibex_wrapper
   output logic        alert_major_bus_o
 );
 
-  // ---- "small" configuration (ibex_configs.yaml) ---------------------------
+  // ---- FPGA-oriented configuration -----------------------------------------
   // RVFI is only enabled when RISCV_FORMAL is defined, so the rvfi_* ports do
   // not exist in this build. CHERI/Secure are off, so the cheriot/trvk paths
   // are tied to constant-off values.
@@ -59,12 +63,18 @@ module pa_ibex_wrapper
     .MHPMCounterNum    (0),
     .MHPMCounterWidth  (40),
     .RV32E             (1'b0),
-    .RV32M             (ibex_pkg::RV32MFast),
+    // The iterative unit avoids both DSP48 inference and the long soft
+    // multiplier path of RV32MFast at the board's fixed 100 MHz PL clock.
+    .RV32M             (ibex_pkg::RV32MSlow),
     .RV32B             (ibex_pkg::RV32BNone),
     .RV32ZC            (ibex_pkg::RV32Zca),
-    .RegFile           (ibex_pkg::RegFileFF),
+    // The FPGA register file maps the two asynchronous read ports into
+    // RAM32M primitives instead of a pair of deep 32:1 flip-flop mux trees.
+    .RegFile           (ibex_pkg::RegFileFPGA),
+    // Branch decisions and targets use the second execute cycle; this removes
+    // the decode/compare/redirect path from the board clock period.
     .BranchTargetALU   (1'b0),
-    .WritebackStage    (1'b0),
+    .WritebackStage    (1'b1),
     .ICache            (1'b0),
     .ICacheECC         (1'b0),
     .ICacheScramble    (1'b0),
@@ -94,7 +104,7 @@ module pa_ibex_wrapper
     .instr_addr_o              (instr_addr_o),
     .instr_rdata_i             (instr_rdata_i),
     .instr_rdata_intg_i        (7'b0),
-    .instr_err_i               (1'b0),
+    .instr_err_i               (instr_err_i),
 
     .data_req_o                (data_req_o),
     .data_gnt_i                (data_gnt_i),
@@ -108,7 +118,7 @@ module pa_ibex_wrapper
     .data_rdata_i              (data_rdata_i),
     .data_rdata_intg_i         (7'b0),
     .data_tag_i                (1'b0),
-    .data_err_i                (1'b0),
+    .data_err_i                (data_err_i),
 
     .trvk_revbm_req_o          (),
     .trvk_revbm_gnt_i          (1'b0),
@@ -130,7 +140,7 @@ module pa_ibex_wrapper
     .scramble_req_o            (),
 
     .debug_req_i               (1'b0),
-    .crash_dump_o              (crash_dump),
+    .crash_dump_o              (),
     .double_fault_seen_o       (),
 
     .fetch_enable_i            (ibex_pkg::IbexMuBiOn),

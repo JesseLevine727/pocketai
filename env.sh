@@ -20,6 +20,14 @@ export PATH="$HOME/.local/bin:$PATH"
 export RISCV="$HOME/tools/riscv"
 export PATH="$RISCV/bin:$PATH"
 
+# --- SRecord ---
+# The locally unpacked binary needs its matching shared library at runtime.
+export POCKETAI_SRECORD_ROOT="$HOME/tools/srecord"
+if [ -x "$POCKETAI_SRECORD_ROOT/bin/srec_cat" ]; then
+  export PATH="$POCKETAI_SRECORD_ROOT/bin:$PATH"
+  export LD_LIBRARY_PATH="$POCKETAI_SRECORD_ROOT/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+fi
+
 # --- Vivado (add path if Vivado is installed) ---
 # export VIVADO="/path/to/vivado/2024.1"
 # export PATH="$VIVADO/bin:$PATH"

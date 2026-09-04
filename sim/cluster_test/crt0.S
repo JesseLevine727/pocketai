@@ -9,8 +9,15 @@
   .section .vectors, "ax"
   .option norvc;
 
+  /* Ibex implements mtvec in vectored mode with a 256-byte-aligned base.
+   * Entry N is therefore base + 4*N for interrupt cause N, while synchronous
+   * exceptions enter at base. Machine external interrupt is cause 11. */
   .org 0x00
-  .rept 32
+  .rept 11
+  jal x0, default_exc_handler
+  .endr
+  jal x0, machine_trap_handler
+  .rept 20
   jal x0, default_exc_handler
   .endr
 
@@ -54,22 +61,23 @@ reset_handler:
   mv x30, x1
   mv x31, x1
 
-  /* Per-hart stack pointer: sp = _stack_start - (mhartid + 1) * 0x800.
+  /* Per-hart stack pointer: sp = _stack_top - (mhartid + 1) * 0x800.
    * Both harts share one RAM image and (read-only) vectors, so the stacks
-   * must not overlap. */
+   * must not overlap. Hart 0 starts at 0xf800; hart 1 starts at 0xf000. */
   csrr x5, 0xf14            /* mhartid */
-  add  x5, x5, x1           /* mhartid + 1 */
-  add  x5, x5, x5           /* 2 * (mhartid + 1) */
-  sll  x5, x5, 9            /* (mhartid + 1) * 0x800 */
-  la   x2, _stack_start
+  addi x5, x5, 1
+  slli x5, x5, 11           /* (mhartid + 1) * 0x800 */
+  la   x2, _stack_top
   sub  x2, x2, x5
 
-  /* Point trap vector at the (safe) default handler */
-  la  x3, default_exc_handler
+  /* GCC's machine-interrupt handler saves/restores the registers it uses and
+   * returns with mret. Ibex forces vectored mode, so install the aligned table
+   * base rather than the C handler address. */
+  la  x3, _vectors_start
+  ori x3, x3, 1
   csrw mtvec, x3
 
-  /* Keep external interrupts disabled: the test polls the mailbox status
-   * register instead of taking the (wired) IRQ lines. */
+  /* Keep interrupts disabled until both harts have completed bootstrap. */
   csrw mie, x0
 
   /* Clear BSS */

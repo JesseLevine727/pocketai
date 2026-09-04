@@ -17,16 +17,28 @@ SIM="$SIMDIR/Vpa_smoke_top"
 
 mkdir -p "$OUT"
 
+# Refuse to build against an accidental or stale Ibex checkout.
+bash scripts/check_deps.sh sim
+
 # 1. Build the boot program (ELF, LMA 0x0).
 riscv32-unknown-elf-gcc -march=rv32imc_zicsr -mabi=ilp32 -nostdlib -ffreestanding \
   -T "$BT/link.ld" "$BT/crt0.S" "$BT/main.c" -o "$OUT/boot.elf"
 echo "[run_smoke] boot.elf built: $OUT/boot.elf"
 
-# 2. Build the Verilator sim through FuseSoC (cached on disk once built).
-if [ ! -x "$SIM" ]; then
-  echo "[run_smoke] building Verilator sim via FuseSoC ..."
-  fusesoc --cores-root=. --cores-root=rtl/ibex-orig \
-    run --target=sim --build pocketai:pa:pa_smoke
+# 2. Build/update the Verilator sim through FuseSoC.  Do not guard this with
+# an executable-exists check: that can silently run stale RTL after edits.
+clean_args=()
+if [[ "${PA_CLEAN:-0}" == "1" ]]; then
+  clean_args+=(--clean)
+fi
+echo "[run_smoke] building Verilator sim via FuseSoC ..."
+fusesoc --cores-root=sim/pa_smoke --cores-root=rtl/soc \
+  --cores-root=rtl/ibex-orig \
+  run --target=sim "${clean_args[@]}" --build pocketai:pa:pa_smoke
+
+if [[ ! -x "$SIM" ]]; then
+  echo "[run_smoke] FAIL: simulator was not produced: $SIM" >&2
+  exit 1
 fi
 
 # 3. Run the sim, loading the ELF into RAM (registered as "ram" @0x0).

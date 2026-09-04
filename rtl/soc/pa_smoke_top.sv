@@ -201,6 +201,11 @@ module pa_smoke_top (
     );
 
   // --- RAM (32 KB). Note: plain Verilator-friendly array here; synth would use BRAM.
+  // Instruction fetches are read-only; tie off the unused write controls.
+  assign host_we[CoreI]    = 1'b0;
+  assign host_be[CoreI]    = 4'b0000;
+  assign host_wdata[CoreI] = 32'h00000000;
+
   ram_1p #(
       .Depth(RamWords)
     ) u_ram (

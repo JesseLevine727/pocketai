@@ -1,0 +1,30 @@
+CAPI=2:
+# PocketAI-T M1a: single-core Ibex boot smoke (Verilator, FuseSoC).
+#
+# Keep this manifest in its own core root. The RTL is a separate dependency in
+# rtl/soc so neither core reaches outside the directory that contains it.
+name: "pocketai:pa:pa_smoke:0.1"
+description: "PocketAI-T M1a single-core Ibex boot smoke"
+
+filesets:
+  files_verilator:
+    depend:
+      - pocketai:pa:pa_smoke_rtl
+      - lowrisc:dv_verilator:memutil_verilator
+      - lowrisc:dv_verilator:simutil_verilator
+    files:
+      - pa_smoke.cc: { file_type: cppSource }
+
+targets:
+  sim:
+    default_tool: verilator
+    filesets:
+      - tool_verilator ? (files_verilator)
+    toplevel: pa_smoke_top
+    tools:
+      verilator:
+        mode: cc
+        verilator_options:
+          - '-CFLAGS "-std=c++17 -DTOPLEVEL_NAME=pa_smoke_top"'
+          - '-LDFLAGS "-pthread -lutil -lelf"'
+          - '-Wno-fatal'

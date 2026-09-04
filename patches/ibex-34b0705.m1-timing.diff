@@ -1,0 +1,420 @@
+diff --git a/dv/riscv_compliance/ibex_riscv_compliance.core b/dv/riscv_compliance/ibex_riscv_compliance.core
+index c2a35d3..7d37c29 100644
+--- a/dv/riscv_compliance/ibex_riscv_compliance.core
++++ b/dv/riscv_compliance/ibex_riscv_compliance.core
+@@ -23,7 +23,7 @@ filesets:
+       - lint/verilator_waiver.vlt: {file_type: vlt}
+ 
+ parameters:
+-  BaseIsa:
++  BaseIsaCfg:
+     datatype: str
+     default: ibex_pkg::BaseIsaRV32I
+     paramtype: vlogdefine
+@@ -35,25 +35,25 @@ parameters:
+     default: 0
+     description: "Enable the E ISA extension (reduced register set) [0/1]"
+ 
+-  RV32M:
++  RV32MCfg:
+     datatype: str
+     default: ibex_pkg::RV32MFast
+     paramtype: vlogdefine
+     description: "RV32M implementation parameter enum. See the ibex_pkg::rv32m_e enum in ibex_pkg.sv for permitted values."
+ 
+-  RV32B:
++  RV32BCfg:
+     datatype: str
+     default: ibex_pkg::RV32BNone
+     paramtype: vlogdefine
+     description: "Bitmanip implementation parameter enum. See the ibex_pkg::rv32b_e enum in ibex_pkg.sv for permitted values."
+ 
+-  RV32ZC:
++  RV32ZCCfg:
+     datatype: str
+     default: ibex_pkg::RV32Zca
+     paramtype: vlogdefine
+     description: "Compressed instructions parameter enum. See the ibex_pkg::rv32zc_e enum in ibex_pkg.sv for permitted values."
+ 
+-  RegFile:
++  RegFileCfg:
+     datatype: str
+     default: ibex_pkg::RegFileFF
+     paramtype: vlogdefine
+@@ -144,12 +144,12 @@ targets:
+       - files_sim
+       - tool_verilator ? (files_verilator)
+     parameters:
+-      - BaseIsa
++      - BaseIsaCfg
+       - RV32E
+-      - RV32M
+-      - RV32B
+-      - RV32ZC
+-      - RegFile
++      - RV32MCfg
++      - RV32BCfg
++      - RV32ZCCfg
++      - RegFileCfg
+       - ICache
+       - ICacheECC
+       - BranchTargetALU
+diff --git a/dv/riscv_compliance/lint/verilator_waiver.vlt b/dv/riscv_compliance/lint/verilator_waiver.vlt
+index 287b840..27ec554 100644
+--- a/dv/riscv_compliance/lint/verilator_waiver.vlt
++++ b/dv/riscv_compliance/lint/verilator_waiver.vlt
+@@ -30,3 +30,9 @@
+ //
+ lint_off -rule WIDTH -file "*/rtl/ibex_riscv_compliance.sv"
+          -match "*expects 1 bits*Initial value's CONST '32'h1'*"
++
++// The FPGA register file retains this interface-parity parameter but has no
++// dummy-instruction logic. The production M1 lint target carries the same
++// narrow upstream-only waiver.
++lint_off -rule UNUSEDPARAM -file "*/rtl/ibex_register_file_fpga.sv"
++         -match "*Parameter is not used: 'DummyInstructions'*"
+diff --git a/dv/riscv_compliance/rtl/ibex_riscv_compliance.sv b/dv/riscv_compliance/rtl/ibex_riscv_compliance.sv
+index 47a1aaf..b05da54 100644
+--- a/dv/riscv_compliance/rtl/ibex_riscv_compliance.sv
++++ b/dv/riscv_compliance/rtl/ibex_riscv_compliance.sv
+@@ -15,17 +15,17 @@ module ibex_riscv_compliance (
+   input IO_RST_N
+ );
+ 
+-  parameter ibex_pkg::base_isa_e BaseIsa  = ibex_pkg::BaseIsaRV32IorCHERIoT;
++  parameter ibex_pkg::base_isa_e BaseIsa  = `BaseIsaCfg;
+   parameter bit          PMPEnable        = 1'b0;
+   parameter int unsigned PMPGranularity   = 0;
+   parameter int unsigned PMPNumRegions    = 4;
+   parameter int unsigned MHPMCounterNum   = 0;
+   parameter int unsigned MHPMCounterWidth = 40;
+   parameter bit RV32E                     = 1'b0;
+-  parameter ibex_pkg::rv32m_e RV32M       = ibex_pkg::RV32MFast;
+-  parameter ibex_pkg::rv32b_e RV32B       = ibex_pkg::RV32BNone;
+-  parameter ibex_pkg::rv32zc_e RV32ZC     = ibex_pkg::RV32Zca;
+-  parameter ibex_pkg::regfile_e RegFile   = ibex_pkg::RegFileFF;
++  parameter ibex_pkg::rv32m_e RV32M       = `RV32MCfg;
++  parameter ibex_pkg::rv32b_e RV32B       = `RV32BCfg;
++  parameter ibex_pkg::rv32zc_e RV32ZC     = `RV32ZCCfg;
++  parameter ibex_pkg::regfile_e RegFile   = `RegFileCfg;
+   parameter bit BranchTargetALU           = 1'b0;
+   parameter bit WritebackStage            = 1'b0;
+   parameter bit ICache                    = 1'b0;
+diff --git a/rtl/ibex_ex_block.sv b/rtl/ibex_ex_block.sv
+index 462f2fc..86bd725 100644
+--- a/rtl/ibex_ex_block.sv
++++ b/rtl/ibex_ex_block.sv
+@@ -62,6 +62,7 @@ module ibex_ex_block #(
+   logic        alu_cmp_result, alu_is_equal_result;
+   logic        multdiv_valid;
+   logic        multdiv_sel;
++  logic        multdiv_dec_sel;
+   logic [31:0] alu_imd_val_q[2];
+   logic [31:0] alu_imd_val_d[2];
+   logic [ 1:0] alu_imd_val_we;
+@@ -73,10 +74,34 @@ module ibex_ex_block #(
+     At synthesis time, all the combinational and sequential logic
+     from the multdiv_i module are eliminated
+   */
+-  if (RV32M != RV32MNone) begin : gen_multdiv_m
+-    assign multdiv_sel = mult_sel_i | div_sel_i;
++  if (RV32M == RV32MSlow) begin : gen_multdiv_slow_sel
++    logic multdiv_active_q;
++
++    assign multdiv_dec_sel = mult_sel_i | div_sel_i;
++    assign multdiv_sel     = multdiv_active_q;
++
++    // The slow unit captures its decoder and register-file inputs on the
++    // first execution cycle. Register the datapath selection at the same
++    // boundary so the instruction decoder cannot become the select input of
++    // the shared 33-bit ALU mux all the way to the IMD registers.
++    always_ff @(posedge clk_i or negedge rst_ni) begin
++      if (!rst_ni) begin
++        multdiv_active_q <= 1'b0;
++      end else if (!multdiv_active_q) begin
++        multdiv_active_q <= mult_en_i | div_en_i;
++      end else if (multdiv_valid && multdiv_ready_id_i) begin
++        multdiv_active_q <= 1'b0;
++      end
++    end
++
++  end else if (RV32M != RV32MNone) begin : gen_multdiv_direct_sel
++    // Preserve the upstream fast/single-cycle handshake. Only the M1 slow
++    // implementation has an explicit operand-capture boundary to match.
++    assign multdiv_dec_sel = mult_sel_i | div_sel_i;
++    assign multdiv_sel     = multdiv_dec_sel;
+   end else begin : gen_multdiv_no_m
+-    assign multdiv_sel = 1'b0;
++    assign multdiv_dec_sel = 1'b0;
++    assign multdiv_sel     = 1'b0;
+   end
+ 
+   // Intermediate Value Register Mux
+@@ -194,7 +219,10 @@ module ibex_ex_block #(
+   // Multiplier/divider may require multiple cycles. The ALU output is valid in the same cycle
+   // unless the intermediate result register is being written (which indicates this isn't the
+   // final cycle of ALU operation).
+-  assign ex_valid_o = multdiv_sel ? multdiv_valid : ~(|alu_imd_val_we);
++  // Hold the first M-extension cycle while multdiv_sel crosses the new
++  // registered boundary. Later cycles use the iterative unit's valid signal.
++  assign ex_valid_o = multdiv_dec_sel ? (multdiv_sel && multdiv_valid) :
++                                        ~(|alu_imd_val_we);
+ 
+ `ifdef INC_ASSERT
+   // This is intended to be accessed via hierarchical references, so it is neither output from this
+diff --git a/rtl/ibex_id_stage.sv b/rtl/ibex_id_stage.sv
+index 09e035b..08f2786 100644
+--- a/rtl/ibex_id_stage.sv
++++ b/rtl/ibex_id_stage.sv
+@@ -922,9 +922,14 @@ module ibex_id_stage import ibex_cheriot_pkg::*; #(
+               // All branches take two cycles in fixed time execution mode, regardless of branch
+               // condition.
+               // SEC_CM: CORE.DATA_REG_SW.SCA
+-              id_fsm_d         = (data_ind_timing_i || (!BranchTargetALU && branch_decision_i)) ?
++              // On FPGA, always use the existing second branch cycle when the
++              // branch-target ALU is disabled.  Qualifying the stall with the
++              // combinational comparison creates a decode/ALU/control path
++              // that does not close at 100 MHz on Zynq-7020.  The decision is
++              // already captured in branch_set_raw_q for the second cycle.
++              id_fsm_d         = (data_ind_timing_i || !BranchTargetALU) ?
+                                      MULTI_CYCLE : FIRST_CYCLE;
+-              stall_branch     = (~BranchTargetALU & branch_decision_i) | data_ind_timing_i;
++              stall_branch     = ~BranchTargetALU | data_ind_timing_i;
+               branch_set_raw_d = (branch_decision_i | data_ind_timing_i);
+ 
+               if (BranchPredictor) begin
+diff --git a/rtl/ibex_load_store_unit.sv b/rtl/ibex_load_store_unit.sv
+index f57885a..509193f 100644
+--- a/rtl/ibex_load_store_unit.sv
++++ b/rtl/ibex_load_store_unit.sv
+@@ -466,23 +466,21 @@ module ibex_load_store_unit import ibex_pkg::*; import ibex_cheriot_pkg::*; #(
+             ls_fsm_ns   = CTX_WAIT_GNT1;
+           end
+         end else if (cpu_req_valid) begin
+-          // normal data access case
+-          data_req_o    = 1'b1;
++          // PocketAI stages the address/control for one cycle before exposing
++          // the request to the shared bus.  Besides matching the registered
++          // bus boundary, this removes the ALU-address/misalignment decision
++          // from the request-done path back into ID/IF control.
++          data_req_o    = 1'b0;
+           cheriot_err_d = 1'b0;
+-          pmp_err_d     = data_pmp_err_i;
++          pmp_err_d     = 1'b0;
+           lsu_err_d     = 1'b0;
+           perf_load_o   = ~lsu_we_i;
+           perf_store_o  = lsu_we_i;
+           lsu_go        = 1'b1;         // decision to move forward with a request
+-
+-          if (data_gnt_i) begin
+-            ctrl_update         = 1'b1;
+-            addr_update         = 1'b1;
+-            handle_misaligned_d = split_misaligned_access;
+-            ls_fsm_ns           = split_misaligned_access ? WAIT_RVALID_MIS : IDLE;
+-          end else begin
+-            ls_fsm_ns           = split_misaligned_access ? WAIT_GNT_MIS    : WAIT_GNT;
+-          end
++          ctrl_update         = 1'b1;
++          addr_update         = 1'b1;
++          handle_misaligned_d = split_misaligned_access;
++          ls_fsm_ns           = split_misaligned_access ? WAIT_GNT_MIS : WAIT_GNT;
+         end
+       end
+ 
+diff --git a/rtl/ibex_multdiv_slow.sv b/rtl/ibex_multdiv_slow.sv
+index 7f5c332..f4128ef 100644
+--- a/rtl/ibex_multdiv_slow.sv
++++ b/rtl/ibex_multdiv_slow.sv
+@@ -45,7 +45,7 @@ module ibex_multdiv_slow
+   import ibex_pkg::*;
+ 
+   typedef enum logic [2:0] {
+-    MD_IDLE, MD_ABS_A, MD_ABS_B, MD_COMP, MD_LAST, MD_CHANGE_SIGN, MD_FINISH
++    MD_IDLE, MD_CAPTURE, MD_ABS_A, MD_ABS_B, MD_COMP, MD_LAST, MD_CHANGE_SIGN, MD_FINISH
+   } md_fsm_e;
+   md_fsm_e md_state_q, md_state_d;
+ 
+@@ -59,6 +59,9 @@ module ibex_multdiv_slow
+   logic [ 4:0] multdiv_count_q, multdiv_count_d;
+   logic [32:0] op_b_shift_q, op_b_shift_d;
+   logic [32:0] op_a_shift_q, op_a_shift_d;
++  logic [31:0] op_a_q, op_b_q;
++  logic [1:0]  signed_mode_q;
++  md_op_e      operator_q;
+   logic [32:0] op_a_ext, op_b_ext;
+   logic [32:0] one_shift;
+   logic [32:0] op_a_bw_pp, op_a_bw_last_pp;
+@@ -96,7 +99,7 @@ module ibex_multdiv_slow
+   always_comb begin
+     alu_operand_a_o = accum_window_q;
+ 
+-    unique case (operator_i)
++    unique case (operator_q)
+ 
+       MD_OP_MULL: begin
+         alu_operand_b_o = op_a_bw_pp;
+@@ -109,20 +112,20 @@ module ibex_multdiv_slow
+       MD_OP_DIV,
+       MD_OP_REM: begin
+         unique case (md_state_q)
+-          MD_IDLE: begin
++          MD_CAPTURE: begin
+             // 0 - B = 0 iff B == 0
+             alu_operand_a_o = {32'h0  , 1'b1};
+-            alu_operand_b_o = {~op_b_i, 1'b1};
++            alu_operand_b_o = {~op_b_q, 1'b1};
+           end
+           MD_ABS_A: begin
+             // ABS(A) = 0 - A
+             alu_operand_a_o = {32'h0  , 1'b1};
+-            alu_operand_b_o = {~op_a_i, 1'b1};
++            alu_operand_b_o = {~op_a_q, 1'b1};
+           end
+           MD_ABS_B: begin
+             // ABS(B) = 0 - B
+             alu_operand_a_o = {32'h0  , 1'b1};
+-            alu_operand_b_o = {~op_b_i, 1'b1};
++            alu_operand_b_o = {~op_b_q, 1'b1};
+           end
+           MD_CHANGE_SIGN: begin
+             // ABS(Quotient) = 0 - Quotient (or Reminder)
+@@ -149,11 +152,11 @@ module ibex_multdiv_slow
+   assign op_a_bw_last_pp = {  (op_a_shift_q[32] & op_b_shift_q[0]), ~(op_a_shift_q[31:0] & b_0) };
+ 
+   // Sign extend the input operands
+-  assign sign_a   = op_a_i[31] & signed_mode_i[0];
+-  assign sign_b   = op_b_i[31] & signed_mode_i[1];
++  assign sign_a   = op_a_q[31] & signed_mode_q[0];
++  assign sign_b   = op_b_q[31] & signed_mode_q[1];
+ 
+-  assign op_a_ext = {sign_a, op_a_i};
+-  assign op_b_ext = {sign_b, op_b_i};
++  assign op_a_ext = {sign_a, op_a_q};
++  assign op_b_ext = {sign_b, op_b_q};
+ 
+   // Divider calculations
+ 
+@@ -183,11 +186,18 @@ module ibex_multdiv_slow
+     if (mult_sel_i || div_sel_i) begin
+       unique case (md_state_q)
+         MD_IDLE: begin
+-          unique case (operator_i)
++          // Register decoder/RF outputs before they feed the iterative ALU.
++          // This extra setup cycle removes a RAM32M-read plus 32-bit-adder
++          // path from the intermediate-value registers on 7-series FPGAs.
++          md_state_d = MD_CAPTURE;
++        end
++
++        MD_CAPTURE: begin
++          unique case (operator_q)
+             MD_OP_MULL: begin
+               op_a_shift_d   = op_a_ext << 1;
+-              accum_window_d = {       ~(op_a_ext[32]   &     op_b_i[0]),
+-                                         op_a_ext[31:0] & {32{op_b_i[0]}}  };
++              accum_window_d = {       ~(op_a_ext[32]   &     op_b_q[0]),
++                                         op_a_ext[31:0] & {32{op_b_q[0]}}  };
+               op_b_shift_d   = op_b_ext >> 1;
+               // Proceed with multiplication by 0/1 in data-independent time mode
+               // SEC_CM: CORE.DATA_REG_SW.SCA
+@@ -195,8 +205,8 @@ module ibex_multdiv_slow
+             end
+             MD_OP_MULH: begin
+               op_a_shift_d   = op_a_ext;
+-              accum_window_d = { 1'b1, ~(op_a_ext[32]   &     op_b_i[0]),
+-                                         op_a_ext[31:1] & {31{op_b_i[0]}}  };
++              accum_window_d = { 1'b1, ~(op_a_ext[32]   &     op_b_q[0]),
++                                         op_a_ext[31:1] & {31{op_b_q[0]}}  };
+               op_b_shift_d   = op_b_ext >> 1;
+               md_state_d     = MD_COMP;
+             end
+@@ -230,7 +240,7 @@ module ibex_multdiv_slow
+           // quotient
+           op_a_shift_d   = '0;
+           // A abs value
+-          op_numerator_d = sign_a ? alu_adder_i : op_a_i;
++          op_numerator_d = sign_a ? alu_adder_i : op_a_q;
+           md_state_d     = MD_ABS_B;
+         end
+ 
+@@ -238,13 +248,13 @@ module ibex_multdiv_slow
+           // remainder
+           accum_window_d = {32'h0, op_numerator_q[31]};
+           // B abs value
+-          op_b_shift_d   = sign_b ? {1'b0, alu_adder_i} : {1'b0, op_b_i};
++          op_b_shift_d   = sign_b ? {1'b0, alu_adder_i} : {1'b0, op_b_q};
+           md_state_d     = MD_COMP;
+         end
+ 
+         MD_COMP: begin
+           multdiv_count_d = multdiv_count_q - 5'h1;
+-          unique case (operator_i)
++          unique case (operator_q)
+             MD_OP_MULL: begin
+               accum_window_d = res_adder_l;
+               op_a_shift_d   = op_a_shift_q << 1;
+@@ -272,7 +282,7 @@ module ibex_multdiv_slow
+         end
+ 
+         MD_LAST: begin
+-          unique case (operator_i)
++          unique case (operator_q)
+             MD_OP_MULL: begin
+               accum_window_d = res_adder_l;
+ 
+@@ -305,7 +315,7 @@ module ibex_multdiv_slow
+ 
+         MD_CHANGE_SIGN: begin
+           md_state_d = MD_FINISH;
+-          unique case (operator_i)
++          unique case (operator_q)
+             MD_OP_DIV:
+               accum_window_d = div_change_sign ? {1'b0,alu_adder_i} : accum_window_q;
+             MD_OP_REM:
+@@ -339,6 +349,10 @@ module ibex_multdiv_slow
+       multdiv_count_q  <= 5'h0;
+       op_b_shift_q     <= 33'h0;
+       op_a_shift_q     <= 33'h0;
++      op_a_q           <= 32'h0;
++      op_b_q           <= 32'h0;
++      signed_mode_q    <= 2'h0;
++      operator_q       <= MD_OP_MULL;
+       md_state_q       <= MD_IDLE;
+       div_by_zero_q    <= 1'b0;
+     end else if (multdiv_en) begin
+@@ -347,6 +361,12 @@ module ibex_multdiv_slow
+       op_a_shift_q     <= op_a_shift_d;
+       md_state_q       <= md_state_d;
+       div_by_zero_q    <= div_by_zero_d;
++      if (md_state_q == MD_IDLE) begin
++        op_a_q        <= op_a_i;
++        op_b_q        <= op_b_i;
++        signed_mode_q <= signed_mode_i;
++        operator_q    <= operator_i;
++      end
+     end
+   end
+ 
+@@ -356,10 +376,11 @@ module ibex_multdiv_slow
+ 
+   assign valid_o = (md_state_q == MD_FINISH) |
+                    (md_state_q == MD_LAST &
+-                   (operator_i == MD_OP_MULL |
+-                    operator_i == MD_OP_MULH));
++                   (operator_q == MD_OP_MULL |
++                    operator_q == MD_OP_MULH));
+ 
+-  assign multdiv_result_o = div_en_i ? accum_window_q[31:0] : res_adder_l[31:0];
++  assign multdiv_result_o = (operator_q inside {MD_OP_DIV, MD_OP_REM}) ?
++                           accum_window_q[31:0] : res_adder_l[31:0];
+ 
+   ////////////////
+   // Assertions //
+@@ -367,7 +388,7 @@ module ibex_multdiv_slow
+ 
+   // State must be valid.
+   `ASSERT(IbexMultDivStateValid, md_state_q inside {
+-      MD_IDLE, MD_ABS_A, MD_ABS_B, MD_COMP, MD_LAST, MD_CHANGE_SIGN, MD_FINISH
++      MD_IDLE, MD_CAPTURE, MD_ABS_A, MD_ABS_B, MD_COMP, MD_LAST, MD_CHANGE_SIGN, MD_FINISH
+       }, clk_i, !rst_ni)
+ 
+ `ifdef INC_ASSERT

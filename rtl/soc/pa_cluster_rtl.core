@@ -1,0 +1,40 @@
+CAPI=2:
+name: "pocketai:pa:pa_cluster_rtl:0.1"
+description: "PocketAI-T M1b two-hart cluster RTL"
+
+filesets:
+  lint_verilator:
+    files:
+      - lint/pa_m1_verilator_waiver.vlt: { file_type: vlt }
+
+  rtl:
+    depend:
+      - lowrisc:ibex:ibex_top
+      - lowrisc:prim:util_memload
+    files:
+      - pa_cluster_top.sv
+      - pa_ibex_wrapper.sv
+      - pa_shared_bus.sv
+      - pa_scratchpad.sv
+      - pa_console.sv
+      - pa_mailbox.sv
+      - pa_axi_lite_bridge.sv
+    file_type: systemVerilogSource
+
+targets:
+  default:
+    filesets:
+      - rtl
+
+  lint:
+    default_tool: verilator
+    filesets:
+      - lint_verilator
+      - rtl
+    toplevel: pa_cluster_top
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--unroll-count 72"

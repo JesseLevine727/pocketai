@@ -1,0 +1,25 @@
+CAPI=2:
+name: "pocketai:pa:pa_cluster_board:0.1"
+description: "PocketAI-T M1 PYNQ-Z1 cluster source export"
+
+filesets:
+  rtl:
+    depend:
+      # Supplies an explicit virtual-primitive mapping for Vivado/XC7Z020.
+      - lowrisc:prim_xilinx:all
+      - lowrisc:prim_xilinx:prim_xilinx_default_pkg
+      - pocketai:pa:pa_cluster_rtl
+    files:
+      - pa_cluster_board.v
+    file_type: verilogSource
+
+targets:
+  sources:
+    default_tool: vivado
+    filesets:
+      - rtl
+    toplevel: pa_cluster_board
+    tools:
+      vivado:
+        part: xc7z020clg400-1
+        pnr: none

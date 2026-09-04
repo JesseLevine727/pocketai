@@ -1,0 +1,17 @@
+CAPI=2:
+name: "pocketai:pa:pa_smoke_rtl:0.1"
+description: "PocketAI-T M1a single-core smoke RTL"
+
+filesets:
+  rtl:
+    depend:
+      - lowrisc:ibex:ibex_top
+      - lowrisc:ibex:sim_shared
+    files:
+      - pa_smoke_top.sv
+    file_type: systemVerilogSource
+
+targets:
+  default:
+    filesets:
+      - rtl
