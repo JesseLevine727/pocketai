@@ -212,16 +212,19 @@ KV management, full-model throughput, token-rate claim, or remote push in M3.
 The comprehensive acceptance contract is [`docs/M4_PLAN.md`](docs/M4_PLAN.md).
 It adds explicit floating-model quality gates, full-model/cache/tensor checks,
 bounded board memory and repeated fair CPU comparisons to the sketch below.
-The qualified baseline is 95 MHz; positive speedup is measured, not presumed.
+The qualified baseline is 95 MHz; CPU-relative performance is measured, and
+positive speedup is not required or presumed.
 The pinned floating reference and scaled W8A8 candidate pass: held-out perplexity
 ratio 1.01634, top-1 agreement 89.37%, no unintended clipping, and exact cached
 versus recomputed generation. The rejected direct fixed-Q8 diagnostic is retained.
 A compact model pack and range-safe v3 revision pass, including 1024-token
 cache/range checks and native A9 operator tests. The bounded A9 offload runtime
 is implemented: physical CPU/FPGA 3×20 generation, all tensor/logit/KV cases
-and M1/M2/M3/M1 compatibility pass. Full-context board acceptance and repeated physical performance
-remain open. See `docs/M4_VERIFICATION.md`, `docs/M4_RUNTIME.md` and the frozen
-sampling contract in `docs/SPEEDUP.md`.
+and M1/M2/M3/M1 compatibility pass. Repeated resident performance is now exact
+and audited: FPGA takes 433.008 s versus CPU 113.483 s for prefill plus 20 tokens
+(0.04619 vs 0.17624 tokens/s), a 3.816x FPGA slowdown. Full-context board and
+supplemental process-cold acceptance remain open. See `docs/M4_VERIFICATION.md`,
+`docs/M4_RUNTIME.md` and the full results/frozen sampling in `docs/SPEEDUP.md`.
 
 Deliverables:
 - GPT-2 124M loaded on A9 using the quantization and pinned reference established

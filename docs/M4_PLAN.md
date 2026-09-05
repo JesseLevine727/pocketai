@@ -5,8 +5,10 @@ adaptive v3 candidate passes frozen held-out quality, 3x20 generation/cache
 checks and the 1024-token functional/range stress. Compact model packing and
 native A9 operator kernels and the bounded offload runtime are implemented.
 Physical CPU and FPGA both pass all three 20-token generation cases and full
-tensor/logit/KV checks. Full-context board and performance qualification are
-in progress. See
+tensor/logit/KV checks. The complete resident benchmark passes exact checks:
+FPGA full-generation throughput is 0.04619 tokens/s versus 0.17624 on CPU,
+including prefill; no speedup was required. Full-context board and supplemental
+process-cold qualification are in progress. See
 `M4_VERIFICATION.md`. M3 is closed/pushed through `68da8f8`;
 M5/M6 are outside this goal.
 
@@ -43,7 +45,7 @@ decode and CPU-relative performance; a speedup is not assumed or required.
 | G3 | Bounded-memory A9 hybrid runtime, prefill and cached decode | Implemented; full-context physical memory/boundary qualification remains |
 | G4 | Real-checkpoint tensor/layer tests and affected regressions | PASS for tensor/operators, lifecycle, clean local/ISA and exact-overlay physical compatibility; context boundary tracked in G3/G5 |
 | G5 | Exact-overlay physical model correctness and 3×20-token acceptance | Physical A9 CPU and FPGA both pass 3×20 plus all tensor/logit/KV cases; physical 1024-context check still required |
-| G6 | Repeated physical performance, matching CPU baseline, measured improvements | All primitives and 20 fixed paired trials exact; full generation timing running. Supplemental process-start boundary frozen in 61a08b1 for after the active sequence |
+| G6 | Repeated physical performance, matching CPU baseline, measured improvements | Resident benchmark PASS: all 794 raw observations exact/audited; results and slowdowns in SPEEDUP.md. Supplemental process-start boundary frozen in 61a08b1 remains pending until the context sequence finishes |
 | G7 | Evidence audit, closure documentation and scoped local milestone commit | Pending |
 
 ## G1 — model identity and independent references

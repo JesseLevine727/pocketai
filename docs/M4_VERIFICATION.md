@@ -26,9 +26,12 @@ M5/M6 remain unstarted. Full acceptance is in
   DMA timeout/recovery, busy routes, clean local/ISA and physical M1/M2/M3/M1
   regressions pass. G4's progressive tensor/regression checks pass; physical
   1024-position qualification still keeps G3/G5 open.
-- G6: sampling policy frozen in `546d6f0` before timing; paired benchmark
-  harness is implemented and host-tested. Primitive timing comparisons pass
-  exact checks; integrated timing is running. No completed headline result yet.
+- G6: sampling policy frozen in `546d6f0` before timing. The complete resident
+  benchmark passes all 794 raw observations and the independent inventory/
+  source/profile audit. FPGA full-generation median is 433.008 s versus
+  113.483 s CPU for prefill plus 20 tokens (0.04619 vs 0.17624 tokens/s).
+  Full statistics, measured bridge improvements and slowdowns are recorded in
+  `SPEEDUP.md`. Supplemental fresh-process observation is still pending.
 - G7 remains open. Partial runtime results do not close M4.
 
 ## Identity, data and reproduction
@@ -462,7 +465,7 @@ synthetic records solely to test rejection; those are never board evidence.
 OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.audit_m4 --allow-incomplete --output build/m4_evidence_preflight_v3.json
 ```
 
-The preflight reports seven checks PASS and three PENDING: physical CPU full
+That earlier v3 preflight reports seven checks PASS and three PENDING: physical CPU full
 context, physical FPGA full context, and completed fair performance. An initial
 audit schema assertion incorrectly expected integer zero instead of the frozen
 empty clipping dictionary; that audit-only assertion was corrected/tested.
@@ -482,11 +485,21 @@ evidence retains its original bundle identities; this host-side strengthening
 does not change the accepted arithmetic, prompts, weights, reference outputs
 or running board job. See `M4_RUNTIME.md` for the later host-only bundle.
 
-The main benchmark has completed all twenty fixed-workload paired trials
-(prefill/first token and cached decode), with exact post-clock results. Full
-20-token chain timing and the physical context checks are still in progress.
-No completed headline performance result is claimed until the raw report is
-terminal, audited and summarized.
+The main benchmark is now terminal: all twenty fixed-workload paired trials,
+all six full 20-token chains and all primitive/bridge comparisons pass exact
+post-clock checks. Its 794-observation inventory, CPU/FPGA arithmetic counts,
+source hashes and non-overlapping wall profiles pass the reproducible analyzer.
+`build/m4_benchmark_board.json` and `build/m4_performance_analysis.json` preserve
+raw and derived evidence. `SPEEDUP.md` reports latency/throughput distributions,
+every full-chain trial, operation/byte counts, memory, initialization components
+and controlled batching improvements. FPGA is 3.816x slower for complete
+generation; the unchanged acceptance contract requires honest measurement,
+not an assumed speedup. Physical context checks remain in progress.
+
+The updated `build/m4_evidence_preflight_v7.json` reports **eight PASS and
+three PENDING**, with no failures. Remaining machine checks are physical CPU
+full context, physical FPGA full context and the supplemental fresh-process
+observation. G7 documentation/closure review remains separate.
 
 A final timing-boundary review distinguished initialization components measured
 inside Python from a complete fresh-interpreter first-token observation.
@@ -546,6 +559,10 @@ benchmark; its sampling, data, timings and policy are unchanged.
 | `build/m4_deployment_host_tests.log` | `7402ec1fb581e67b2730a59fb1f8d51e2c1005b5bc5e8df8c5dbf8ba65bebf02` |
 | `tests/m4/cold_start_policy.json` | `d8a013a8e317039c4a928f724ad0033ca677cf658e5422438886be12f6080b7d` |
 | `build/m4_cold_isolated_host_tests.log` | `9761cf3f097b8d4d39f42a9686997b9936a461883f47a1990bcb692c68169926` |
+| `build/m4_benchmark_board.json` | `b839f78c9ac2010c04d97c254e52656d83faca4196311ca9231914a0db271dd0` |
+| `build/m4_performance_analysis.json` | `d77d21ead5de368aec60a1086fbec0fc675ec4579537fcf7101f66e5561a1741` |
+| `build/m4_evidence_preflight_v7.json` | `9d3ccd8380969d05b32fdab8cdb4ef10d401e354707f0b21f8f4954b56df9f0e` |
 
-All M4 model/board/quality/performance closure gates remain mandatory. No M4
-PASS, full-model speedup or tokens/s is claimed here.
+All M4 closure gates remain mandatory. Full-model throughput above is measured;
+it is a slowdown, not a speedup. Pending physical context/startup evidence and
+G7 review still prevent M4 closure.
