@@ -185,7 +185,12 @@ set_property STEPS.SYNTH_DESIGN.ARGS.MAX_DSP 0 [get_runs synth_1]
 set_property STEPS.SYNTH_DESIGN.ARGS.FLATTEN_HIERARCHY full [get_runs synth_1]
 set_property -name {STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS} \
     -value {-fanout_limit 16} -objects [get_runs synth_1]
-set_property strategy Performance_NetDelay_high [get_runs impl_1]
+set implementation_strategy Performance_NetDelay_high
+if {[info exists ::env(M3_IMPLEMENTATION_STRATEGY)]} {
+    set implementation_strategy $::env(M3_IMPLEMENTATION_STRATEGY)
+}
+puts "M3 IMPLEMENTATION CONFIG strategy=$implementation_strategy"
+set_property strategy $implementation_strategy [get_runs impl_1]
 set_property STEPS.ROUTE_DESIGN.ARGS.DIRECTIVE Explore [get_runs impl_1]
 set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED true [get_runs impl_1]
 set_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.ARGS.DIRECTIVE Explore [get_runs impl_1]

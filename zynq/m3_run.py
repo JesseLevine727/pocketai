@@ -26,6 +26,13 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def read_optional(path):
+    try:
+        return Path(path).read_text()
+    except OSError as error:
+        return f"unavailable: {error}"
+
+
 def statistics(seconds):
     values = np.asarray(seconds, dtype=float)
     return {"median_ms": float(np.median(values) * 1000),
@@ -158,8 +165,10 @@ def main():
     for filename, expected in manifest["sha256"].items():
         if digest(args.manifest.parent / filename) != expected:
             raise RuntimeError(f"staging hash mismatch: {filename}")
-    if manifest["sha256"].get(args.bitstream.name) != digest(args.bitstream):
-        raise RuntimeError("requested bitstream is not in the manifest")
+    for artifact in (args.bitstream, args.bitstream.with_suffix(".hwh"),
+                     args.sfpu_vectors, args.gemm_vectors, args.chain_vectors):
+        if manifest["sha256"].get(artifact.name) != digest(artifact):
+            raise RuntimeError(f"requested artifact is not in the manifest: {artifact}")
     sfpu_packets, sfpu_seed = read_packets(args.sfpu_vectors)
     gemm_packets, gemm_seed = read_packets(args.gemm_vectors)
     chain_packets, chain_seed = read_packets(args.chain_vectors)
@@ -179,6 +188,9 @@ def main():
               "python": platform.python_version(), "numpy": np.__version__,
               "pynq": pynq.__version__, "platform": platform.platform(),
               "fabric_hz": FABRIC_HZ, "fclk0_config_mhz": Clocks.fclk0_mhz,
+              "cpuinfo": read_optional("/proc/cpuinfo"),
+              "cpu_governor": read_optional("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"),
+              "clock_summary": read_optional("/sys/kernel/debug/clk/clk_summary"),
               "warmups": args.warmups, "repeats": args.repeats,
               "seeds": {"sfpu": sfpu_seed, "gemm": gemm_seed, "chains": chain_seed},
               "notes": ["A9 single-owner, harts held reset during timed measurements",
@@ -194,6 +206,7 @@ def main():
     try:
         driver.control_checks()
         totals = [e.read(0x34) for e in driver.engines]
+        initial_totals = totals.copy()
         for name, packets in (("wide_mixed_gemm", gemm_packets), ("sfpu", sfpu_packets)):
             counts = Counter()
             for index, packet in enumerate(packets):
@@ -301,6 +314,15 @@ def main():
             print(f"M3 CHAIN {name} PASS steps={entry['steps']} "
                   f"median_ms={entry['median_ms']:.6f} p95_ms={entry['p95_ms']:.6f}", flush=True)
         driver.select(0)
+        runs = args.warmups + args.repeats
+        expected_totals = [initial_totals[0] + len(gemm_packets) +
+                           runs * sum(p.kind == 0 for p in chain_packets),
+                           initial_totals[1] + len(sfpu_packets) +
+                           runs * (len(choices) + sum(p.kind == 1 for p in chain_packets))]
+        completed = [e.read(0x34) for e in driver.engines]
+        if completed != expected_totals:
+            raise AssertionError(f"physical completion totals {completed} != {expected_totals}")
+        report["completed_descriptors"] = {"gemm": completed[0], "sfpu": completed[1]}
         report["status"] = "PASS"
     finally:
         driver.close()

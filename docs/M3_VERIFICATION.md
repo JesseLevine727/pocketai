@@ -208,6 +208,34 @@ reports identify wide SFPU arithmetic and a high-fanout GEMM control net. No
 clock, jitter, uncertainty or numerical gate was relaxed. Pipeline/physical
 optimization work and two final clean builds remain required.
 
+The pipelined explore4 reached **+0.199 ns** and was rejected. Independent clean
+`build/m3_qual1` and `build/m3_qual2` builds from the signed17-ADD candidate both
+reached **+0.238 ns**, with positive hold and no final clock/endpoint/DRC-error
+issue, but were also **rejected**: the gate is +0.250 ns. Neither exported an
+accepted root-level bitstream. Their identical limiting path runs from hart 0's
+instruction-ALU register through decode/adder logic to `imd_val_q[0][29]`.
+The local RTL source at `61bc496` remains unchanged and G3 stays passed.
+
+Additional isolated post-route optimization experiments in `build/m3_postopt1`
+(AlternateReplication/Explore/AggressiveExplore) and `build/m3_postopt2`
+(pin/routing/placement/restructuring/clock optimization) retained +0.238 ns;
+they are not accepted evidence. A targeted **pre-route** adder-control
+replication experiment in `build/m3_fanout1`, using
+`zynq/replicate_m3_control.tcl`, finished at +0.074 ns and was discarded.
+Fresh candidates `build/m3_qual3` (Performance_ExploreWithRemap) and
+`build/m3_qual4` (Performance_ExtraTimingOpt) now test alternative physical
+implementation strategies with exactly the same RTL/clock/acceptance limits.
+The chosen strategy is explicit through `M3_IMPLEMENTATION_STRATEGY` and printed
+in the build log. Any adopted flow must be reproduced independently
+and pass every final timing/DRC/clock gate before board programming. This is
+physical implementation work, not a numerical or RTL contract change. The
+commands follow [Vivado 2025.1 physical-optimization interfaces](https://docs.amd.com/r/2025.1-English/ug904-vivado-implementation/phys_opt_design).
+
+The complete current local-gate log `build/m3_local_qualified.log` has SHA-256
+`387cec7b5ec6fdf76399d43244d1e007921925d6ccda8916a9251824ebeabaf1`.
+The current `pa_sfpu_compute.sv` and both clean-build source copies have SHA-256
+`12ec9ce52018733ba86ecbb4772381e00eb7737be9f4d1284d7ac7b3449aa0a4`.
+
 Physical harnesses `zynq/m3_run.py` and `zynq/run_m3_board.sh` are implemented
 but **not yet run on M3 hardware**. They require a full-build PASS and a checked
 source/vector/bit/HWH manifest, then run M1/M2, all M3 packet sets, seven operator

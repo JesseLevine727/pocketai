@@ -31,7 +31,7 @@ for physical-board acceptance.
 | G1 | Fair physical M2 baseline, CPU comparison, measured host/dataflow improvement | PASS — [evidence](M3_PERFORMANCE.md) |
 | G2 | Pinned GPT-2 semantics, validated/frozen numerics and interface contract | PASS — v1 frozen; [evidence](M3_VERIFICATION.md) |
 | G3 | GEMM extensions and portable SFPU pass local numerical/protocol/integration tests | PASS — full suite on the pipelined timing candidate; recheck if RTL changes |
-| G4 | Two clean full-overlay implementations pass timing/resource/DRC checks | Pending |
+| G4 | Two clean full-overlay implementations pass timing/resource/DRC checks | In progress — both initial clean candidates rejected at +0.238 ns; gate stays +0.250 ns |
 | G5 | Exact accepted overlay passes physical M1/M2/M3 tests and performance measurement | Pending |
 | G6 | Evidence audit, coherent closure documentation, scoped local commit | Pending |
 
