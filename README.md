@@ -7,7 +7,9 @@ port; the PPA report (fabric vs. silicon) is the ship-gate.
 
 M1 and M2 are closed at 95 MHz on physical PYNQ-Z1 hardware. M2 adds a
 double-buffered signed-int8 GEMM accelerator and DDR/DMA streaming, with exact
-NumPy-checked results. M3 (SFPU) has not started. See `PLAN.md`,
+NumPy-checked results. M3 is in progress: first a fair M2 performance baseline
+and frozen GPT-2 numerical interfaces, then SFPU implementation and independent
+qualification. See [the staged M3 goal](docs/M3_PLAN.md), `PLAN.md`,
 `docs/M1_VERIFICATION.md`, and `docs/M2_VERIFICATION.md` for acceptance evidence.
 
 ## Dependencies (not tracked in this repo)
@@ -97,7 +99,21 @@ See `docs/NUMERICS.md` and `docs/M2_ARCHITECTURE.md` for the contract and
 performance boundaries, and reviewed warnings. The +0.500 ns margin and
 100 MHz remain stretch targets; M3 requires independent timing qualification.
 
+## M3 progress
+
+The [M3 plan](docs/M3_PLAN.md) is active, with GPT-2-correct LayerNorm, GELU and
+softmax scope. Its first gate, a [fair physical M2 baseline](docs/M3_PERFORMANCE.md),
+has passed. For 16x768x768, the improved host path measures 0.140 GMAC/s including
+packing and shared-result delivery (0.164 with prepacked resident inputs).
+The matching native CPU baseline measures 0.383 GMAC/s: the current offload
+path does not yet beat it. These measurements do not replace the historical
+M2 acceptance evidence or qualify M3 arithmetic. The [v1 numerical contract](docs/NUMERICS.md)
+and [interface design](docs/M3_ARCHITECTURE.md) are now frozen after exhaustive
+GELU and substantial vector-reference checks. RTL implementation and full
+qualification remain open; M4/M5 are unstarted.
+
 ## Repo hygiene
 
-Commit after every little milestone: `bash git_ship.sh "message"`
-(adds all tracked changes, commits, pushes).
+Stage only the intended milestone files, inspect the staged diff, and commit.
+Remote pushes require an explicit request. `git_ship.sh` stages all files and
+pushes; do not use it when unrelated work is present (including `NA/`).

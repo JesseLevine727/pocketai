@@ -13,9 +13,9 @@ power, bandwidth) as a first-class deliverable.
 
 ```
  DDR3 ◄─ A9 ─┬─ AXI Stream (weight tiles) ─► ┌──────────────┐
-              │                               │  GEMM 16×16  │ int8×int8→int16
-              │  AXI slave (control/UART)     │  SFPU: exp/LUT│ (softmax, SiLU,
-              └─────────────────────────────► │  RMSNorm dot  │  RoPE, recip)
+              │                               │  GEMM 16×16  │ int8×int8→wide
+              │  AXI slave (control/UART)     │  SFPU        │ (softmax, GELU,
+              └─────────────────────────────► │  LayerNorm   │  scale/convert)
               │                               │  KV r/w port  │
               │                               └──────┬───────┘
               │        scratchpad ◄──── simple bus ─┤
@@ -29,8 +29,10 @@ power, bandwidth) as a first-class deliverable.
 Design rules (non-negotiable):
 
 - No Zynq DSP48 in datapath RTL → soft multipliers only (ASIC portability).
-- int8 operands / int16 external results, with widened integer accumulators
-  defined in `docs/NUMERICS.md`. No FP anywhere in fabric logic.
+- int8 GEMM operands / int16 stored activations, with widened integer
+  accumulators and explicit conversion interfaces defined in `docs/NUMERICS.md`.
+  M2's legacy saturated-int16 interface remains supported; M3 must preserve wide
+  results until scaling and bias are applied. No FP anywhere in fabric logic.
 - Cores own control flow; units are descriptor-driven (ptr, M, N, K, flags).
 - Every unit has a Python reference in `ref/` and a tile-level test vector.
 
@@ -48,7 +50,11 @@ pocketai/
 ```
 
 ## Repo
-Remote: `https://github.com/JesseLevine727/pocketai` (branch `main`). Push after **every little milestone**: `bash git_ship.sh "message"`. Untracked (see README): `rtl/ibex-orig/` (pinned `34b070576`), `rtl/ibex/` (CVE2 fork, ignore), `riscv-compliance/` (pinned `844c666` + local patches in `patches/`), `build/`.
+Remote: `https://github.com/JesseLevine727/pocketai` (branch `main`). Make scoped
+local milestone commits; push only when explicitly requested. Do not sweep up
+unrelated work with `git_ship.sh`. Untracked (see README): `rtl/ibex-orig/`
+(pinned `34b070576`), `rtl/ibex/` (CVE2 fork, ignore), `riscv-compliance/`
+(pinned `844c666` + local patches in `patches/`), `build/`, and user-owned `NA/`.
 
 ## Milestones
 Format: Deliverable / Verification (PASS = concrete evidence) / Risks / Agent plan.
@@ -163,28 +169,43 @@ Closed design decisions and limits:
 - +0.500 ns margin and 100 MHz remain stretch targets. M3 must close its own
   implementation timing; M2 closure does not qualify future additions.
 
-### M3 — SFPU: exp/LUT, RMSNorm, RoPE, SiLU  [~1.5 wk — numerics are the grind]
+### M3 — GPT-2 SFPU, numerical interfaces, and measured dataflow
 
-**Status: NOT STARTED.**
+**Status (2026-09-04): IN PROGRESS — not qualified.**
 
-Deliverables:
-- `rtl/sfpu/`: exp via piecewise-linear LUT (int16 in/out, document error bound),
-  reciprocal approx, dot-reduce for RMSNorm, RoPE sin/cos LUT + MAC, SiLU approx, KV gather/scatter port with head/seq offsets.
-- `ref/sfpu_ref.py` golden functions; per-op vector tests.
+The comprehensive staged goal and acceptance checklist are in
+[`docs/M3_PLAN.md`](docs/M3_PLAN.md). Its ordered gates are:
 
-Verification:
-- Verilator per op: max abs error vs numpy over full input range documented in `docs/NUMERICS.md` (target: softmax output error < 2^-8 after renormalization; RMSNorm < 2^-10 rel).
-- Board: per-op offload check — A9 sends activation tile, compares unit output vs torch on DDR3.
+1. Measure the exact qualified M2 overlay fairly: single-row and multi-row
+   workloads, repeated timing without validation in the timed region, explicit
+   residency/transfer boundaries, phase profiling, and a matching CPU baseline.
+   Measure justified host/dataflow improvements before claiming speedup.
+2. Pin GPT-2-small reference semantics; freeze numerical formats, quantitative
+   error budgets, and ABI before arithmetic RTL changes. Resolve int16 storage
+   versus int8 GEMM inputs and K=3072 MLP reduction without early saturation.
+3. Implement stable masked softmax, LayerNorm with learned affine parameters,
+   GPT-2's tanh GELU, and necessary scale/conversion/vector support. GPT-2 uses
+   learned position embeddings: RMSNorm, SiLU, and RoPE are not M3 operations.
+4. Pass bit-exact and high-precision numerical tests, protocol/lifecycle and
+   integrated-chain tests, and all M1/M2 local and ISA regressions.
+5. Pass two independent clean 95 MHz full-design builds (WNS >= +0.250 ns,
+   TNS=0, positive hold, fully routed/constrained, DSP=0, clean DRC, all warnings
+   reviewed), then physical SSH qualification of the exact accepted overlay.
+6. Complete `docs/M3_VERIFICATION.md` with hashes, reproducible commands,
+   operator/integrated measurements and limitations; scoped local commit.
 
-Risks: fixed-point stability in softmax (running max–subtract), reciprocal convergence. Fix the fixed-point formats in NUMERICS.md *before* RTL — this doc is the contract reviewer checks.
-
-Agents: implementer does ops one at a time in parallel-safe order (each op = own file); explorer mines FLOPS/EdgeLLM public code for prior art on exp/recip formats.
++0.500 ns and 100 MHz are stretch only. No M4/M5 implementation, autonomous
+KV management, full-model throughput, token-rate claim, or remote push in M3.
 
 ### M4 — Hybrid GPT-2 124M offload  [~1.5 wk]
 Deliverables:
-- GPT-2 124M int8 (weight-only int8, int16 act) loaded on A9 (llama.cpp or tf-converted).
-- `zynq/m4_offload.py`: A9 intercepts ops → dispatch: linear→GEMM, softmax/RMSNorm/RoPE/SiLU→SFPU, glue stays on A9.
-- Generate 20 tokens from a fixed prompt; verify against llama.cpp CPU reference (greedy decode, temperature 0) — must match token-for-token.
+- GPT-2 124M loaded on A9 using the quantization and pinned reference established
+  in M3. Int8 GEMM inputs imply W8A8 arithmetic even if activations are stored
+  as int16; do not label this weight-only W8A16.
+- `zynq/m4_offload.py`: A9 dispatches linear→GEMM and softmax/LayerNorm/GELU→SFPU;
+  embedding lookup (including learned positions) and other glue stay on A9.
+- Generate 20 tokens from a fixed prompt; verify greedy decoding against a
+  pinned CPU implementation of the same quantized numerical contract.
 
 Verification: PASS = token-by-token match on 3 prompts + per-op speedup table (baseline vs offloaded, saved to `docs/SPEEDUP.md`).
 
