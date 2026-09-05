@@ -99,7 +99,8 @@ def measure_process(command, cwd, env, timeout=600):
     """
     start = time.perf_counter()
     process = subprocess.Popen(command, cwd=cwd, env=env, stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                               start_new_session=True)  # parent sends one graceful abort, not duplicate terminal signals
     result = {'pid': process.pid, 'first_token_seconds': None, 'token': None,
               'child_result': None, 'raw_child_lines': []}
     selector = selectors.DefaultSelector()

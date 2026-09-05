@@ -362,8 +362,8 @@ per-lane AFFINE when it reduces packet count. Exhaustive represented-range
 tests and the frozen full-model checks pass, without changing v3 reference,
 pack or output hashes. Native host qualification passes 196 tensor boundaries
 across prefill/cached blocks, logits/all KV and 60 generated tokens. Current
-M4 unit tests: **40 PASS** (including seven benchmark, three evidence-audit,
-three performance-analysis and three deployment-preflight tests); M3 host tests:
+M4 unit tests: **44 PASS** (including seven benchmark, three evidence-audit,
+three performance-analysis, three deployment-preflight and four startup-probe tests); M3 host tests:
 **24 PASS**. Controlled physical before/after measurements are still required
 before claiming a speedup from this batching.
 
@@ -482,6 +482,24 @@ evidence retains its original bundle identities; this host-side strengthening
 does not change the accepted arithmetic, prompts, weights, reference outputs
 or running board job. See `M4_RUNTIME.md` for the later host-only bundle.
 
+The main benchmark has completed all twenty fixed-workload paired trials
+(prefill/first token and cached decode), with exact post-clock results. Full
+20-token chain timing and the physical context checks are still in progress.
+No completed headline performance result is claimed until the raw report is
+terminal, audited and summarized.
+
+A final timing-boundary review distinguished initialization components measured
+inside Python from a complete fresh-interpreter first-token observation.
+`tests/m4/cold_start_policy.json` was frozen in `61a08b1` before supplemental
+timing: one descriptive process-cold observation per backend, not a cold
+distribution or speedup claim. The standalone `zynq/m4_cold_start.py` includes
+process/module/library startup and waits for a parent delivery acknowledgement
+before any reference checking. It refuses to begin before the main benchmark
+and both physical context runs pass, and uses graceful-only abort for a possible
+DMA-owning child. Four local protocol/timeout/precondition tests pass; physical
+startup observations remain pending. This supplements the original warm
+benchmark; its sampling, data, timings and policy are unchanged.
+
 ## Evidence hashes
 
 | Evidence | SHA-256 |
@@ -526,6 +544,8 @@ or running board job. See `M4_RUNTIME.md` for the later host-only bundle.
 | `build/m4_analysis_host_tests.log` | `8fccac7fb240325f5d2e0e30ca8101945bc5077dcf69cfd8e12b1c8928e76638` |
 | `build/m4_deployment_preflight.json` | `5139aef28f2c0613f8367bfe7d40e68c90f101b1faea162ddccfa1c005f31cf9` |
 | `build/m4_deployment_host_tests.log` | `7402ec1fb581e67b2730a59fb1f8d51e2c1005b5bc5e8df8c5dbf8ba65bebf02` |
+| `tests/m4/cold_start_policy.json` | `d8a013a8e317039c4a928f724ad0033ca677cf658e5422438886be12f6080b7d` |
+| `build/m4_cold_isolated_host_tests.log` | `9761cf3f097b8d4d39f42a9686997b9936a461883f47a1990bcb692c68169926` |
 
 All M4 model/board/quality/performance closure gates remain mandatory. No M4
 PASS, full-model speedup or tokens/s is claimed here.

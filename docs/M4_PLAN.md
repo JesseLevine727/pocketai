@@ -43,7 +43,7 @@ decode and CPU-relative performance; a speedup is not assumed or required.
 | G3 | Bounded-memory A9 hybrid runtime, prefill and cached decode | Implemented; full-context physical memory/boundary qualification remains |
 | G4 | Real-checkpoint tensor/layer tests and affected regressions | PASS for tensor/operators, lifecycle, clean local/ISA and exact-overlay physical compatibility; context boundary tracked in G3/G5 |
 | G5 | Exact-overlay physical model correctness and 3×20-token acceptance | Physical A9 CPU and FPGA both pass 3×20 plus all tensor/logit/KV cases; physical 1024-context check still required |
-| G6 | Repeated physical performance, matching CPU baseline, measured improvements | Sampling frozen in 546d6f0; all primitive comparisons exact; paired integrated timing running |
+| G6 | Repeated physical performance, matching CPU baseline, measured improvements | All primitives and 20 fixed paired trials exact; full generation timing running. Supplemental process-start boundary frozen in 61a08b1 for after the active sequence |
 | G7 | Evidence audit, closure documentation and scoped local milestone commit | Pending |
 
 ## G1 — model identity and independent references

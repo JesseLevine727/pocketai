@@ -89,3 +89,26 @@ This has n=1 per backend: no cold median/p95, variability or speedup claim will
 be inferred. Assets already exist on the board and OS caches are untouched;
 the boundary is **process-cold, not disk-cold, board boot or model download**.
 It supplements, rather than changes, the frozen repeated resident benchmark.
+
+`zynq/m4_cold_start.py` implements that boundary with a fresh child interpreter.
+The parent acknowledges receipt only **after** recording the delivery time;
+the child waits for this acknowledgement before reference checking. Parent
+and child therefore cannot accidentally overlap validation with the startup
+measurement. The probe checks that the existing main benchmark and both
+physical context-result files have completed successfully before launching a
+child, uses bounded observation/graceful abort, and never force-kills a
+potential DMA owner. Its four host protocol/lifecycle tests pass.
+
+After the existing board sequence has terminated, copy the standalone helper
+and frozen policy into a fresh owned probe directory, preserving the active
+bundle and old outputs. Under the normal login-shell/PYNQ environment, run:
+
+```bash
+OPENBLAS_NUM_THREADS=1 sudo -E /usr/local/share/pynq-venv/bin/python3 /path/to/fresh-probe/m4_cold_start.py --stage /home/xilinx/pocketai_m4_bench.lkETvP --policy /path/to/fresh-probe/cold_start_policy.json --output /path/to/fresh-probe/process_cold.json
+```
+
+Use interactive sudo; no password belongs in a command or file. The helper
+and policy are supplemental evidence, not replacements for the frozen runtime.
+The startup endpoint includes a local pipe receipt, while resident timing ends
+at a Python token list. Do not subtract these observations to invent an exact
+startup overhead or mix the n=1 observations into the n=20 resident statistics.
