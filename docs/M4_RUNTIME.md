@@ -1,4 +1,4 @@
-# M4 runtime preparation — not physically qualified
+# M4 runtime — physical qualification in progress
 
 ## Frozen handoff
 
@@ -57,11 +57,12 @@ the frozen model through the M3 GEMM/SFPU interface, preserving common
 per-row affine shifts across tiles, all heads, unsigned probabilities, causal
 prefix scale selection, exact residual alignment, epsilon correction and the
 full-vocabulary output scale. Scalar REQUANT8 scales may require separate
-packets; metadata computation is not free. A practical native A9 integer GEMM
-baseline through native kernels. Host checks match all 196 layer-boundary
+packets; metadata computation is not free. The matching CPU baseline uses
+native A9 integer kernels. Host checks match all 196 layer-boundary
 comparisons across 13-token prefill plus four cached tokens, all logits/KV,
-and all 60 frozen generated tokens. Physical scheduler checks are starting;
-native operator checks below already pass.
+and all 60 frozen generated tokens. The physical CPU runtime now passes all
+four tensor cases and all three 20-token generations. Initial whole-model FPGA
+and driver controls pass; complete FPGA/full-context acceptance is in progress.
 
 The runtime preallocates K/V, stable per-token K8 and K scale metadata, totaling
 **48,365,568 bytes (46.125 MiB)** at capacity 1024. Int16 K/V alone is the
@@ -143,9 +144,11 @@ floating-point fabric or a change to the quantized result.
 Physical full-corpus evidence: `build/m4_cpu_sfpu_arm_m3vectors.json`, SHA-256
 `d66b7511fd697da8b7a4b537a9b16dd130fa334325cfe4eca8ec01e82827396b`.
 GCC flags are as above with `-lm`; this is operator correctness, not a measured
-model speedup. The physical FPGA has still not been reprogrammed for M4.
+model speedup. Subsequent physical model checks use the exact M3 overlay.
 
 Reuse the accepted M3 qual3 overlay and hash-check it. Preserve single-owner
 DMA, route interlocks, completion/errors/timeouts, cache synchronization, buffer
-lifetime and recovery. No M4 overlay programming, board inference, measured
-speedup, tokens/s or peak runtime memory is claimed by this pack export.
+lifetime and recovery. Pack export alone does not prove board inference or
+memory fit. Initial short-context physical measurements and their precise
+scope are now recorded in `M4_VERIFICATION.md`; full-context peak-memory
+qualification and fair repeated performance remain required.

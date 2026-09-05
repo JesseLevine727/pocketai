@@ -1,8 +1,9 @@
 # M4 verification — IN PROGRESS / NOT QUALIFIED
 
 M3 is closed/pushed at `68da8f8`. M4 implementation began 2026-09-05 after goal
-initialization. No RTL, accepted overlay, M1–M3 numerical contract or physical
-board programming has changed. M5/M6 remain unstarted. Full acceptance is in
+initialization. No RTL, accepted overlay or M1–M3 numerical contract has changed.
+The board is now running the exact accepted M3 overlay for M4 runtime tests.
+M5/M6 remain unstarted. Full acceptance is in
 [`M4_PLAN.md`](M4_PLAN.md).
 
 ## Current gates
@@ -16,9 +17,17 @@ board programming has changed. M5/M6 remain unstarted. Full acceptance is in
   direct fixed-Q8 and long-context v2 failures remain preserved below. The
   explicit v3 range correction also passes 1024-token stress without clipping.
   Physical qualification of the versioned compositions is required in G4/G5.
-- G3: compact mmap model-pack export/reload passes; A9 offload runtime not yet
-  implemented; native GEMM and SFPU kernels pass on physical A9. G3–G7 remain
-  open; no M4 FPGA model inference/performance claim.
+- G3: bounded A9 scheduler, native CPU and FPGA packet backends implemented.
+  Host exact model/cache tests and physical CPU 3×20 generation pass. Full-
+  context physical execution/peak-memory qualification remains.
+- G4/G5: initial whole-model FPGA run passes 99 tensor/logit boundaries, all
+  KV hashes and 1,569 actual-operand native operator cross-checks. Physical
+  DMA timeout/recovery and busy-route controls pass. Complete four-case/60-step
+  FPGA acceptance and affected local regressions are running; 1024-position
+  physical qualification is still required.
+- G6: sampling policy frozen in `546d6f0` before timing; paired benchmark
+  harness is implemented and host-tested. No physical performance result yet.
+- G7 remains open. Partial runtime results do not close M4.
 
 ## Identity, data and reproduction
 
@@ -334,7 +343,55 @@ reported RAM 491 MiB, available RAM about 387 MiB, swap 511 MiB (21 MiB used),
 inventory time. These are live availability observations, not reserved memory.
 Do not clear another process's buffers or assume 1 GiB board RAM. The M4
 runtime must fit bounded buffers and avoid swapping during reported timings.
-No board reprogramming or global settings change was made in this work.
+The inventory itself did not reprogram hardware. Subsequent runtime checks
+load the unchanged accepted M3 overlay; no board-global settings were changed.
+
+## Bounded runtime and initial physical model evidence
+
+`zynq/m4_offload.py` is independent of the frozen full-model references. It
+uses the compact int8 pack, native/FPGA packet backends, bounded blocks of at
+most 16 tokens, all 12 layers/heads and all 50,257 output logits. The fixed
+cache allocation including derived K8 and scale metadata is 48,365,568 bytes;
+FPGA TX/RX use 110,592 CMA bytes. See `M4_RUNTIME.md` for numerical and lifecycle
+details. There is no host floating GEMM fallback.
+
+The exact dynamic bridge batches per-column REQUANT8 through equivalent
+per-lane AFFINE when it reduces packet count. Exhaustive represented-range
+tests and the frozen full-model checks pass, without changing v3 reference,
+pack or output hashes. Native host qualification passes 196 tensor boundaries
+across prefill/cached blocks, logits/all KV and 60 generated tokens. Current
+M4 unit tests: **31 PASS** (including seven benchmark tests); M3 host tests:
+**24 PASS**. Controlled physical before/after measurements are still required
+before claiming a speedup from this batching.
+
+Correctness bundle `build/m4_runtime_stage.l3_ox1tq` has manifest SHA-256
+`99897c20ad4c7cfa1a47507a94b34c1f0a72c85091435f7628ef54916e307fe7`;
+remote owned directory `/home/xilinx/pocketai_m4_runtime.LrxYKW`. Every staged
+file is verified before execution. Model pack and M3 bit/HWH remain pinned.
+
+- `build/m4_driver_board_control.json`: both busy-route directions, rejected
+  descriptor, real missing-producer DMA timeout, failed-transfer buffer
+  protection, reset/restart and wide K=3072/N=13 GEMM after recovery pass.
+- `build/m4_runtime_fpga_single.json`: 99 exact tensor/logit boundaries and
+  full KV hash, 1,569 independent native checks on actual FPGA operator
+  operands/results. This is a real complete model forward pass, not a reduced
+  vocabulary or single-layer fixture. Peak RSS 199,056 KiB, process swap zero.
+- `build/m4_runtime_cpu_batched.json`: all four tensor/logit/KV cases and all
+  three 20-token generation sequences pass on the physical native A9 CPU.
+  Peak RSS 156,912 KiB; final PSS 148,871 KiB; one thread, process swap zero.
+- Complete FPGA 3×20 and full-context physical tests remain in progress.
+
+Diagnostic elapsed times include validation and **are not performance**.
+No 1024-context memory claim is inferred from the short-prompt RSS above.
+The old intentionally interrupted scalar-bridge run is preserved and is not
+a completed generation PASS; details are in `M4_RUNTIME.md`.
+
+`tests/m4/performance_policy.json` SHA-256
+`17bcd0a823f551c539525fc54c0f51e759a306f9c346e968de06523b8380d8cf`
+was committed in `546d6f0` before any benchmark timing. The paired native
+CPU/FPGA runner includes required runtime work, excludes validation, and
+reports disjoint wall spans separately from overlapping hardware counters.
+See `SPEEDUP.md` for exact sampling and token-ID delivery boundaries.
 
 ## Evidence hashes
 
@@ -366,6 +423,9 @@ No board reprogramming or global settings change was made in this work.
 | `build/m4_pack_v3/manifest.json` | `d2aafeffd3e4b8a134b8e48796a1b0cf8f296a3bd150b79f07e2de037fae8fd6` |
 | `build/m4_cpu_gemm_arm.json` | `b5b1bec44d945f1db4fc535ccc4e2f58a6e6f8ef8d5fc34afe8c7057885756eb` |
 | `build/m4_cpu_sfpu_arm_m3vectors.json` | `d66b7511fd697da8b7a4b537a9b16dd130fa334325cfe4eca8ec01e82827396b` |
+| `build/m4_driver_board_control.json` | `ef0c9975a73c9eba90654b293b8e5c5e6ff6ec60e0accdf791fa1e8489736794` |
+| `build/m4_runtime_fpga_single.json` | `058ca8d2c3f857266a40cf0dcdf38932d22f475e479f52f427b285a704d406fe` |
+| `build/m4_runtime_cpu_batched.json` | `574b32c04ca7960f02c065043aeb0fcb8c26d27701b0d40de178373158981d62` |
 
 All M4 model/board/quality/performance closure gates remain mandatory. No M4
 PASS, full-model speedup or tokens/s is claimed here.

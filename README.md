@@ -8,8 +8,9 @@ port; the PPA report (fabric vs. silicon) is the ship-gate.
 M1, M2 and M3 are closed at 95 MHz on physical PYNQ-Z1 hardware. M3 adds
 GPT-2-correct integer LayerNorm, masked softmax, GELU and scale/vector support,
 plus wide-result K=3072 GEMM. Two clean builds and exact-overlay board tests
-pass. M4 full-model reference/quantization work is in progress; physical model
-inference is not qualified. M5 autonomous control is not started.
+pass. M4 host model quality and initial full-model FPGA tensor checks pass;
+complete physical generation/context and performance qualification are in
+progress. M5 autonomous control is not started.
 See [M3 closure evidence](docs/M3_VERIFICATION.md), [performance](docs/M3_PERFORMANCE.md),
 `PLAN.md`, `docs/M1_VERIFICATION.md`, and `docs/M2_VERIFICATION.md`.
 
@@ -144,10 +145,13 @@ across 8,192 predictions. All 60 frozen generation steps have exact cached versu
 recomputed logits and KV tensors. A compact 195.8-MiB model pack is verified.
 A range-safe revision also passes the 1024-token stress with no clipping,
 without changing the reported quality or generation results. Native A9 GEMM
-and SFPU kernels pass independent checks; the model offload runtime is next.
+and SFPU kernels pass independent checks. The bounded model runtime is implemented:
+physical A9 CPU passes all 60 generation/logit/KV steps; initial full-model
+FPGA tensors and DMA recovery checks pass. Complete FPGA acceptance is running.
 [Evidence](docs/M4_VERIFICATION.md) preserves the rejected fixed-Q8 candidate and
 separates host quality from remaining physical integration/performance gates.
-No full-model hardware performance is claimed.
+The [same-board performance policy](docs/SPEEDUP.md) is frozen before timing;
+no full-model hardware performance is claimed yet.
 M5/M6 remain unstarted.
 
 ## Repo hygiene

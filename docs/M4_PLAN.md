@@ -3,7 +3,9 @@
 Status: **IN PROGRESS / NOT PHYSICALLY QUALIFIED**, 2026-09-05. The scaled W8A8
 adaptive v3 candidate passes frozen held-out quality, 3x20 generation/cache
 checks and the 1024-token functional/range stress. Compact model packing and
-native A9 operator kernels pass; the offload runtime remains to be implemented. See
+native A9 operator kernels and the bounded offload runtime are implemented.
+Physical CPU generation passes; FPGA generation/full-context acceptance and
+performance qualification are in progress. See
 `M4_VERIFICATION.md`. M3 is closed/pushed through `68da8f8`;
 M5/M6 are outside this goal.
 
@@ -37,10 +39,10 @@ decode and CPU-relative performance; a speedup is not assumed or required.
 | G0 | Coherent acceptance plan and scope recorded | Recorded |
 | G1 | Pinned checkpoint/tokenizer and independent full-model references | Host references PASS — float oracle and exact integer cache through 1024 positions |
 | G2 | Full-model quantization and frozen quality criteria qualified | Host PASS — adaptive v3 quality/generation and full-context range checks; G4/G5 physical checks remain |
-| G3 | Bounded-memory A9 hybrid runtime, prefill and cached decode | In preparation — compact mmap pack and native A9 operators verified; runtime not implemented |
-| G4 | Real-checkpoint tensor/layer tests and affected regressions | Pending |
-| G5 | Exact-overlay physical model correctness and 3×20-token acceptance | Pending |
-| G6 | Repeated physical performance, matching CPU baseline, measured improvements | Pending |
+| G3 | Bounded-memory A9 hybrid runtime, prefill and cached decode | Implemented; full-context physical memory/boundary qualification remains |
+| G4 | Real-checkpoint tensor/layer tests and affected regressions | Physical full-model tensor/operator and driver recovery checks pass; complete regressions running |
+| G5 | Exact-overlay physical model correctness and 3×20-token acceptance | Physical A9 CPU passes 3×20; FPGA run in progress; 1024-context check still required |
+| G6 | Repeated physical performance, matching CPU baseline, measured improvements | Sampling frozen in 546d6f0; paired harness implemented/tested, physical timing not started |
 | G7 | Evidence audit, closure documentation and scoped local milestone commit | Pending |
 
 ## G1 — model identity and independent references
@@ -76,7 +78,8 @@ held-out perplexity or negative log-likelihood, logit/top-token agreement and
 deterministic generation comparisons. Record the thresholds and freeze them;
 they were not yet selected at initialization. They are now frozen in
 `tests/m4/quality_policy.json`; see `M4_VERIFICATION.md` for the exact data split,
-limits and finite-sample interpretation. Passing them remains open.
+limits and finite-sample interpretation. The selected v3 passes these host
+quality limits; physical qualification remains separate.
 
 Exact FPGA-versus-quantized-CPU agreement alone does not prove useful GPT-2
 quality. Do not silently relax thresholds, calibrate on held-out tests, hide
