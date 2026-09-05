@@ -207,6 +207,16 @@ measured host improvements and all timing boundaries are recorded honestly.
 KV management, full-model throughput, token-rate claim, or remote push in M3.
 
 ### M4 — Hybrid GPT-2 124M offload  [~1.5 wk]
+
+**Status (2026-09-05): IN PROGRESS — reference/model-quality work; not qualified.**
+The comprehensive acceptance contract is [`docs/M4_PLAN.md`](docs/M4_PLAN.md).
+It adds explicit floating-model quality gates, full-model/cache/tensor checks,
+bounded board memory and repeated fair CPU comparisons to the sketch below.
+The qualified baseline is 95 MHz; positive speedup is measured, not presumed.
+The pinned floating reference passes; the direct fixed-Q8 integer model fails
+quality because real residual outliers exceed the storage range. Numerical
+work precedes hardware integration; see `docs/M4_VERIFICATION.md`.
+
 Deliverables:
 - GPT-2 124M loaded on A9 using the quantization and pinned reference established
   in M3. Int8 GEMM inputs imply W8A8 arithmetic even if activations are stored
@@ -216,10 +226,14 @@ Deliverables:
 - Generate 20 tokens from a fixed prompt; verify greedy decoding against a
   pinned CPU implementation of the same quantized numerical contract.
 
-Verification: PASS = token-by-token match on 3 prompts + per-op speedup table (baseline vs offloaded, saved to `docs/SPEEDUP.md`).
+Verification: PASS = 20 new tokens on each of 3 frozen prompts matching the
+quantized CPU reference, separate frozen floating-model quality gates, full
+physical/regression evidence, and repeated per-op/integrated performance
+comparisons (including slowdowns) in `docs/SPEEDUP.md`; see the full M4 plan.
 
-Risks: glue overhead dominating at 100 MHz — instrument early, per-op dispatch table on A9 side.
-Agents: implementer (board-side python) + reviewer (runs 3-prompt match). RTL bugs found here get a dedicated fix cycle, not inline edits.
+Risks: glue overhead dominating at 95 MHz, accumulated quantization error,
+full-vocabulary projection and DDR/CMA capacity. Instrument early. RTL bugs
+require a dedicated fix/regression/requalification cycle, not unreviewed edits.
 
 ### M5 — Autonomous decode on the RISC-V cores  [~2 wk]
 Deliverables:

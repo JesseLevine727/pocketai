@@ -8,7 +8,8 @@ port; the PPA report (fabric vs. silicon) is the ship-gate.
 M1, M2 and M3 are closed at 95 MHz on physical PYNQ-Z1 hardware. M3 adds
 GPT-2-correct integer LayerNorm, masked softmax, GELU and scale/vector support,
 plus wide-result K=3072 GEMM. Two clean builds and exact-overlay board tests
-pass. Full-model inference and autonomous control (M4/M5) are not started.
+pass. M4 full-model reference/quantization work is in progress; physical model
+inference is not qualified. M5 autonomous control is not started.
 See [M3 closure evidence](docs/M3_VERIFICATION.md), [performance](docs/M3_PERFORMANCE.md),
 `PLAN.md`, `docs/M1_VERIFICATION.md`, and `docs/M2_VERIFICATION.md`.
 
@@ -130,8 +131,18 @@ M3_VIVADO_BUILD_DIR=build/m3_repro1 bash zynq/run_m3_board.sh
 The board runner requires a full build PASS, checks source/vector/bit/HWH
 hashes before programming over SSH, and runs M1/M2/M3/M1 acceptance. The
 [closure record](docs/M3_VERIFICATION.md) contains both accepted build hashes,
-complete numerical/protocol/ISA evidence and physical results. **M4/M5 remain
-unstarted**; checkpoint/calibration and model-level accuracy are future work.
+complete numerical/protocol/ISA evidence and physical results.
+
+## M4 progress
+
+The [M4 goal](docs/M4_PLAN.md) is active. The real checkpoint/tokenizer are
+pinned and an independent floating reference passes three 20-token generations,
+cache equivalence and context-boundary checks against Transformers. The first
+integer candidate is **not qualified**: real GPT-2 residual outliers exceed
+M3's fixed activation range and degrade model quality. Explicit scale/calibration
+work is required before FPGA integration; [evidence](docs/M4_VERIFICATION.md)
+records the rejected candidate. No full-model hardware performance is claimed.
+M5/M6 remain unstarted.
 
 ## Repo hygiene
 

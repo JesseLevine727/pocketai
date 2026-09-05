@@ -1,0 +1,11 @@
+# Host reference tooling. The recorded run also uses pre-existing CPU-executed
+# torch 2.11.0+cu130 in a --system-site-packages venv; no GPU work is performed.
+numpy==2.4.3
+transformers==4.57.1
+safetensors==0.6.2
+regex==2025.9.18
+tokenizers==0.22.2
+huggingface-hub==0.36.2
+hf-xet==1.6.0
+pyarrow==21.0.0
+tqdm==4.70.0

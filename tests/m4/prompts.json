@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "frozen_date": "2026-09-05",
+  "new_tokens": 20,
+  "batch_size": 1,
+  "greedy_tie_break": "lowest token ID",
+  "eos_policy": "EOS 50256 is an ordinary selected token; continue until exactly 20 new tokens, without resetting positions or cache",
+  "prompts": [
+    {"id": "story", "text": "Once upon a time, in a small village near the mountains,"},
+    {"id": "science", "text": "The purpose of a scientific experiment is to"},
+    {"id": "computing", "text": "A computer program can solve a problem by"}
+  ]
+}
