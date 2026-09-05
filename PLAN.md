@@ -218,8 +218,8 @@ ratio 1.01634, top-1 agreement 89.37%, no unintended clipping, and exact cached
 versus recomputed generation. The rejected direct fixed-Q8 diagnostic is retained.
 A compact model pack and range-safe v3 revision pass, including 1024-token
 cache/range checks and native A9 operator tests. The bounded A9 offload runtime
-is implemented: physical CPU generation and initial full-model FPGA tensors
-pass. Full-context/complete FPGA acceptance and repeated physical performance
+is implemented: physical CPU/FPGA 3×20 generation, all tensor/logit/KV cases
+and M1/M2/M3/M1 compatibility pass. Full-context board acceptance and repeated physical performance
 remain open. See `docs/M4_VERIFICATION.md`, `docs/M4_RUNTIME.md` and the frozen
 sampling contract in `docs/SPEEDUP.md`.
 

@@ -18,15 +18,17 @@ M5/M6 remain unstarted. Full acceptance is in
   explicit v3 range correction also passes 1024-token stress without clipping.
   Physical qualification of the versioned compositions is required in G4/G5.
 - G3: bounded A9 scheduler, native CPU and FPGA packet backends implemented.
-  Host exact model/cache tests and physical CPU 3×20 generation pass. Full-
+  Host exact model/cache tests and physical CPU/FPGA 3×20 generation pass. Full-
   context physical execution/peak-memory qualification remains.
-- G4/G5: initial whole-model FPGA run passes 99 tensor/logit boundaries, all
-  KV hashes and 1,569 actual-operand native operator cross-checks. Physical
-  DMA timeout/recovery and busy-route controls pass. Complete four-case/60-step
-  FPGA acceptance and affected local regressions are running; 1024-position
-  physical qualification is still required.
+- G4/G5: complete FPGA acceptance passes four cases x99 tensor/logit boundaries
+  and all three 20-token generation/logit/KV sequences. The initial single-token
+  case additionally passes 1,569 actual-operand native operator cross-checks.
+  DMA timeout/recovery, busy routes, clean local/ISA and physical M1/M2/M3/M1
+  regressions pass. G4's progressive tensor/regression checks pass; physical
+  1024-position qualification still keeps G3/G5 open.
 - G6: sampling policy frozen in `546d6f0` before timing; paired benchmark
-  harness is implemented and host-tested. No physical performance result yet.
+  harness is implemented and host-tested. Primitive timing comparisons pass
+  exact checks; integrated timing is running. No completed headline result yet.
 - G7 remains open. Partial runtime results do not close M4.
 
 ## Identity, data and reproduction
@@ -360,7 +362,7 @@ per-lane AFFINE when it reduces packet count. Exhaustive represented-range
 tests and the frozen full-model checks pass, without changing v3 reference,
 pack or output hashes. Native host qualification passes 196 tensor boundaries
 across prefill/cached blocks, logits/all KV and 60 generated tokens. Current
-M4 unit tests: **31 PASS** (including seven benchmark tests); M3 host tests:
+M4 unit tests: **34 PASS** (including seven benchmark and three evidence-audit tests); M3 host tests:
 **24 PASS**. Controlled physical before/after measurements are still required
 before claiming a speedup from this batching.
 
@@ -379,7 +381,13 @@ file is verified before execution. Model pack and M3 bit/HWH remain pinned.
 - `build/m4_runtime_cpu_batched.json`: all four tensor/logit/KV cases and all
   three 20-token generation sequences pass on the physical native A9 CPU.
   Peak RSS 156,912 KiB; final PSS 148,871 KiB; one thread, process swap zero.
-- Complete FPGA 3×20 and full-context physical tests remain in progress.
+- `build/m4_runtime_fpga_acceptance.json`: all four cases x99 tensors/logits,
+  all three x20 generated tokens, per-step logits and complete KV hashes pass.
+  Peak RSS 202,800 KiB; final PSS 184,723 KiB; process swap zero. Both backends
+  reused/reset the same runtime across the frozen prompts.
+- `build/m4_runtime_host_boundary.json`: host-native runtime exact final
+  logits/all KV through 1024 positions in 64 blocks of 16; overflow rejected
+  without cache mutation. Physical CPU/FPGA boundary tests remain required.
 
 Diagnostic elapsed times include validation and **are not performance**.
 No 1024-context memory claim is inferred from the short-prompt RSS above.
@@ -392,6 +400,55 @@ was committed in `546d6f0` before any benchmark timing. The paired native
 CPU/FPGA runner includes required runtime work, excludes validation, and
 reports disjoint wall spans separately from overlapping hardware counters.
 See `SPEEDUP.md` for exact sampling and token-ID delivery boundaries.
+
+### Complete local and physical compatibility regressions
+
+`build/m4_complete_local_regression.log` preserves the clean-build transcript:
+1007 wide/mixed and 1007 legacy GEMMs; 82 wide lifecycle interruptions; 15120
+ALU checks plus 336 reset/abort phases; 3472 SFPU vectors plus 682 lifecycle
+checkpoints; all 315 cluster-chain steps; M1/M2 local/lint, M3 lint; **84 ISA
+passes and exactly the four previously documented expected failures**. Frozen
+M3 numerical budgets pass again with 10,000 random cases per vector operation
+in `build/m4_m3_numerics_regression.json`. Existing deprecation/duplicate-target
+tool warnings remain reviewed M3 warnings, not new failures. Generated SFPU
+corpus bytes remain identical to the accepted corpus.
+
+Physical rerun uses the immutable M3 stage copied to fresh owned directory
+`/home/xilinx/pocketai_m4_regress.Lqg9RA`, preserving all accepted M3 outputs.
+`build/m4_m1_m2_m3_m1_board_tty.log` and
+`build/m4_m3_board_regression.json` record M1→M2→M3→M1 PASS, all 1007 mixed
+GEMMs, all 3472 SFPU cases, lifecycle controls and the M3 chains. Bit/HWH and
+95-MHz fabric are exact. The adjacent board clock inventory reports CPU
+650 MHz and FCLK0 100 MHz feeding the 95-MHz fabric clock; cpufreq governor
+sysfs is unavailable, so no governor setting is asserted. Python 3.10.4,
+NumPy 1.21.5, PYNQ 3.1.1 and board GCC 11.2.0 remain unchanged.
+
+An initial compatibility SSH launch lacked a writable host PTY and remained
+at sudo authentication; no tests/programming ran in that attempt. Its scoped
+SSH process was terminated, completion checked, and prompt-only log preserved
+as `build/m4_m1_m2_m3_m1_board.log`. The successful rerun above has a distinct
+log and interactive PTY. No credential is stored in either log.
+
+### Closure audit, not premature closure
+
+`scripts/audit_m4.py` verifies immutable identities, current-source versus
+physical evidence, every mandatory generation/tensor/context result, memory,
+unchanged hardware/regressions, and the complete benchmark sample inventory.
+It rejects dropped/duplicate samples, overlapping profile sums, missing DMA
+bytes and CPU/FPGA arithmetic-workload mismatches. Its own tests use clearly
+synthetic records solely to test rejection; those are never board evidence.
+
+```bash
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.audit_m4 --allow-incomplete --output build/m4_evidence_preflight_v3.json
+```
+
+The preflight reports seven checks PASS and three PENDING: physical CPU full
+context, physical FPGA full context, and completed fair performance. An initial
+audit schema assertion incorrectly expected integer zero instead of the frozen
+empty clipping dictionary; that audit-only assertion was corrected/tested.
+The underlying quality evidence and thresholds never changed. Even a complete
+machine audit still requires G7 documentation/limitations review and a scoped
+closure commit. The goal remains active; no M4 closure or extra push is claimed.
 
 ## Evidence hashes
 
@@ -426,6 +483,14 @@ See `SPEEDUP.md` for exact sampling and token-ID delivery boundaries.
 | `build/m4_driver_board_control.json` | `ef0c9975a73c9eba90654b293b8e5c5e6ff6ec60e0accdf791fa1e8489736794` |
 | `build/m4_runtime_fpga_single.json` | `058ca8d2c3f857266a40cf0dcdf38932d22f475e479f52f427b285a704d406fe` |
 | `build/m4_runtime_cpu_batched.json` | `574b32c04ca7960f02c065043aeb0fcb8c26d27701b0d40de178373158981d62` |
+| `build/m4_runtime_fpga_acceptance.json` | `b08a540bd5adcbcc70dfac693841e12422b6af1b2363c85d273da51e112f0e2c` |
+| `build/m4_runtime_host_boundary.json` | `878cde00ae03aba97e3721692c458aa41e08997f4e2f8c22868ff6d7d798d668` |
+| `build/m4_complete_local_regression.log` | `e275d1e1a090b0af3eef9d11f2a2615f57df4976eb72808522a13839fcd83799` |
+| `build/m4_m3_numerics_regression.json` | `f1d6be4390681ee94ccda6d3af3e3dc23156454ce8859654baf4d55721ff4516` |
+| `build/m4_m3_board_regression.json` | `2f1c4dea9649d822189dfdc557fcac36527e7338d8775c49fc6a38f915cc7852` |
+| `build/m4_m1_m2_m3_m1_board_tty.log` | `a24bcf1b6beacc2f6cbefe83e846223a07d211f3218929e2e2cb937dad69659a` |
+| `build/m4_final_host_tests.log` | `9cdba776484ebc345aac5ea84f48798310320ea4bb4b6220713df9275db6aed7` |
+| `build/m4_evidence_preflight_v3.json` | `5fb75d2c157ee062cd9e13090bfaa61eca247cbc610026dae0ea31355cb5d88e` |
 
 All M4 model/board/quality/performance closure gates remain mandatory. No M4
 PASS, full-model speedup or tokens/s is claimed here.

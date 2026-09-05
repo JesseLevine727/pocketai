@@ -61,8 +61,9 @@ packets; metadata computation is not free. The matching CPU baseline uses
 native A9 integer kernels. Host checks match all 196 layer-boundary
 comparisons across 13-token prefill plus four cached tokens, all logits/KV,
 and all 60 frozen generated tokens. The physical CPU runtime now passes all
-four tensor cases and all three 20-token generations. Initial whole-model FPGA
-and driver controls pass; complete FPGA/full-context acceptance is in progress.
+four tensor cases and all three 20-token generations. The FPGA passes the same
+four cases and all 60 generated-token/logit/KV checks. Driver controls and
+physical M1/M2/M3/M1 compatibility pass. Full-context board checks remain.
 
 The runtime preallocates K/V, stable per-token K8 and K scale metadata, totaling
 **48,365,568 bytes (46.125 MiB)** at capacity 1024. Int16 K/V alone is the
@@ -108,13 +109,47 @@ The replacement batches dynamically scaled columns through equivalent M3
 AFFINE packets, as proved in `M4_NUMERICS.md`. It passes 24 host unit tests,
 all 196 full-model tensor boundaries, logits/KV and 60 frozen generated tokens.
 This avoids spending most A9 time dispatching thousands of tiny column calls.
-Full physical qualification of this replacement is in progress; no inference
+Short-context physical model qualification of this replacement passes; full-
+context checks are still required. No inference
 speedup is claimed from the dispatch-count reduction alone.
 
 Current bundle: `build/m4_runtime_stage.l3_ox1tq`, manifest SHA-256
 `99897c20ad4c7cfa1a47507a94b34c1f0a72c85091435f7628ef54916e307fe7`,
 staged at `/home/xilinx/pocketai_m4_runtime.LrxYKW`. The accepted model pack,
 reference fixtures, C kernels and M3 overlay are unchanged.
+
+The same runtime also passes a host-native 64x16-block full-context run:
+all 1024 positions, exact final logits and every KV value, followed by an
+overlength rejection without mutation. Evidence:
+`build/m4_runtime_host_boundary.json`. Host output uses the shared runner's
+`M4 BOARD` log prefix, but its backend explicitly says portable C: this is
+**host evidence**, not a physical ARM/FPGA pass.
+
+Performance/boundary bundle: `build/m4_runtime_stage.mug8tsv8`, manifest
+`e711e00ecac9cb7756b116fe8b41517224b2286afad8d13e9b13ad61c3a91cfa`,
+remote `/home/xilinx/pocketai_m4_bench.lkETvP`. The model scheduler, driver,
+ARM binaries, pack and overlay are identical to the correctness bundle; only
+the benchmark helper and frozen sampling policy are added. The sequenced
+physical workflow runs the paired benchmark, then separate CPU and FPGA
+1024-context checks. It stops on any failure; it never reuses another active
+process's DMA ownership or overwrites old result files.
+
+The native host libraries required by the runtime/benchmark unit tests can be
+built before `unittest` discovery:
+
+```bash
+gcc -O3 -Wall -Wextra -Werror -shared -fPIC zynq/m4_cpu_gemm.c -o build/m4_cpu_gemm_host.so
+gcc -O3 -Wall -Wextra -Werror -shared -fPIC zynq/m4_cpu_sfpu.c -lm -o build/m4_cpu_sfpu_host.so
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m unittest discover -s tests/m4 -v
+```
+
+The benchmark boundary is pre-tokenized IDs through greedy ID delivery, not
+a text/network service. Tokenizer assets and host tokenization are independently
+qualified in G1; text conversion is not included in resident model timing.
+`prefill` supports up to the remaining 1024-position context; `generate`
+conservatively requires prompt length plus requested output count <= capacity.
+Generation is batch one, lowest-ID greedy ties, with EOS treated as an ordinary
+token under the frozen fixed-20 policy.
 
 ### Native CPU kernel preparation
 

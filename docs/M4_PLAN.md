@@ -4,8 +4,9 @@ Status: **IN PROGRESS / NOT PHYSICALLY QUALIFIED**, 2026-09-05. The scaled W8A8
 adaptive v3 candidate passes frozen held-out quality, 3x20 generation/cache
 checks and the 1024-token functional/range stress. Compact model packing and
 native A9 operator kernels and the bounded offload runtime are implemented.
-Physical CPU generation passes; FPGA generation/full-context acceptance and
-performance qualification are in progress. See
+Physical CPU and FPGA both pass all three 20-token generation cases and full
+tensor/logit/KV checks. Full-context board and performance qualification are
+in progress. See
 `M4_VERIFICATION.md`. M3 is closed/pushed through `68da8f8`;
 M5/M6 are outside this goal.
 
@@ -40,9 +41,9 @@ decode and CPU-relative performance; a speedup is not assumed or required.
 | G1 | Pinned checkpoint/tokenizer and independent full-model references | Host references PASS — float oracle and exact integer cache through 1024 positions |
 | G2 | Full-model quantization and frozen quality criteria qualified | Host PASS — adaptive v3 quality/generation and full-context range checks; G4/G5 physical checks remain |
 | G3 | Bounded-memory A9 hybrid runtime, prefill and cached decode | Implemented; full-context physical memory/boundary qualification remains |
-| G4 | Real-checkpoint tensor/layer tests and affected regressions | Physical full-model tensor/operator and driver recovery checks pass; complete regressions running |
-| G5 | Exact-overlay physical model correctness and 3×20-token acceptance | Physical A9 CPU passes 3×20; FPGA run in progress; 1024-context check still required |
-| G6 | Repeated physical performance, matching CPU baseline, measured improvements | Sampling frozen in 546d6f0; paired harness implemented/tested, physical timing not started |
+| G4 | Real-checkpoint tensor/layer tests and affected regressions | PASS for tensor/operators, lifecycle, clean local/ISA and exact-overlay physical compatibility; context boundary tracked in G3/G5 |
+| G5 | Exact-overlay physical model correctness and 3×20-token acceptance | Physical A9 CPU and FPGA both pass 3×20 plus all tensor/logit/KV cases; physical 1024-context check still required |
+| G6 | Repeated physical performance, matching CPU baseline, measured improvements | Sampling frozen in 546d6f0; all primitive comparisons exact; paired integrated timing running |
 | G7 | Evidence audit, closure documentation and scoped local milestone commit | Pending |
 
 ## G1 — model identity and independent references
