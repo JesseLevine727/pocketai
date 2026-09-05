@@ -1,9 +1,9 @@
 # M4 goal — real GPT-2 hybrid inference and honest system performance
 
 Status: **IN PROGRESS / NOT PHYSICALLY QUALIFIED**, 2026-09-05. The scaled W8A8
-candidate passes frozen held-out quality and 3x20 generation/cache checks;
-compact model packing passes. The 1024-token functional stress exposed
-out-of-calibration balancing clips that must be fixed before board integration. See
+adaptive v3 candidate passes frozen held-out quality, 3x20 generation/cache
+checks and the 1024-token functional/range stress. Compact model packing and
+native A9 operator kernels pass; the offload runtime remains to be implemented. See
 `M4_VERIFICATION.md`. M3 is closed/pushed through `68da8f8`;
 M5/M6 are outside this goal.
 
@@ -36,8 +36,8 @@ decode and CPU-relative performance; a speedup is not assumed or required.
 |---|---|---|
 | G0 | Coherent acceptance plan and scope recorded | Recorded |
 | G1 | Pinned checkpoint/tokenizer and independent full-model references | Host references PASS — float oracle and exact integer cache through 1024 positions |
-| G2 | Full-model quantization and frozen quality criteria qualified | Held-out quality PASS; 1024-token balancing range issue remains open before physical integration |
-| G3 | Bounded-memory A9 hybrid runtime, prefill and cached decode | In preparation — compact mmap pack verified; runtime not implemented |
+| G2 | Full-model quantization and frozen quality criteria qualified | Host PASS — adaptive v3 quality/generation and full-context range checks; G4/G5 physical checks remain |
+| G3 | Bounded-memory A9 hybrid runtime, prefill and cached decode | In preparation — compact mmap pack and native A9 operators verified; runtime not implemented |
 | G4 | Real-checkpoint tensor/layer tests and affected regressions | Pending |
 | G5 | Exact-overlay physical model correctness and 3×20-token acceptance | Pending |
 | G6 | Repeated physical performance, matching CPU baseline, measured improvements | Pending |

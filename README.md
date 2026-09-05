@@ -142,8 +142,9 @@ W8A8 candidate now passes frozen held-out quality: **1.63% perplexity increase,
 89.37% top-1 agreement, 99.84% top-5 inclusion**, with no unintended clipping
 across 8,192 predictions. All 60 frozen generation steps have exact cached versus
 recomputed logits and KV tensors. A compact 195.8-MiB model pack is verified.
-A separate 1024-token stress exposed balancing-range clips; those remain to
-be corrected before physical integration.
+A range-safe revision also passes the 1024-token stress with no clipping,
+without changing the reported quality or generation results. Native A9 GEMM
+and SFPU kernels pass independent checks; the model offload runtime is next.
 [Evidence](docs/M4_VERIFICATION.md) preserves the rejected fixed-Q8 candidate and
 separates host quality from remaining physical integration/performance gates.
 No full-model hardware performance is claimed.

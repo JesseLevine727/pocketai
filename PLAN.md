@@ -216,8 +216,8 @@ The qualified baseline is 95 MHz; positive speedup is measured, not presumed.
 The pinned floating reference and scaled W8A8 candidate pass: held-out perplexity
 ratio 1.01634, top-1 agreement 89.37%, no unintended clipping, and exact cached
 versus recomputed generation. The rejected direct fixed-Q8 diagnostic is retained.
-A compact model pack is verified; a 1024-token stress found out-of-calibration
-balancing clips requiring a range-safe revision. The A9 offload runtime and physical/performance
+A compact model pack and range-safe v3 revision pass, including 1024-token
+cache/range checks and native A9 operator tests. The A9 offload runtime and physical/performance
 gates remain open. See `docs/M4_VERIFICATION.md` and `docs/M4_RUNTIME.md`.
 
 Deliverables:

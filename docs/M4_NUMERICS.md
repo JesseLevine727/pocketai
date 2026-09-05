@@ -104,7 +104,9 @@ are unchanged. The extra range scan is required A9 work, not excluded overhead.
 V3 reproduces **all 2,048 development logits and caches exactly** from v2, and
 passes the 1024-position full/chunked cache test with **zero clipping**. The
 v3 source and selection evidence are frozen in `tests/m4/adaptive_candidate.json`
-before requalification on the same held-out set. V2 held-out results were
+before requalification on the same held-out set, which now **passes** with
+exactly the same reported quality metrics and all generation logit hashes.
+All packed weight/metadata arrays also remain identical. V2 held-out results were
 already known; this is a transparent functional correction based on development
 stress, not a new blind benchmark or calibration/threshold change.
 

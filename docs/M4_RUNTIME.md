@@ -2,9 +2,9 @@
 
 ## Frozen handoff
 
-The selected host arithmetic is `ref/gpt2_scaled.py`, pinned by
-`tests/m4/scaled_candidate.json` (SHA-256
-`ffebd8cd032bfcc92fb248c596a70082e15b3e7f858b15d8ff90eb1a2637b3ee`).
+The selected host arithmetic is `ref/gpt2_adaptive.py` extending the immutable
+scaled v2, pinned by `tests/m4/adaptive_candidate.json` (SHA-256
+`a8d80d03c1aacc8a40f0f84962acd4033f0a1afb1343fd9e1ab0e9c50d0c397d`).
 See `M4_NUMERICS.md` for every activation/weight/epsilon boundary and A9 cost.
 Model quality and generation evidence are in `M4_VERIFICATION.md`.
 
@@ -21,12 +21,14 @@ handled per the M3 descriptor. Scales/biases/smoothing metadata are float64;
 GEMM payloads remain int8. Embeddings and positions are int16.
 
 ```bash
-OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.export_m4_pack
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.export_m4_pack --adaptive-v3
 ```
 
-Export `build/m4_pack_v2` contains 248 arrays, **205,271,824 payload bytes =
+Export `build/m4_pack_v3` contains 248 arrays, **205,271,824 payload bytes =
 195.7625 MiB**. Pack manifest SHA-256:
-`87ca19ae6557d071db4a79664bd7ced53dbef78b62ad936f065b063be4e004a8`.
+`d2aafeffd3e4b8a134b8e48796a1b0cf8f296a3bd150b79f07e2de037fae8fd6`.
+All array contents match the preserved v2 pack; only identity/export provenance
+changes. V3's adaptive units belong to the runtime, not different weights.
 Output directories cannot be overwritten. The eventual board staging manifest
 must pin this manifest and the exact overlay/code too; a candidate-ID field
 alone is not proof that arbitrary incoming pack contents are authentic.
@@ -56,7 +58,7 @@ per-row affine shifts across tiles, all heads, unsigned probabilities, causal
 prefix scale selection, exact residual alignment, epsilon correction and the
 full-vocabulary output scale. Scalar REQUANT8 scales may require separate
 packets; metadata computation is not free. A practical native A9 integer GEMM
-baseline is also still required.
+baseline scheduler is also still required; native operator kernels below pass.
 
 ### Native CPU kernel preparation
 
@@ -73,6 +75,20 @@ The test ran over SSH without sudo in the newly created owned temporary
 directory `/tmp/pocketai_m4_cpu.xh9AfQ`; no FPGA programming or board-global
 changes were made. Evidence is `build/m4_cpu_gemm_arm.json`, SHA-256
 `b5b1bec44d945f1db4fc535ccc4e2f58a6e6f8ef8d5fc34afe8c7057885756eb`.
+
+`zynq/m4_cpu_sfpu.c` and `ref/m4_cpu_sfpu.py` provide the exact M3 SFPU
+packet arithmetic for the CPU baseline. Both host and physical A9 pass 140
+adversarial cases covering all seven operations and the full **3,472 immutable
+accepted M3 SFPU packets**. Host undefined-behavior sanitizer replay also
+passes all 3,472 packets. The integer LayerNorm square root uses an FP seed
+followed by exact emulated 80-bit comparisons; final results do not depend on
+seed rounding or unavailable ARM `__int128`. CPU use of an FP seed is not a
+floating-point fabric or a change to the quantized result.
+
+Physical full-corpus evidence: `build/m4_cpu_sfpu_arm_m3vectors.json`, SHA-256
+`d66b7511fd697da8b7a4b537a9b16dd130fa334325cfe4eca8ec01e82827396b`.
+GCC flags are as above with `-lm`; this is operator correctness, not a measured
+model speedup. The physical FPGA has still not been reprogrammed for M4.
 
 Reuse the accepted M3 qual3 overlay and hash-check it. Preserve single-owner
 DMA, route interlocks, completion/errors/timeouts, cache synchronization, buffer

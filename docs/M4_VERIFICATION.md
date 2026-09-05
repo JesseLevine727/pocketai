@@ -11,13 +11,14 @@ board programming has changed. M5/M6 remain unstarted. Full acceptance is in
 - G1: checkpoint/tokenizer pinned; independent floating-model equations pass
   oracle/cached/generation tests. Scaled integer reference passes exact cached
   generation, including exact 1024-position integer cache/boundary behavior.
-- G2: **held-out model-quality PASS** for frozen scaled v2. Every held-out
+- G2: **host model-quality PASS** for frozen adaptive v3. Every held-out
   context-length group and aggregate passes the precommitted limits. The failed
-  direct fixed-Q8 candidate remains preserved below. A separate 1024-token
-  development stress found balancing range clips, so G2 is not fully closed.
+  direct fixed-Q8 and long-context v2 failures remain preserved below. The
+  explicit v3 range correction also passes 1024-token stress without clipping.
   Physical qualification of the versioned compositions is required in G4/G5.
 - G3: compact mmap model-pack export/reload passes; A9 offload runtime not yet
-  implemented. G3–G7 remain open; no M4 physical inference/performance claim.
+  implemented; native GEMM and SFPU kernels pass on physical A9. G3–G7 remain
+  open; no M4 FPGA model inference/performance claim.
 
 ## Identity, data and reproduction
 
@@ -233,7 +234,7 @@ selective text inspection nor integer self-agreement replaces the held-out
 distribution gate above. Physical hardware must still match the **frozen
 quantized** outputs, not substitute either text as a new golden.
 
-### 1024-position stress — exact cache PASS, range check FAIL
+### V2 1024-position stress — exact cache PASS, range check FAIL (preserved)
 
 `tests/m4/check_scaled_boundary.py` concatenates four existing 256-token
 **development** windows for a functional stress, not an additional held-out
@@ -250,6 +251,42 @@ long-context stress. Next: add an explicit range-safe balanced-input exponent
 and carry its units into GEMM scale metadata. Preserve v2, thresholds, failed
 evidence and weight calibration; independently requalify any revised candidate.
 
+### Adaptive v3 — reference/model-quality gates PASS
+
+`ref/gpt2_adaptive.py` preserves v2 and adds only an explicit balanced-input
+exponent when the prospective affine result would overflow. It carries that
+unit into the next W8A8 GEMM. Weights, calibration, thresholds, prompts and
+dataset selection remain unchanged. Required range scans are A9 metadata
+costs, not free excluded work. Details: `M4_NUMERICS.md`.
+
+On all eight development windows, v3 matches **every v2 logit and K/V tensor
+exactly** (2,048 predictions). On the same 1024-token development stress that
+failed v2, full prefill and 512+511+1 chunks now match exactly **with zero
+unintended clipping**. Position overflow is rejected without mutation.
+The correction is based on this development failure, not held-out tuning.
+
+V3 was source/evidence-frozen in `8a8bec3` before held-out requalification.
+V2's held-out results were already known: this is a transparent functional
+revision, **not a fresh blind benchmark**. The repeated 8,192-prediction gate
+passes with exactly the same per-group/per-window metrics and layer errors
+as the v2 table above. All three 20-token generations and per-step logit hashes
+are also unchanged; all 60 cached/recomputed comparisons still pass. All 248
+packed arrays are byte-identical. `tests/m4/check_v3_preservation.py` audits
+these equality claims, separately from the changed long-context stress.
+
+Current freeze: `tests/m4/adaptive_candidate.json`; pack:
+`build/m4_pack_v3`. **G1 and host G2 pass.** This is the numerical/runtime
+handoff, not physical M4 closure. Versioned compositions still require exact
+FPGA equivalence, full prompt/board acceptance and real system timing.
+
+```bash
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.evaluate_adaptive_development
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.qualify_scaled_quality --adaptive-v3
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.qualify_scaled_generation --adaptive-v3
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.export_m4_pack --adaptive-v3
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.check_v3_preservation
+```
+
 ### Compact model pack and host regressions
 
 `scripts/export_m4_pack.py` exports 248 hash-checked mmap arrays containing all
@@ -258,7 +295,11 @@ compared after serialization/reload. Payload is **205,271,824 bytes (195.7625
 MiB)**; no float64-expanded weights are required on A9. Full-context int16 KV
 storage is another 36 MiB. These are allocation budgets, not measured physical
 peak memory. [`M4_RUNTIME.md`](M4_RUNTIME.md) records layout, hashes and remaining
-runtime work. Fifteen M4 unit tests and all 24 M3 host regressions pass.
+runtime work. Seventeen M4 unit tests and all 24 M3 host regressions pass.
+Native GEMM passes 20 independent host and physical A9 cases; native SFPU
+passes 140 adversarial cases plus all 3,472 accepted M3 packets on both host
+and A9. Host undefined-behavior sanitizer replay also passes the 3,472 packets.
+These CPU backend checks are not new FPGA tests or inference benchmarks.
 
 ```bash
 OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.qualify_scaled_quality
@@ -281,9 +322,9 @@ with unchanged epsilon is not exactly normalizing `x`. Derive/test explicit
 correction or a versioned operator extension; do not silently rely on approximate
 scale invariance. Quantization/calibration must use train/development data,
 not tune on the acceptance prompts or held-out test. No M3 numerical limit,
-RTL, ABI or quality gate has been relaxed. Held-out quality passes, but the
-long-context balancing range correction remains open. Physical qualification
-of these compositions remains mandatory in G4/G5.
+RTL, ABI or quality gate has been relaxed. Adaptive v3 closes the host
+long-context balancing range issue. Physical qualification of these
+compositions remains mandatory in G4/G5.
 
 ## Board resource inventory (read-only)
 
@@ -316,6 +357,15 @@ No board reprogramming or global settings change was made in this work.
 | `build/m4_pack_v2/manifest.json` | `87ca19ae6557d071db4a79664bd7ced53dbef78b62ad936f065b063be4e004a8` |
 | `build/m4_v2_context_boundary.json` | `ba8e82e8dfe9b6ce0d70cbe0c60f4f3e9cb5e2acff9d0312c03350d861dcf170` |
 | `build/m4_v2_context_boundary.log` | `40e7ce06c7105c5c30d2f927e81d83e0233917a3886d80818c0cc9e6dc3813fd` |
+| `tests/m4/adaptive_candidate.json` | `a8d80d03c1aacc8a40f0f84962acd4033f0a1afb1343fd9e1ab0e9c50d0c397d` |
+| `build/m4_v3_development.json` | `f71bf0ca59d3b9e63c30358423ee8882c5bb7935e53a55e2f1db91be9bef831b` |
+| `build/m4_v3_heldout_quality.json` | `ee4bc98220d0a2c3e0ab5a92f4615bf859188c0d93af3467ea2f0587ce3eaf81` |
+| `build/m4_v3_heldout_quality.log` | `36fb8f30c842bb61a8541bea4b44c568373e24810dd509bf1df74f5eb345bd0a` |
+| `build/m4_v3_generation.json` | `188c2b6e790ce214ba05e629da94ff74105e388f1859af52b262f4420cb6c1b7` |
+| `build/m4_v3_generation.log` | `1e957bbbc71fa7d69721eb2f47fdf1f972cc515a1cc14c9cd8542de5cc476dfd` |
+| `build/m4_pack_v3/manifest.json` | `d2aafeffd3e4b8a134b8e48796a1b0cf8f296a3bd150b79f07e2de037fae8fd6` |
+| `build/m4_cpu_gemm_arm.json` | `b5b1bec44d945f1db4fc535ccc4e2f58a6e6f8ef8d5fc34afe8c7057885756eb` |
+| `build/m4_cpu_sfpu_arm_m3vectors.json` | `d66b7511fd697da8b7a4b537a9b16dd130fa334325cfe4eca8ec01e82827396b` |
 
 All M4 model/board/quality/performance closure gates remain mandatory. No M4
 PASS, full-model speedup or tokens/s is claimed here.
