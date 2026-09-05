@@ -15,6 +15,11 @@ namespace {
 
 constexpr uint32_t kMagic = 0x324d4547;
 constexpr uint32_t kId = 0x50414732;
+#ifdef PA_GEMM_WIDE_TEST
+constexpr const char* kMilestone = "M3 WIDE";
+#else
+constexpr const char* kMilestone = "M2";
+#endif
 
 constexpr uint32_t kRegId = 0x00;
 constexpr uint32_t kRegStatus = 0x04;
@@ -165,7 +170,7 @@ class Harness {
     if (read(kRegInputWords) != expected_input) {
       throw std::runtime_error("hardware input-word count differs from contract");
     }
-    if (read(kRegOutputWords) != test.m * 8) {
+    if (read(kRegOutputWords) != test.m * (test.flags == 0x100 ? 16 : 8)) {
       throw std::runtime_error("hardware output-word count differs from contract");
     }
     write(kRegCommand, 1);
@@ -273,7 +278,8 @@ class Harness {
       throw std::runtime_error("active MAC count mismatch");
     }
     const uint32_t row_groups = (test.m + 3) / 4;
-    const uint32_t expected_cycles = row_groups * (test.k + 6) + test.m * 8;
+    const uint32_t expected_cycles = row_groups * (test.k + 6) +
+                                     test.m * (test.flags == 0x100 ? 16 : 8);
     if (read(kRegLastCycles) != expected_cycles) {
       throw std::runtime_error("compute/pack cycle count mismatch");
     }
@@ -300,7 +306,7 @@ class Harness {
   bool irq() const { return dut_.irq_o; }
 
   void check_empty() {
-    if ((read(kRegStatus) & 0x33f) != 1) {
+    if ((read(kRegStatus) & 0x33f) != 1 || dut_.busy_o) {
       throw std::runtime_error("expected an empty, error-free engine");
     }
   }
@@ -379,6 +385,33 @@ void run_control_and_protocol_tests(Harness& harness) {
   if (harness.read(kRegCaps) != 0x03001010) {
     throw std::runtime_error("capability register mismatch");
   }
+#ifdef PA_GEMM_WIDE_TEST
+  if (harness.read(0x44) != 1 || harness.read(0x48) != 3072 ||
+      harness.read(0x4c) != 0x00030001) {
+    throw std::runtime_error("wide extension capability mismatch");
+  }
+  for (const uint32_t invalid : {0u, 3073u, 0x10000c00u, 0xffffffffu}) {
+    harness.write(kRegM, 1);
+    harness.write(kRegN, 1);
+    harness.write(kRegK, invalid);
+    harness.write(kRegFlags, 0x100);
+    harness.write(kRegCommand, 1);
+    check_error(harness, 1);
+    harness.write(kRegCommand, 4);
+  }
+  for (const uint32_t flags : {0x101u, 0x200u, 0xffffffffu}) {
+    harness.write(kRegK, 1);
+    harness.write(kRegFlags, flags);
+    harness.write(kRegCommand, 1);
+    check_error(harness, 2);
+    harness.write(kRegCommand, 4);
+  }
+  harness.write(kRegFlags, 0);
+#else
+  if (harness.read(0x44) || harness.read(0x48) || harness.read(0x4c)) {
+    throw std::runtime_error("legacy configuration exposed unsupported extension");
+  }
+#endif
 
   TestCase test = tiny_case(0xabc00001);
   if (harness.read(kRegIrqEnable) != 0) {
@@ -499,6 +532,57 @@ void run_lifecycle_tests(Harness& harness, const TestCase& long_case,
   harness.reset();
 }
 
+#ifdef PA_GEMM_WIDE_TEST
+void run_wide_phase_tests(Harness& harness, const TestCase& full,
+                          uint32_t* random_state) {
+  // Distinct descriptor formats in each slot must remain immutable even when
+  // software restages every field while a full-length tile is loading.
+  harness.submit(full);
+  harness.write(kRegM, 1);
+  harness.write(kRegN, 1);
+  harness.write(kRegK, 1);
+  harness.write(kRegFlags, 0);
+  harness.write(kRegTag, 0xbadbad);
+  harness.feed(full, random_state);
+  require_equal(harness.drain(full.expected.size(), random_state), full.expected, full.tag);
+  harness.check_case_completion(full);
+  harness.reset();
+
+  std::vector<unsigned> phases{0, 1, 2, 3, 4, 5, 6, 7, 20};
+  for (unsigned group = 0; group < 4; ++group) {
+    const unsigned base = group * (full.k + 6 + 64);
+    for (unsigned offset : {0u, 1u, full.k, full.k + 5, full.k + 6,
+                            full.k + 7, full.k + 38, full.k + 69}) {
+      phases.push_back(base + offset);
+    }
+  }
+  TestCase recovery = tiny_case(0xfeed1234);
+  recovery.flags = 0x100;
+  recovery.expected.assign(16, 0);
+  unsigned interruptions = 0;
+  for (bool abort : {false, true}) {
+    for (unsigned phase : phases) {
+      harness.submit(full);
+      harness.feed(full, random_state);
+      for (unsigned cycle = 0; cycle < phase; ++cycle) harness.cycle();
+      if (abort) harness.write(kRegCommand, 4); else harness.reset();
+      harness.check_empty();
+      harness.submit(recovery);
+      harness.feed(recovery, random_state);
+      require_equal(harness.drain(recovery.expected.size(), random_state),
+                    recovery.expected, recovery.tag);
+      harness.check_case_completion(recovery);
+      for (unsigned cycle = 0; cycle < 100; ++cycle) harness.cycle();
+      harness.check_empty();
+      harness.reset();
+      ++interruptions;
+    }
+  }
+  std::cout << "M3 WIDE LIFECYCLE PASS interruptions=" << interruptions
+            << " staging_immutable=1\n";
+}
+#endif
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -512,6 +596,12 @@ int main(int argc, char** argv) {
     run_control_and_protocol_tests(harness);
 
     uint32_t random_state = seed;
+#ifdef PA_GEMM_WIDE_TEST
+    // The wide vector file has a full 16x16x3072 tile at index five. The
+    // independent legacy-vector run still exercises all original lifecycle tests.
+    if (cases[5].flags == 0x100 && cases[5].m == 16 && cases[5].k == 3072)
+      run_wide_phase_tests(harness, cases[5], &random_state);
+#endif
     run_lifecycle_tests(harness, cases[2], &random_state);
     harness.feed_before_submit(cases[1], &random_state);
     require_equal(harness.drain(cases[1].expected.size(), &random_state),
@@ -541,13 +631,13 @@ int main(int argc, char** argv) {
     if (completed != cases.size()) {
       throw std::runtime_error("completed descriptor count mismatch");
     }
-    std::cout << "M2 GEMM RTL PASS cases=" << cases.size()
+    std::cout << kMilestone << " GEMM RTL PASS cases=" << cases.size()
               << " random=" << cases.size() - 7 << " seed=0x"
               << std::hex << seed << std::dec
               << " cycles=" << harness.cycles() << '\n';
     return 0;
   } catch (const std::exception& error) {
-    std::cerr << "M2 GEMM RTL FAIL: " << error.what() << '\n';
+    std::cerr << kMilestone << " GEMM RTL FAIL: " << error.what() << '\n';
     return 1;
   }
 }

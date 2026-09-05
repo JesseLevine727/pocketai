@@ -3,7 +3,8 @@
 
 module pa_gemm_slot #(
   parameter int unsigned MaxM = 16,
-  parameter int unsigned MaxK = 768
+  parameter int unsigned MaxK = 768,
+  parameter int unsigned CWordsPerRow = 8
 ) (
   input logic clk_i,
 
@@ -22,9 +23,9 @@ module pa_gemm_slot #(
   output logic [31:0]                 b_rdata_o [4],
 
   input logic                         c_we_i,
-  input logic [$clog2(MaxM*8)-1:0]    c_waddr_i,
+  input logic [$clog2(MaxM*CWordsPerRow)-1:0] c_waddr_i,
   input logic [31:0]                  c_wdata_i,
-  input logic [$clog2(MaxM*8)-1:0]    c_raddr_i,
+  input logic [$clog2(MaxM*CWordsPerRow)-1:0] c_raddr_i,
   output logic [31:0]                 c_rdata_o
 );
 
@@ -48,7 +49,7 @@ module pa_gemm_slot #(
     end
   end
 
-  logic [31:0] c_mem [0:MaxM*8-1];
+  logic [31:0] c_mem [0:MaxM*CWordsPerRow-1];
   always_ff @(posedge clk_i) begin
     if (c_we_i) c_mem[c_waddr_i] <= c_wdata_i;
   end

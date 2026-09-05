@@ -5,7 +5,8 @@
 module pa_gemm #(
   parameter int unsigned MaxM = 16,
   parameter int unsigned MaxN = 16,
-  parameter int unsigned MaxK = 768,
+  parameter bit EnableWide = 1'b0,
+  parameter int unsigned MaxK = EnableWide ? 3072 : 768,
   parameter int unsigned PhysicalRows = 4
 ) (
   input logic clk_i,
@@ -34,14 +35,18 @@ module pa_gemm #(
   output logic        m_axis_valid_o,
   input  logic        m_axis_ready_i,
 
-  output logic irq_o
+  output logic irq_o,
+  output logic busy_o
 );
 
   localparam int unsigned Slots = 2;
   localparam int unsigned AWordAddrWidth = $clog2((MaxK + 3) / 4);
   localparam int unsigned KAddrWidth = $clog2(MaxK);
-  localparam int unsigned CWordAddrWidth = $clog2(MaxM * 8);
-  localparam int unsigned AccWidth = 25;
+  localparam int unsigned CWordsPerRow = EnableWide ? 16 : 8;
+  localparam int unsigned CWordAddrWidth = $clog2(MaxM * CWordsPerRow);
+  localparam int unsigned OutputCountWidth = CWordAddrWidth + 1;
+  localparam int unsigned InputCountWidth = $clog2(MaxM*((MaxK+3)/4)+4*MaxK+1);
+  localparam int unsigned AccWidth = EnableWide ? 27 : 25;
 
   localparam logic [31:0] GemmId = 32'h50414732;
   localparam logic [7:0] ErrBadDims = 8'd1;
@@ -72,7 +77,8 @@ module pa_gemm #(
   logic [KAddrWidth:0] slot_k_q [Slots];
   logic [31:0] slot_tag_q [Slots];
   logic [AWordAddrWidth:0] slot_a_stride_q [Slots];
-  logic [7:0] slot_output_words_q [Slots];
+  logic [OutputCountWidth-1:0] slot_output_words_q [Slots];
+  logic slot_wide_q [Slots];
   logic [19:0] slot_macs_q [Slots];
   logic [8:0] slot_mn_q [Slots];
   logic [31:0] slot_cycles_q [Slots];
@@ -144,13 +150,13 @@ module pa_gemm #(
   logic issue_valid;
   logic [31:0] mmio_read_data;
   logic [AWordAddrWidth:0] staging_a_stride;
-  logic [12:0] staging_input_words;
-  logic [7:0] staging_output_words;
-  logic descriptor_dims_valid;
+  logic [InputCountWidth-1:0] staging_input_words;
+  logic [OutputCountWidth-1:0] staging_output_words;
+  logic descriptor_dims_valid, descriptor_flags_valid, staging_wide;
   logic protocol_error_event, clear_error_event;
   logic [4:0] active_group_rows;
   logic [4:0] remaining_group_rows;
-  logic [7:0] active_group_words;
+  logic [OutputCountWidth-1:0] active_group_words;
 
   function automatic logic [31:0] merge_bytes(
       input logic [31:0] old_value,
@@ -170,16 +176,18 @@ module pa_gemm #(
         (k + (KAddrWidth+1)'(3)) >> 2);
   endfunction
 
-  function automatic logic [12:0] input_words_for(
+  function automatic logic [InputCountWidth-1:0] input_words_for(
       input logic [4:0] m,
       input logic [KAddrWidth:0] k
   );
     input_words_for =
-        13'(m) * 13'(a_stride_for_k(k)) + (13'(k) << 2);
+        InputCountWidth'(m) * InputCountWidth'(a_stride_for_k(k)) +
+        (InputCountWidth'(k) << 2);
   endfunction
 
-  function automatic logic [7:0] output_words_for(input logic [4:0] m);
-    output_words_for = {m, 3'b000};
+  function automatic logic [OutputCountWidth-1:0] output_words_for(
+      input logic [4:0] m, input logic wide);
+    output_words_for = OutputCountWidth'(m) << (wide ? 4 : 3);
   endfunction
 
   // Split each signed 8x8 soft multiply into short registered stages. This
@@ -239,7 +247,8 @@ module pa_gemm #(
   for (genvar slot = 0; slot < Slots; slot++) begin : g_slot
     pa_gemm_slot #(
       .MaxM(MaxM),
-      .MaxK(MaxK)
+      .MaxK(MaxK),
+      .CWordsPerRow(CWordsPerRow)
     ) u_slot (
       .clk_i,
       .a_we_i(a_we[slot]),
@@ -268,11 +277,14 @@ module pa_gemm #(
     staging_a_stride = a_stride_for_k((KAddrWidth+1)'(staging_k_q));
     staging_input_words = input_words_for(5'(staging_m_q),
                                           (KAddrWidth+1)'(staging_k_q));
-    staging_output_words = output_words_for(5'(staging_m_q));
+    staging_wide = EnableWide && staging_flags_q == 32'h00000100;
+    descriptor_flags_valid = staging_flags_q == 0 || staging_wide;
+    staging_output_words = output_words_for(5'(staging_m_q), staging_wide);
     descriptor_dims_valid =
         staging_m_q >= 1 && staging_m_q <= MaxM &&
         staging_n_q >= 1 && staging_n_q <= MaxN &&
-        staging_k_q >= 1 && staging_k_q <= MaxK;
+        staging_k_q >= 1 && staging_k_q <= MaxK &&
+        (staging_wide || staging_k_q <= 768);
   end
 
   always_comb begin
@@ -282,7 +294,7 @@ module pa_gemm #(
     end else begin
       active_group_rows = remaining_group_rows;
     end
-    active_group_words = {active_group_rows, 3'b000};
+    active_group_words = output_words_for(active_group_rows, slot_wide_q[engine_slot_q]);
   end
 
   always_comb begin
@@ -312,8 +324,11 @@ module pa_gemm #(
       5'h0c: mmio_read_data = 32'(staging_output_words);
       5'h0d: mmio_read_data = completed_count_q;
       5'h0e: mmio_read_data = 32'(error_code_q);
-      5'h0f: mmio_read_data = {16'(MaxK), 8'(MaxN), 8'(MaxM)};
+      5'h0f: mmio_read_data = {16'(EnableWide ? 768 : MaxK), 8'(MaxN), 8'(MaxM)};
       5'h10: mmio_read_data = {31'h0, irq_enable_q};
+      5'h11: mmio_read_data = {31'h0, EnableWide};
+      5'h12: mmio_read_data = EnableWide ? 32'(MaxK) : 32'h0;
+      5'h13: mmio_read_data = EnableWide ? 32'h00030001 : 32'h0;
       default: mmio_read_data = 32'h0;
     endcase
   end
@@ -414,12 +429,18 @@ module pa_gemm #(
     logic [3:0] pack_global_row;
     logic [3:0] pack_column;
     logic [15:0] low_value, high_value;
-    pack_local_row = $clog2(PhysicalRows)'(pack_word_q >> 3);
+    logic [31:0] wide_value;
+    pack_local_row = $clog2(PhysicalRows)'(
+        pack_word_q >> (slot_wide_q[engine_slot_q] ? 4 : 3));
     pack_global_row = row_base_q[3:0] + {1'b0, pack_local_row};
-    pack_column = {pack_word_q[2:0], 1'b0};
+    pack_column = slot_wide_q[engine_slot_q] ? 4'(pack_word_q) :
+                  {pack_word_q[2:0], 1'b0};
     low_value = 16'h0;
     high_value = 16'h0;
+    wide_value = 32'h0;
     if ({1'b0, pack_column} < slot_n_q[engine_slot_q]) begin
+      wide_value = {{(32-AccWidth){accumulator_q[pack_local_row][pack_column][AccWidth-1]}},
+                    accumulator_q[pack_local_row][pack_column]};
       low_value = saturate_i16(
           {{(32-AccWidth){accumulator_q[pack_local_row][pack_column][AccWidth-1]}},
            accumulator_q[pack_local_row][pack_column]});
@@ -430,9 +451,15 @@ module pa_gemm #(
                 accumulator_q[pack_local_row][4'(pack_column + 1'b1)][AccWidth-1]}},
            accumulator_q[pack_local_row][4'(pack_column + 1'b1)]});
     end
-    c_waddr = {pack_global_row, 3'b000} +
-              CWordAddrWidth'(pack_word_q[2:0]);
-    c_wdata = {high_value, low_value};
+    if (slot_wide_q[engine_slot_q]) begin
+      c_waddr = (CWordAddrWidth'(pack_global_row) << 4) +
+                CWordAddrWidth'(pack_word_q[3:0]);
+      c_wdata = wide_value;
+    end else begin
+      c_waddr = (CWordAddrWidth'(pack_global_row) << 3) +
+                CWordAddrWidth'(pack_word_q[2:0]);
+      c_wdata = {high_value, low_value};
+    end
     for (int slot = 0; slot < Slots; slot++) begin
       c_we[slot] = engine_state_q == EnginePack && engine_slot_q == 1'(slot);
     end
@@ -446,6 +473,7 @@ module pa_gemm #(
       {1'b0, output_word_q} + 1'b1 == slot_output_words_q[output_ptr_q];
   assign output_transfer = m_axis_valid_o && m_axis_ready_i;
   assign irq_o = irq_enable_q && (done_q || error_q);
+  assign busy_o = occupied_count != 0 || drop_until_last_q;
 
   always_ff @(posedge clk_i) begin
     if (!rst_ni) begin
@@ -503,6 +531,7 @@ module pa_gemm #(
         slot_tag_q[slot] <= '0;
         slot_a_stride_q[slot] <= '0;
         slot_output_words_q[slot] <= '0;
+        slot_wide_q[slot] <= 1'b0;
         slot_macs_q[slot] <= '0;
         slot_mn_q[slot] <= '0;
         slot_cycles_q[slot] <= '0;
@@ -568,7 +597,7 @@ module pa_gemm #(
           if (!descriptor_dims_valid) begin
             error_q <= 1'b1;
             error_code_q <= ErrBadDims;
-          end else if (staging_flags_q != 0) begin
+          end else if (!descriptor_flags_valid) begin
             error_q <= 1'b1;
             error_code_q <= ErrBadFlags;
           end else if (slot_state_q[alloc_ptr_q] != SlotEmpty) begin
@@ -582,6 +611,7 @@ module pa_gemm #(
             slot_tag_q[alloc_ptr_q] <= staging_tag_q;
             slot_a_stride_q[alloc_ptr_q] <= staging_a_stride;
             slot_output_words_q[alloc_ptr_q] <= staging_output_words;
+            slot_wide_q[alloc_ptr_q] <= staging_wide;
             slot_mn_q[alloc_ptr_q] <=
                 9'(staging_m_q[4:0]) * 9'(staging_n_q[4:0]);
             alloc_ptr_q <= ~alloc_ptr_q;

@@ -301,7 +301,8 @@ module pa_cluster_top #(
       .m_axis_last_o     (gemm_m_axis_last_o),
       .m_axis_valid_o    (gemm_m_axis_valid_o),
       .m_axis_ready_i    (gemm_m_axis_ready_i),
-      .irq_o             (gemm_irq)
+      .irq_o             (gemm_irq),
+      .busy_o            ()
     );
   end else begin : g_no_gemm
     assign gemm_s_axis_ready_o = 1'b0;

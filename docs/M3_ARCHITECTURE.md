@@ -1,7 +1,9 @@
 # M3 architecture and interface contract v1
 
-Frozen before arithmetic RTL, 2026-09-04 local time. **Design contract, not
-implemented/qualified hardware.** Numerical semantics and fixed acceptance
+Frozen before arithmetic RTL, 2026-09-04 local time. **Design contract; partial
+implementation only, not qualified hardware.** The wide GEMM and shared ALU
+have standalone evidence in `M3_VERIFICATION.md`; SFPU controller/integration
+remain open. Numerical semantics and fixed acceptance
 limits are in [`NUMERICS.md`](NUMERICS.md); staged gates are in `M3_PLAN.md`.
 
 ## Integration and dataflow
@@ -145,7 +147,7 @@ must not silently assume they are resident in v1.
 
 First descriptor/control error stays sticky and blocks new submissions, but
 does not cancel existing valid work or change the route. A framing/payload
-error takes priority over simultaneous command/control errors, invalidates the
+error takes priority over simultaneous normal command/control errors, invalidates the
 active descriptor and drains input to TLAST if it has not arrived. It produces
 no successful completion for that descriptor. In all cases software must
 quiesce/reset DMA before abort/retry, or a DMA transaction can be stranded.
@@ -153,6 +155,10 @@ quiesce/reset DMA before abort/retry, or a DMA transaction can be stranded.
 System reset or abort invalidates the descriptor, reduction/ALU pipeline, pending
 output and drain state unconditionally. Abort clears sticky flags; neither abort
 nor core reset changes the route. System reset restores route 0 and IRQ disabled.
+Reset/abort outrank framing errors as well: a stopped malformed stream must not
+prevent unconditional recovery. This makes explicit the v1 unconditional-abort
+rule before the SFPU controller implementation; formats and numerical limits
+are unchanged.
 Completed count/history reset only on system reset, not abort/clear. RAM contents
 need no reset because only validated loaded elements may be read/exposed.
 Output data/TLAST remain stable under backpressure. Done, tag, cycles, length
@@ -178,3 +184,22 @@ K=3072 cancellation, stalls, concurrent hart traffic, all errors, byte writes,
 staging immutability, counter association, IRQs, route changes and reset/abort
 at every execution phase. Then independently qualify two clean 95 MHz full
 builds and the exact physical overlay; G1's old bitstream does not qualify M3.
+
+### Shared ALU implementation contract
+
+`pa_sfpu_alu` accepts a request only while idle; other starts are ignored.
+Opcode 0 multiplies two unsigned 64-bit operands in 64 cycles, returning the
+low 64 bits and an overflow error if the upper product is nonzero. Opcode 1
+performs unsigned floor division in 64 cycles with an exact remainder. Division
+by zero and unsupported opcode 3 complete immediately with an error and zero
+results. Opcode 2 returns floor sqrt of an unsigned 80-bit radicand in 40 cycles,
+plus the exact radicand-minus-square remainder. Latencies exclude the request
+acceptance edge. Done pulses once; results remain stable until next completion.
+Reset or abort cancels all pending work with no late completion.
+
+The multiply step adds only the upper 64-bit partial product and then shifts,
+limiting that carry path to 65 bits. Division and square root use restoring
+integer steps, no vendor arithmetic IP. Signed magnitude conversion, RNE using
+the returned remainder, saturation and bounded-operand checks belong to the
+SFPU operator controller. Its legal numerical domains must never trigger ALU
+overflow/division-by-zero; this requirement is still to be integrated/tested.
