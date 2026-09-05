@@ -60,6 +60,14 @@ committed in `17b1b98` before held-out evaluation. Held-out results below use
 the exact frozen subset, not a claim of complete published WikiText benchmark
 coverage. No quality threshold or test selection was changed after results.
 
+Reproduction commands below record the original qualification workflow. Keep
+accepted `build/` evidence immutable: use a fresh `--output` path where
+supported, or a fresh workspace/output directory for evaluators with fixed
+paths. In particular, the early floating-reference qualifier writes its
+selected output path; do not rerun its default over the accepted JSON.
+Historical candidate status fields are frozen provenance, not mutable gate
+status. Current acceptance is recorded separately in this document and audits.
+
 ```bash
 python3 -m venv --system-site-packages build/m4_venv
 build/m4_venv/bin/python -m pip install -r scripts/requirements-m4-host.txt
