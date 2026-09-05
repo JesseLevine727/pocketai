@@ -1,9 +1,9 @@
 # M3 architecture and interface contract v1
 
-Frozen before arithmetic RTL, 2026-09-04 local time. **Design contract; partial
-implementation only, not qualified hardware.** The wide GEMM and shared ALU
-have standalone evidence in `M3_VERIFICATION.md`; SFPU controller/integration
-remain open. Numerical semantics and fixed acceptance
+Frozen before arithmetic RTL, 2026-09-04 local time. **Implemented; FPGA timing
+and physical qualification are still open.** Wide GEMM, all seven SFPU operators,
+shared stream routing and actual-result cluster chains have local evidence in
+`M3_VERIFICATION.md`. Numerical semantics and fixed acceptance
 limits are in [`NUMERICS.md`](NUMERICS.md); staged gates are in `M3_PLAN.md`.
 
 ## Integration and dataflow
@@ -34,6 +34,23 @@ affine step and AFFINE_GELU fusion, reuse DMA allocations, and batch publication
 as measured in G1. Do not claim that this removes dispatch/link costs or beats
 the CPU. Measure complete chains again on the final overlay. Autonomous
 KV management and a queued full-model runtime remain M4/M5 work.
+
+Implementation uses three synchronous 3072x32 inferred vector RAMs (X/G/B),
+with one explicit X write port selected between load and compute. X is reused
+for finalized output. The output holding register is stable under backpressure;
+the shell currently delivers one word every three cycles without stalls. Input
+and output stalls are excluded from `LAST_CYCLES`, not from wall latency.
+
+The shared unsigned ALU uses 64 cycles for multiply/divide and 40 for an 80-bit
+floor square root. The controller computes `1/sqrt(variance+epsilon)` implicitly
+through the exact frozen normalized numerator/divisor equation; it does not
+materialize a prematurely rounded reciprocal. Wide rounding, sign, bias and
+clipping are pipelined independently. Current compute-cycle accounting is in
+`ref/sfpu_stream.py`: GELU `6L`, LayerNorm `281L+313`, softmax `15L+137P`,
+AFFINE/REQUANT8 `75L`, AFFINE_GELU `77L`, ADD `4L`, where P is the number of
+valid entries whose max-subtracted raw difference is below 4096. These are
+microarchitecture counters verified in simulation, not delivered-throughput
+claims. Timing closure may change cycles without changing numerical v1.
 
 ## GEMM extension
 

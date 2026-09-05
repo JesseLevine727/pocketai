@@ -1,0 +1,17 @@
+CAPI=2:
+name: "pocketai:pa:pa_sfpu:0.1"
+description: "PocketAI-T M3 integer GPT-2 SFPU and pinned ROMs"
+filesets:
+  rtl:
+    files:
+      - pa_sfpu_alu.sv
+      - pa_sfpu_compute.sv
+      - pa_sfpu.sv
+    file_type: systemVerilogSource
+  tables:
+    files:
+      - gelu_q8.mem: {file_type: user, copyto: gelu_q8.mem}
+      - exp_q24.mem: {file_type: user, copyto: exp_q24.mem}
+targets:
+  default:
+    filesets: [rtl, tables]

@@ -8,6 +8,6 @@ cd "$ROOT"
 source env.sh
 
 bash scripts/check_deps.sh sim
-fusesoc --cores-root=rtl/soc --cores-root=rtl/gemm --cores-root=rtl/ibex-orig \
+fusesoc --cores-root=rtl/soc --cores-root=rtl/gemm --cores-root=rtl/sfpu --cores-root=rtl/ibex-orig \
   run --target=lint --clean --build pocketai:pa:pa_cluster_rtl
 echo "M1 LINT PASS"

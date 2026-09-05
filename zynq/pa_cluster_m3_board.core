@@ -1,0 +1,16 @@
+CAPI=2:
+name: "pocketai:pa:pa_cluster_m3_board:0.1"
+description: "PocketAI-T M3 PYNQ-Z1 source export; SFPU enabled by BD parameter"
+filesets:
+  rtl:
+    depend:
+      - pocketai:pa:pa_cluster_m2_board
+targets:
+  sources:
+    default_tool: vivado
+    filesets: [rtl]
+    toplevel: pa_cluster_m2_board
+    tools:
+      vivado:
+        part: xc7z020clg400-1
+        pnr: none

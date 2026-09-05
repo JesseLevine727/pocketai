@@ -12,6 +12,7 @@ filesets:
       - lowrisc:ibex:ibex_top
       - lowrisc:prim:util_memload
       - pocketai:pa:pa_gemm
+      - pocketai:pa:pa_sfpu
     files:
       - pa_cluster_top.sv
       - pa_ibex_wrapper.sv
@@ -39,3 +40,15 @@ targets:
         verilator_options:
           - "-Wall"
           - "--unroll-count 72"
+
+  lint_m3:
+    default_tool: verilator
+    filesets: [lint_verilator, rtl]
+    toplevel: pa_cluster_top
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--unroll-count 72"
+          - "\"-GEnableSfpu=1'b1\""

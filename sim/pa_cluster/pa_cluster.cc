@@ -15,6 +15,14 @@
 #include <cstdio>
 #include <string>
 #include <utility>
+#ifdef PA_M3_TEST
+#include <algorithm>
+#include <cstdlib>
+#include <fstream>
+#include <map>
+#include <stdexcept>
+#include <vector>
+#endif
 
 #include "verilated.h"
 #include "verilated_toplevel.h"
@@ -180,6 +188,9 @@ bool gemm_integration_test(pa_cluster_top &top) {
   return true;
 }
 
+#ifdef PA_M3_TEST
+#include "pa_m3_chains.h"
+#endif
 }  // namespace
 
 int main(int argc, char **argv) {
@@ -292,6 +303,11 @@ int main(int argc, char **argv) {
 
   const bool gemm_ok = gemm_integration_test(top);
   std::puts(gemm_ok ? "M2 CLUSTER GEMM PASS" : "M2 CLUSTER GEMM FAIL");
+#ifdef PA_M3_TEST
+  const bool m3_ok = m3_chain_tests(top);
+#else
+  const bool m3_ok = true;
+#endif
 
   // Firmware result block and independent golden values.
   const uint32_t kResultBase = 0x0000D000;
@@ -403,6 +419,6 @@ int main(int argc, char **argv) {
       console.find("H0 READY\n") != std::string::npos &&
       console.find("H1 READY\n") != std::string::npos;
 
-  return (axi_ok && gemm_ok && results_checked && results_ok && top.software_done_o &&
+  return (axi_ok && gemm_ok && m3_ok && results_checked && results_ok && top.software_done_o &&
           console_ok) ? 0 : 1;
 }

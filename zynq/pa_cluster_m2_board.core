@@ -13,6 +13,8 @@ filesets:
     file_type: verilogSource
 
 targets:
+  default:
+    filesets: [rtl]
   sources:
     default_tool: vivado
     filesets:

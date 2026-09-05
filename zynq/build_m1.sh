@@ -29,7 +29,7 @@ clean_args=()
 if [[ "${PA_CLEAN:-0}" == "1" ]]; then
   clean_args+=(--clean)
 fi
-fusesoc --cores-root=zynq --cores-root=rtl/soc --cores-root=rtl/gemm \
+fusesoc --cores-root=zynq --cores-root=rtl/soc --cores-root=rtl/gemm --cores-root=rtl/sfpu \
   --cores-root=rtl/ibex-orig \
   run --mapping=lowrisc:prim_xilinx:all:0.1 --target=sources \
   --work-root="$SOURCE_WORK" "${clean_args[@]}" --setup \

@@ -2,7 +2,8 @@
 
 module pa_cluster_m2_board #(
   parameter integer C_S_AXI_ADDR_WIDTH = 17,
-  parameter integer C_S_AXI_DATA_WIDTH = 32
+  parameter integer C_S_AXI_DATA_WIDTH = 32,
+  parameter integer EnableSfpu = 0
 ) (
   (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 S_AXI_ACLK CLK" *)
   (* X_INTERFACE_PARAMETER = "ASSOCIATED_BUSIF S_AXI_CTRL:S_AXIS_GEMM:M_AXIS_GEMM, ASSOCIATED_RESET s_axi_aresetn" *)
@@ -81,7 +82,8 @@ module pa_cluster_m2_board #(
       {{(32-C_S_AXI_ADDR_WIDTH){1'b0}}, s_axi_araddr};
 
   pa_cluster_top #(
-    .EnableGemm(1'b1)
+    .EnableGemm(1'b1),
+    .EnableSfpu(EnableSfpu != 0)
   ) impl (
     .IO_CLK(s_axi_aclk),
     .IO_RST_N(s_axi_aresetn),

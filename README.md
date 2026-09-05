@@ -109,8 +109,9 @@ The matching native CPU baseline measures 0.383 GMAC/s: the current offload
 path does not yet beat it. These measurements do not replace the historical
 M2 acceptance evidence or qualify M3 arithmetic. The [v1 numerical contract](docs/NUMERICS.md)
 and [interface design](docs/M3_ARCHITECTURE.md) are now frozen after exhaustive
-GELU and substantial vector-reference checks. RTL implementation and full
-qualification remain open; M4/M5 are unstarted.
+GELU and substantial vector-reference checks. All seven SFPU operations and
+full-shape MLP/attention-head chains now pass exact local RTL tests. FPGA timing
+closure and physical M3 qualification remain open; M4/M5 are unstarted.
 
 ## Repo hygiene
 

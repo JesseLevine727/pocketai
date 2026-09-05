@@ -15,6 +15,9 @@ filesets:
       - lowrisc:dv_verilator:simutil_verilator
     files:
       - pa_cluster.cc: { file_type: cppSource }
+  files_m3:
+    files:
+      - pa_m3_chains.h: {file_type: cppSource, is_include_file: true}
 
 targets:
   sim:
@@ -28,4 +31,17 @@ targets:
         verilator_options:
           - '-CFLAGS "-std=c++17 -DTOPLEVEL_NAME=pa_cluster_top"'
           - '-LDFLAGS "-pthread -lutil -lelf"'
+          - '-Wno-fatal'
+  sim_m3:
+    default_tool: verilator
+    filesets: [files_verilator, files_m3]
+    toplevel: pa_cluster_top
+    tools:
+      verilator:
+        mode: cc
+        verilator_options:
+          - '-CFLAGS "-std=c++17 -DPA_M3_TEST -DTOPLEVEL_NAME=pa_cluster_top"'
+          - '-LDFLAGS "-pthread -lutil -lelf"'
+          - "\"-GEnableSfpu=1'b1\""
+          - '--assert'
           - '-Wno-fatal'
