@@ -14,6 +14,7 @@ from ref.m4_model_pack import file_sha256
 from zynq.m4_benchmark import POLICY_SHA, summarize
 from zynq.m4_driver import BIT_SHA, HWH_SHA
 from zynq.m4_offload import CANDIDATE_SHA, PACK_SHA
+from zynq.m4_cold_start import POLICY_SHA as COLD_POLICY_SHA
 
 ROOT = Path(__file__).resolve().parents[1]
 FROZEN = {
@@ -24,6 +25,7 @@ FROZEN = {
     'build/m4_runtime_fixtures/manifest.json': '7324fb3a88c9b7340e9aa65ea6dd43f77253f0ddf7e7aca9fb100f47f963c537',
     'tests/m4/adaptive_candidate.json': CANDIDATE_SHA,
     'tests/m4/performance_policy.json': POLICY_SHA,
+    'tests/m4/cold_start_policy.json': COLD_POLICY_SHA,
     'build/m4_pack_v3/manifest.json': PACK_SHA,
     'build/m3_qual3/m3_pynq.bit': BIT_SHA,
     'build/m3_qual3/m3_pynq.hwh': HWH_SHA,
@@ -116,7 +118,7 @@ def check_local():
                    'M1 COMPLIANCE PASS rv32imc=25/25 rv32im=8/8 rv32i=44/48+4-xfail rv32Zicsr=6/6 rv32Zifencei=1/1'):
         require(marker in log, 'missing local regression: ' + marker)
     require(read_json('build/m4_m3_numerics_regression.json')['status'] == 'PASS', 'M3 numerical budget regression')
-    for name, count in (('build/m4_deployment_host_tests.log', 40), ('build/m4_m3_host_regression.log', 24)):
+    for name, count in (('build/m4_cold_complete_host_tests.log', 44), ('build/m4_m3_host_regression.log', 24)):
         text = (ROOT / name).read_text()
         require(f'Ran {count} tests' in text and text.rstrip().endswith('OK'), 'missing host tests: ' + name)
     boundary = read_json('build/m4_runtime_host_boundary.json')
@@ -208,6 +210,26 @@ def check_performance():
     return 'All predetermined raw samples, exact result checks and non-overlapping wall accounting pass; no speedup requirement.'
 
 
+def check_process_cold():
+    report = read_json('build/m4_process_cold.json')
+    require(report['status'] == 'PROCESS_COLD_OBSERVATIONS_EXACT_PASS_NOT_DISK_COLD_OR_M4_CLOSURE', 'startup observations incomplete')
+    require(report['policy_sha256'] == COLD_POLICY_SHA and report['policy'] == read_json('tests/m4/cold_start_policy.json'), 'startup policy changed')
+    require(report['runner_sha256'] == file_sha256(ROOT / 'zynq/m4_cold_start.py'), 'stale startup probe')
+    require([row['backend'] for row in report['observations']] == ['cpu', 'fpga'], 'wrong startup sample count/order')
+    fixture = read_json('build/m4_runtime_fixtures/manifest.json')
+    expected = next(case for case in fixture['generation'] if case['id'] == 'story')['steps'][0]['token']
+    for row in report['observations']:
+        require(row['exit_code'] == 0 and row['token'] == expected, 'startup delivery/process failed')
+        require(0 < row['first_token_seconds'] <= row['full_process_completion_seconds'], 'invalid startup timing boundary')
+        child = row['child_result']
+        require(child['status'] == 'EXACT_FIRST_TOKEN_LOGIT_KV_PASS' and child['token'] == expected, 'startup validation did not pass')
+        require(child['runner_sha256'] == report['runner_sha256'] and child['backend'] == row['backend'], 'startup child identity mismatch')
+        check_sources(child['sources'])
+        assert_no_process_swap(child['memory'])
+        require(child['cache_bytes'] == 48365568 and child['cma_bytes'] == (110592 if row['backend'] == 'fpga' else 0), 'wrong startup allocation')
+    return 'One descriptive fresh-process first-token observation per backend; exact post-delivery validation; no disk-cold or statistical speedup inference.'
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', type=Path, required=True)
@@ -223,7 +245,7 @@ def main():
               ('G5_fpga_generation', lambda: check_runtime('build/m4_runtime_fpga_acceptance.json', 'fpga')),
               ('G3_G5_cpu_full_context', lambda: check_runtime('build/m4_runtime_cpu_boundary.json', 'cpu', True)),
               ('G3_G5_fpga_full_context', lambda: check_runtime('build/m4_runtime_fpga_boundary.json', 'fpga', True)),
-              ('G6_fair_performance', check_performance)]
+              ('G6_fair_performance', check_performance), ('G6_process_cold_observation', check_process_cold)]
     for name, function in checks:
         try:
             report['checks'][name] = {'status': 'PASS', 'detail': function()}
