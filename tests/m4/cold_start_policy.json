@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "purpose": "Supplementary process-cold first-token observation; not a replacement for frozen repeated resident benchmarks",
+  "prompt_id": "story",
+  "prompt_tokens": 13,
+  "backend_order": ["cpu", "fpga"],
+  "observations_per_backend": 1,
+  "warmups": 0,
+  "cpu_threads": 1,
+  "sampling_rationale": "One descriptive startup observation per backend complements the single initialization-component observations already specified by the primary policy. No cold median, p95, variability or CPU-relative speedup claim will be made from n=1. The primary resident headline workloads still require three warmups and twenty trials, with three full generation chains. No startup warmup is performed because this check explicitly launches a fresh interpreter.",
+  "boundary": "Parent starts the clock before launching a fresh Python subprocess. Stop after receiving and parsing the first greedy token-ID delivery event. Includes interpreter/module/native-library startup, bundle integrity scan, model-pack verification/load, FPGA programming and DMA allocation for the FPGA backend, complete 13-token model prefill, metadata/packing/dispatch/transfers/cache/KV/logits/selection, and local pipe delivery. Independent logit/KV validation follows delivery and is excluded, but must pass.",
+  "residency": "Model and packed assets already staged on the board. OS page cache is not dropped or controlled; this is process-cold, not disk-cold, board-boot or first-download latency. CPU subprocess does not instantiate PYNQ/FPGA backend. No board-global setting changes.",
+  "run_order": "Only after the active main benchmark and physical CPU/FPGA full-context workflow terminates successfully; never compete for the board with that run.",
+  "output_rule": "Keep both raw observations, sources, clocks/environment context, full-process completion time separately, memory and exact result-validation status. Failed or partial startup attempts are preserved and never reported as accepted timing."
+}

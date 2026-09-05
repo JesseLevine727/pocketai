@@ -74,3 +74,18 @@ checks are outside timing, but list/timestamp/profiling overhead is included
 for both backends, and retained output memory is included in process RSS/PSS.
 The cached-prefix snapshot is also explicitly counted. These costs must not
 be hidden or attributed to model weights alone.
+
+### Supplemental process-cold boundary
+
+The main runner's initialization-component timers begin inside Python; they
+are not complete interpreter-launch-to-first-token measurements. The separate
+`tests/m4/cold_start_policy.json` freezes one descriptive fresh-process
+observation per backend, after the active benchmark/context sequence finishes.
+It includes interpreter/module/library startup, integrity/loading, FPGA setup
+where applicable, the same complete story prefill, greedy selection and local
+pipe delivery. Validation occurs afterward and remains mandatory.
+
+This has n=1 per backend: no cold median/p95, variability or speedup claim will
+be inferred. Assets already exist on the board and OS caches are untouched;
+the boundary is **process-cold, not disk-cold, board boot or model download**.
+It supplements, rather than changes, the frozen repeated resident benchmark.
