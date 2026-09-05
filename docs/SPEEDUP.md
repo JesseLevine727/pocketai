@@ -7,8 +7,9 @@ versus 0.17624 delivered tokens/s**, including prefill. FPGA latency is 3.816x
 higher. This is a measured result, not a failed correctness check: all timed
 outputs pass their independent exact checks. A speedup was not an M4 gate.
 
-The complete resident report is terminal and audited. Physical full-context
-and supplemental process-cold qualification remain pending, so these results
+The complete resident report is terminal and audited. Physical CPU full-context
+qualification also passes; FPGA full-context and supplemental process-cold
+qualification remain pending, so these results
 do not yet close M4. M3's 5.793 kernel GMAC/s and 0.085 synthetic-chain
 end-to-end GMAC/s have different workloads/boundaries; neither predicts GPT-2
 performance. Diagnostic correctness times include validation and are not used
@@ -223,7 +224,13 @@ Every recorded model-process swap measurement is zero; existing system-wide
 swap usage is unrelated and is not claimed zero. Separate short-context
 correctness processes peak at 156,912 KiB CPU and 202,800 KiB FPGA, but their
 validation lifetimes differ and they are not isolated benchmark peaks.
-Physical full-context memory results are still pending.
+The separate **physical CPU 1024-context correctness run** now passes: peak RSS
+219,244 KiB (214.105 MiB), final PSS snapshot 212,339 KiB, one thread and zero
+process swap, with the same 48,365,568-byte cache and no CPU CMA allocation.
+These include diagnostic-validation lifetimes, not an isolated benchmark peak
+or long-context throughput result. Evidence is `build/m4_runtime_cpu_boundary.json`,
+SHA-256 `1cd038f0608517adaa2932e959900ca3359af3373d5d6e9311f0dc73a1a2f0c9`.
+Physical FPGA full-context memory results remain pending.
 
 Initialization component observations inside the benchmark process:
 

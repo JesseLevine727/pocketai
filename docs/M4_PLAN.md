@@ -7,8 +7,9 @@ native A9 operator kernels and the bounded offload runtime are implemented.
 Physical CPU and FPGA both pass all three 20-token generation cases and full
 tensor/logit/KV checks. The complete resident benchmark passes exact checks:
 FPGA full-generation throughput is 0.04619 tokens/s versus 0.17624 on CPU,
-including prefill; no speedup was required. Full-context board and supplemental
-process-cold qualification are in progress. See
+including prefill; no speedup was required. Physical CPU 1024-context/cache/
+overflow and zero-process-swap checks now pass. FPGA full-context and
+supplemental process-cold qualification are in progress. See
 `M4_VERIFICATION.md`. M3 is closed/pushed through `68da8f8`;
 M5/M6 are outside this goal.
 
@@ -42,9 +43,9 @@ decode and CPU-relative performance; a speedup is not assumed or required.
 | G0 | Coherent acceptance plan and scope recorded | Recorded |
 | G1 | Pinned checkpoint/tokenizer and independent full-model references | Host references PASS — float oracle and exact integer cache through 1024 positions |
 | G2 | Full-model quantization and frozen quality criteria qualified | Host PASS — adaptive v3 quality/generation and full-context range checks; G4/G5 physical checks remain |
-| G3 | Bounded-memory A9 hybrid runtime, prefill and cached decode | Implemented; full-context physical memory/boundary qualification remains |
+| G3 | Bounded-memory A9 hybrid runtime, prefill and cached decode | Physical CPU full-context PASS, peak RSS 219244 KiB, process swap zero; FPGA full-context memory/boundary qualification remains |
 | G4 | Real-checkpoint tensor/layer tests and affected regressions | PASS for tensor/operators, lifecycle, clean local/ISA and exact-overlay physical compatibility; context boundary tracked in G3/G5 |
-| G5 | Exact-overlay physical model correctness and 3×20-token acceptance | Physical A9 CPU and FPGA both pass 3×20 plus all tensor/logit/KV cases; physical 1024-context check still required |
+| G5 | Exact-overlay physical model correctness and 3×20-token acceptance | Physical A9 CPU and FPGA both pass 3×20 plus all tensor/logit/KV cases; CPU 1024-context PASS, FPGA 1024-context still running |
 | G6 | Repeated physical performance, matching CPU baseline, measured improvements | Resident benchmark PASS: all 794 raw observations exact/audited; results and slowdowns in SPEEDUP.md. Supplemental process-start boundary frozen in 61a08b1 remains pending until the context sequence finishes |
 | G7 | Evidence audit, closure documentation and scoped local milestone commit | Pending |
 

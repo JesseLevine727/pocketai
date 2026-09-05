@@ -222,8 +222,9 @@ cache/range checks and native A9 operator tests. The bounded A9 offload runtime
 is implemented: physical CPU/FPGA 3×20 generation, all tensor/logit/KV cases
 and M1/M2/M3/M1 compatibility pass. Repeated resident performance is now exact
 and audited: FPGA takes 433.008 s versus CPU 113.483 s for prefill plus 20 tokens
-(0.04619 vs 0.17624 tokens/s), a 3.816x FPGA slowdown. Full-context board and
-supplemental process-cold acceptance remain open. See `docs/M4_VERIFICATION.md`,
+(0.04619 vs 0.17624 tokens/s), a 3.816x FPGA slowdown. Physical CPU 1024-context
+checks pass with zero process swap. FPGA full-context and supplemental
+process-cold acceptance remain open. See `docs/M4_VERIFICATION.md`,
 `docs/M4_RUNTIME.md` and the full results/frozen sampling in `docs/SPEEDUP.md`.
 
 Deliverables:

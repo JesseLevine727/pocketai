@@ -63,7 +63,8 @@ comparisons across 13-token prefill plus four cached tokens, all logits/KV,
 and all 60 frozen generated tokens. The physical CPU runtime now passes all
 four tensor cases and all three 20-token generations. The FPGA passes the same
 four cases and all 60 generated-token/logit/KV checks. Driver controls and
-physical M1/M2/M3/M1 compatibility pass. Full-context board checks remain.
+physical M1/M2/M3/M1 compatibility pass. Physical CPU full-context now passes;
+the FPGA full-context check remains.
 
 The runtime preallocates K/V, stable per-token K8 and K scale metadata, totaling
 **48,365,568 bytes (46.125 MiB)** at capacity 1024. Int16 K/V alone is the
@@ -109,9 +110,10 @@ The replacement batches dynamically scaled columns through equivalent M3
 AFFINE packets, as proved in `M4_NUMERICS.md`. It passes 24 host unit tests,
 all 196 full-model tensor boundaries, logits/KV and 60 frozen generated tokens.
 This avoids spending most A9 time dispatching thousands of tiny column calls.
-Short-context physical model qualification of this replacement passes; full-
-context checks are still required. No inference
-speedup is claimed from the dispatch-count reduction alone.
+Short-context physical model qualification of this replacement passes; physical
+CPU full-context now also passes, with FPGA full-context still required. The
+controlled bridge timings in `SPEEDUP.md` establish a local batching improvement,
+not an inference speedup inferred from dispatch-count reduction alone.
 
 Current bundle: `build/m4_runtime_stage.l3_ox1tq`, manifest SHA-256
 `99897c20ad4c7cfa1a47507a94b34c1f0a72c85091435f7628ef54916e307fe7`,
@@ -133,6 +135,16 @@ the benchmark helper and frozen sampling policy are added. The sequenced
 physical workflow runs the paired benchmark, then separate CPU and FPGA
 1024-context checks. It stops on any failure; it never reuses another active
 process's DMA ownership or overwrites old result files.
+
+The physical CPU stage of this sequence is now terminal **PASS** in
+`build/m4_runtime_cpu_boundary.json`: exact final full-vocabulary logits and
+all K/V at 1024 positions, then overflow rejected without mutation. Peak RSS
+219,244 KiB (214.105 MiB), final PSS 212,339 KiB, one thread and zero process
+swap. The full 48,365,568-byte cache is allocated; CPU uses zero CMA buffers.
+This diagnostic run includes validation and is not a long-context benchmark.
+The following FPGA run passes its initial single-token tensor/logit/KV case;
+its final full-context result is still pending. Do not launch the startup probe
+or another FPGA owner until the complete existing sequence finishes.
 
 The native host libraries required by the runtime/benchmark unit tests can be
 built before `unittest` discovery:
@@ -210,5 +222,6 @@ Reuse the accepted M3 qual3 overlay and hash-check it. Preserve single-owner
 DMA, route interlocks, completion/errors/timeouts, cache synchronization, buffer
 lifetime and recovery. Pack export alone does not prove board inference or
 memory fit. Initial short-context physical measurements and their precise
-scope are now recorded in `M4_VERIFICATION.md`; full-context peak-memory
-qualification and fair repeated performance remain required.
+scope are now recorded in `M4_VERIFICATION.md`. Resident fair repeated
+performance and physical CPU full-context checks pass; FPGA full-context
+peak-memory qualification and supplemental process-start observations remain.

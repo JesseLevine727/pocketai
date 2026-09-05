@@ -18,14 +18,15 @@ M5/M6 remain unstarted. Full acceptance is in
   explicit v3 range correction also passes 1024-token stress without clipping.
   Physical qualification of the versioned compositions is required in G4/G5.
 - G3: bounded A9 scheduler, native CPU and FPGA packet backends implemented.
-  Host exact model/cache tests and physical CPU/FPGA 3×20 generation pass. Full-
-  context physical execution/peak-memory qualification remains.
+  Host exact model/cache tests and physical CPU/FPGA 3×20 generation pass.
+  Physical CPU full-context/cache/overflow now passes with peak RSS 219,244 KiB
+  and zero process swap. FPGA full-context execution/peak-memory remains.
 - G4/G5: complete FPGA acceptance passes four cases x99 tensor/logit boundaries
   and all three 20-token generation/logit/KV sequences. The initial single-token
   case additionally passes 1,569 actual-operand native operator cross-checks.
   DMA timeout/recovery, busy routes, clean local/ISA and physical M1/M2/M3/M1
   regressions pass. G4's progressive tensor/regression checks pass; physical
-  1024-position qualification still keeps G3/G5 open.
+  FPGA 1024-position qualification still keeps G3/G5 open (CPU now passes).
 - G6: sampling policy frozen in `546d6f0` before timing. The complete resident
   benchmark passes all 794 raw observations and the independent inventory/
   source/profile audit. FPGA full-generation median is 433.008 s versus
@@ -367,8 +368,9 @@ pack or output hashes. Native host qualification passes 196 tensor boundaries
 across prefill/cached blocks, logits/all KV and 60 generated tokens. Current
 M4 unit tests: **44 PASS** (including seven benchmark, three evidence-audit,
 three performance-analysis, three deployment-preflight and four startup-probe tests); M3 host tests:
-**24 PASS**. Controlled physical before/after measurements are still required
-before claiming a speedup from this batching.
+**24 PASS**. The subsequent controlled physical bridge comparison in
+`SPEEDUP.md` measures the batching improvement; it is not an integrated
+full-model before/after speedup claim.
 
 Correctness bundle `build/m4_runtime_stage.l3_ox1tq` has manifest SHA-256
 `99897c20ad4c7cfa1a47507a94b34c1f0a72c85091435f7628ef54916e307fe7`;
@@ -391,7 +393,21 @@ file is verified before execution. Model pack and M3 bit/HWH remain pinned.
   reused/reset the same runtime across the frozen prompts.
 - `build/m4_runtime_host_boundary.json`: host-native runtime exact final
   logits/all KV through 1024 positions in 64 blocks of 16; overflow rejected
-  without cache mutation. Physical CPU/FPGA boundary tests remain required.
+  without cache mutation. This is separate from physical evidence below.
+- `build/m4_runtime_cpu_boundary.json`: **physical native A9 full-context
+  PASS**, exact final full-vocabulary logits and all twelve layers' K/V through
+  1024 positions in 64 blocks of 16, followed by overlength rejection without
+  cache/length mutation. The single-token 99-tensor/logit/KV case also passes
+  before reset/full-context processing. Peak RSS **219,244 KiB**, final PSS
+  **212,339 KiB**, one thread, process swap **zero**. Cache allocation remains
+  48,365,568 bytes; the CPU backend allocates no CMA buffers.
+
+Physical CPU full-context evidence uses the unchanged benchmark/context bundle
+`e711e00ecac9cb7756b116fe8b41517224b2286afad8d13e9b13ad61c3a91cfa`
+at `/home/xilinx/pocketai_m4_bench.lkETvP`, after the benchmark finished. It is
+terminal and source/identity-audited; no partial report was accepted. The
+sequenced FPGA full-context run has started and passes its initial single-token
+tensor/logit/KV case, but its 1024-position result is still pending.
 
 Diagnostic elapsed times include validation and **are not performance**.
 No 1024-context memory claim is inferred from the short-prompt RSS above.
@@ -494,12 +510,15 @@ raw and derived evidence. `SPEEDUP.md` reports latency/throughput distributions,
 every full-chain trial, operation/byte counts, memory, initialization components
 and controlled batching improvements. FPGA is 3.816x slower for complete
 generation; the unchanged acceptance contract requires honest measurement,
-not an assumed speedup. Physical context checks remain in progress.
+not an assumed speedup. The physical CPU context check now passes; the FPGA
+context check remains in progress.
 
-The updated `build/m4_evidence_preflight_v7.json` reports **eight PASS and
-three PENDING**, with no failures. Remaining machine checks are physical CPU
-full context, physical FPGA full context and the supplemental fresh-process
-observation. G7 documentation/closure review remains separate.
+The preserved `build/m4_evidence_preflight_v7.json` reports eight PASS and
+three PENDING before CPU full-context completion. The subsequent
+`build/m4_evidence_preflight_v8.json` now reports **nine PASS and two PENDING**,
+with no failures. Remaining machine checks are physical FPGA full context and
+the supplemental fresh-process observation. G7 documentation/closure review
+remains separate.
 
 A final timing-boundary review distinguished initialization components measured
 inside Python from a complete fresh-interpreter first-token observation.
@@ -562,6 +581,8 @@ benchmark; its sampling, data, timings and policy are unchanged.
 | `build/m4_benchmark_board.json` | `b839f78c9ac2010c04d97c254e52656d83faca4196311ca9231914a0db271dd0` |
 | `build/m4_performance_analysis.json` | `d77d21ead5de368aec60a1086fbec0fc675ec4579537fcf7101f66e5561a1741` |
 | `build/m4_evidence_preflight_v7.json` | `9d3ccd8380969d05b32fdab8cdb4ef10d401e354707f0b21f8f4954b56df9f0e` |
+| `build/m4_runtime_cpu_boundary.json` | `1cd038f0608517adaa2932e959900ca3359af3373d5d6e9311f0dc73a1a2f0c9` |
+| `build/m4_evidence_preflight_v8.json` | `ac15d4a4279534268318f2ab510040af34b6ed0e357919eeb7843f0fc761baf4` |
 
 All M4 closure gates remain mandatory. Full-model throughput above is measured;
 it is a slowdown, not a speedup. Pending physical context/startup evidence and

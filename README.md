@@ -11,8 +11,9 @@ plus wide-result K=3072 GEMM. Two clean builds and exact-overlay board tests
 pass. M4 host model quality and physical three-prompt generation/tensor checks
 pass on CPU and FPGA. The validated resident benchmark delivers 0.04619 tokens/s
 on FPGA versus 0.17624 on matching A9 CPU, including prefill and 20 generated
-tokens; see [M4 performance](docs/SPEEDUP.md). Full-context board and supplemental
-startup qualification are in progress. M5 autonomous control is not started.
+tokens; see [M4 performance](docs/SPEEDUP.md). Physical CPU 1024-context checks
+also pass; FPGA full-context and supplemental startup qualification are in
+progress. M5 autonomous control is not started.
 See [M3 closure evidence](docs/M3_VERIFICATION.md), [performance](docs/M3_PERFORMANCE.md),
 `PLAN.md`, `docs/M1_VERIFICATION.md`, and `docs/M2_VERIFICATION.md`.
 
