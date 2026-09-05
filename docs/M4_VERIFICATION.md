@@ -362,8 +362,8 @@ per-lane AFFINE when it reduces packet count. Exhaustive represented-range
 tests and the frozen full-model checks pass, without changing v3 reference,
 pack or output hashes. Native host qualification passes 196 tensor boundaries
 across prefill/cached blocks, logits/all KV and 60 generated tokens. Current
-M4 unit tests: **37 PASS** (including seven benchmark, three evidence-audit and
-three performance-analysis tests); M3 host tests:
+M4 unit tests: **40 PASS** (including seven benchmark, three evidence-audit,
+three performance-analysis and three deployment-preflight tests); M3 host tests:
 **24 PASS**. Controlled physical before/after measurements are still required
 before claiming a speedup from this batching.
 
@@ -394,6 +394,25 @@ Diagnostic elapsed times include validation and **are not performance**.
 No 1024-context memory claim is inferred from the short-prompt RSS above.
 The old intentionally interrupted scalar-bridge run is preserved and is not
 a completed generation PASS; details are in `M4_RUNTIME.md`.
+
+The following full texts are decoded on the host from the exact token IDs
+accepted on both physical backends. They are illustrative fixed-20-token
+continuations, not an additional quality metric or board tokenizer benchmark:
+
+```text
+Once upon a time, in a small village near the mountains, a man named Nana was a young man who had been living in the village for a few years
+
+The purpose of a scientific experiment is to determine whether the effects of a given chemical are due to the chemical's effect on the organism. The
+
+A computer program can solve a problem by analyzing the data and then performing a series of calculations to determine the correct answer.
+
+The computer
+```
+
+The frozen floating-model generations differ, beginning at zero-based generated
+token indices 1, 2 and 0 respectively. Exact agreement is required with the
+independent **quantized** reference, not universal floating greedy identity.
+`build/m4_v3_generation.json` retains both versions and every token/logit hash.
 
 `tests/m4/performance_policy.json` SHA-256
 `17bcd0a823f551c539525fc54c0f51e759a306f9c346e968de06523b8380d8cf`
@@ -451,6 +470,18 @@ The underlying quality evidence and thresholds never changed. Even a complete
 machine audit still requires G7 documentation/limitations review and a scoped
 closure commit. The goal remains active; no M4 closure or extra push is claimed.
 
+The closure review additionally tightened deployment provenance: the initial
+stager pinned the pack/overlay but did not itself rehash every actual original
+model/tokenizer asset or cross-check each tensor file against its independent
+manifest. The new read-only `scripts/verify_m4_deployment.py` performs those
+checks and is now part of staging and the closure audit. All ten model assets,
+248 arrays and 396 tensor files pass; receipt is
+`build/m4_deployment_preflight.json`. The new staging helper includes the model
+license and small identity/tokenizer assets in future bundles. Existing physical
+evidence retains its original bundle identities; this host-side strengthening
+does not change the accepted arithmetic, prompts, weights, reference outputs
+or running board job. See `M4_RUNTIME.md` for the later host-only bundle.
+
 ## Evidence hashes
 
 | Evidence | SHA-256 |
@@ -493,6 +524,8 @@ closure commit. The goal remains active; no M4 closure or extra push is claimed.
 | `build/m4_final_host_tests.log` | `9cdba776484ebc345aac5ea84f48798310320ea4bb4b6220713df9275db6aed7` |
 | `build/m4_evidence_preflight_v3.json` | `5fb75d2c157ee062cd9e13090bfaa61eca247cbc610026dae0ea31355cb5d88e` |
 | `build/m4_analysis_host_tests.log` | `8fccac7fb240325f5d2e0e30ca8101945bc5077dcf69cfd8e12b1c8928e76638` |
+| `build/m4_deployment_preflight.json` | `5139aef28f2c0613f8367bfe7d40e68c90f101b1faea162ddccfa1c005f31cf9` |
+| `build/m4_deployment_host_tests.log` | `7402ec1fb581e67b2730a59fb1f8d51e2c1005b5bc5e8df8c5dbf8ba65bebf02` |
 
 All M4 model/board/quality/performance closure gates remain mandatory. No M4
 PASS, full-model speedup or tokens/s is claimed here.

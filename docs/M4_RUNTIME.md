@@ -151,6 +151,31 @@ conservatively requires prompt length plus requested output count <= capacity.
 Generation is batch one, lowest-ID greedy ties, with EOS treated as an ordinary
 token under the frozen fixed-20 policy.
 
+### Deployment source and license preflight
+
+`scripts/verify_m4_deployment.py` now rechecks the **actual bytes** of all ten
+pinned model assets (checkpoint, configuration, tokenizer/vocabulary/merges,
+license and semantic source), all 248 packed arrays, all 396 independent tensor
+files, frozen source/calibration/selection identities, and exact bit/HWH.
+Checking a manifest's identity alone does not prove that its asset files still
+match it. The verifier is read-only and does not download, repair, evaluate
+models, program hardware or alter quality thresholds.
+
+```bash
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.verify_m4_deployment --output build/m4_deployment_preflight.json
+```
+
+The staging helper invokes this preflight before creating a future bundle and
+copies the small model/tokenizer/configuration/license assets plus the receipt
+into `model_identity/`. It does not copy the 548-MB original checkpoint to the
+board or expand its weights: inference still loads only the accepted compact
+pack. A newly tested host bundle, `build/m4_runtime_stage.ryasqcbb`, passes all
+676 staged-file hashes and has manifest
+`730b67083e2898e485c895519823ea34b1b792ef6b5994ee253e9d4941afc8ac`.
+It has **not** replaced the active board bundle. Runtime, driver, model arrays,
+native libraries, fixtures and overlay are unchanged, so the ongoing physical
+measurements are not restarted or relabelled as using this later staging helper.
+
 ### Native CPU kernel preparation
 
 `zynq/m4_cpu_gemm.c` and `ref/m4_cpu.py` implement exact tiled int8 GEMM with

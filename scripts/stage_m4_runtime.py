@@ -7,6 +7,7 @@ import tempfile
 from ref.m4_model_pack import file_sha256
 from zynq.m4_offload import PACK_SHA
 from zynq.m4_driver import BIT_SHA, HWH_SHA
+from scripts.verify_m4_deployment import verify_deployment
 
 
 def main():
@@ -15,6 +16,9 @@ def main():
     parser.add_argument('--sfpu-library', type=Path, required=True)
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
+    # Recheck actual checkpoint/tokenizer/license/fixture bytes before making
+    # a deployable bundle; a pinned manifest alone is not an asset-byte check.
+    provenance = verify_deployment(root)
     source_pack = root / 'build/m4_pack_v3'
     if file_sha256(source_pack / 'manifest.json') != PACK_SHA:
         raise ValueError('unexpected source model pack')
@@ -41,6 +45,13 @@ def main():
     shutil.copytree(source_pack, stage / 'pack')
     shutil.copytree(fixtures, stage / 'fixtures')
     shutil.copy2(root / 'tests/m4/performance_policy.json', stage / 'performance_policy.json')
+    (stage / 'model_identity').mkdir()
+    for name in provenance['model_actual_file_sha256']:
+        if name != 'model.safetensors':
+            shutil.copy2(root / 'build/m4_model' / name, stage / 'model_identity' / name)
+    shutil.copy2(root / 'build/m4_model/model_manifest.json', stage / 'model_identity/model_manifest.json')
+    shutil.copy2(root / 'tests/m4/adaptive_candidate.json', stage / 'model_identity/adaptive_candidate.json')
+    (stage / 'model_identity/preflight.json').write_text(json.dumps(provenance, indent=2) + '\n')
     manifest = {'schema': 1, 'purpose': 'M4 correctness and frozen paired performance runners; staging alone is not qualification',
                 'stager_sha256': file_sha256(__file__),
                 'sha256': {str(path.relative_to(stage)): file_sha256(path) for path in sorted(stage.rglob('*')) if path.is_file()}}
