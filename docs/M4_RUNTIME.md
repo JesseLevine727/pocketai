@@ -52,13 +52,44 @@ timing. Initialization/packing and cold page-in costs must be reported separatel
 
 ## Remaining integration
 
-`zynq/m4_offload.py` is not implemented yet. It must independently schedule
+`zynq/m4_offload.py` now independently schedules
 the frozen model through the M3 GEMM/SFPU interface, preserving common
 per-row affine shifts across tiles, all heads, unsigned probabilities, causal
 prefix scale selection, exact residual alignment, epsilon correction and the
 full-vocabulary output scale. Scalar REQUANT8 scales may require separate
 packets; metadata computation is not free. A practical native A9 integer GEMM
-baseline scheduler is also still required; native operator kernels below pass.
+baseline through native kernels. Host checks match all 196 layer-boundary
+comparisons across 13-token prefill plus four cached tokens, all logits/KV,
+and all 60 frozen generated tokens. Physical scheduler checks are starting;
+native operator checks below already pass.
+
+The runtime preallocates K/V, stable per-token K8 and K scale metadata, totaling
+**48,365,568 bytes (46.125 MiB)** at capacity 1024. Int16 K/V alone is the
+36-MiB budget above; the extra derived cache is explicitly counted. Token blocks
+are at most 16, model weights stay mmap int8, and all planned arithmetic is
+dispatched through the chosen GEMM/SFPU backend. There is no floating GEMM or
+model-reference import in the scheduler. A9 still performs declared metadata
+range scans and epsilon correction.
+
+`zynq/m4_driver.py` allocates **110,592 CMA bytes** (98,304 TX + 12,288 RX),
+reuses length-specific views, preserves padding/unsigned probabilities, checks
+descriptor acceptance, DMA byte counts and completion tags/counts, and prevents
+buffer rewrites after a failed operation. Reset/restart is bounded by deadlines;
+failed DMA reset retains allocations. Route changes require idle engines.
+These are implemented safeguards, not yet claimed physically qualified.
+
+`tests/m4/export_runtime_fixtures.py` exports from the **frozen independent
+reference**, not this runtime: four tensor cases, all 60 generation logit/KV
+hashes, and the full 1024-token stress. `zynq/m4_run.py` checks those delivered
+tensors and hashes. Diagnostic operator cross-checking is optional and outside
+any performance claim. Its elapsed time includes checking and must not be
+reported as model performance.
+
+Initial source/pack/fixture/overlay bundle: `build/m4_runtime_stage.le05p1bc`,
+manifest SHA-256 `cfff45881ba6ff1937bf809ac865a27647ba8432f95e318c3dfa43eb9c5b41e1`.
+Physical staging uses the fresh owned directory
+`/home/xilinx/pocketai_m4_runtime.ptyLjY`. Every staged file is hash-checked before
+programming; the runtime independently checks the accepted pack and overlay.
 
 ### Native CPU kernel preparation
 
