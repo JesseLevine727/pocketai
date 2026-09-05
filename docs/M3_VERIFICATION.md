@@ -1,7 +1,9 @@
-# M3 verification — IN PROGRESS / NOT QUALIFIED
+# M3 verification — PASS / CLOSED
 
-M3 has not passed. This record tracks actual evidence as the gates in
-[`M3_PLAN.md`](M3_PLAN.md) are completed. No M4/M5 implementation is underway.
+M3 passed all required gates on 2026-09-05. This record associates the frozen
+contracts, qualified source, local tests, two clean 95 MHz implementations and
+exact-overlay physical results with [`M3_PLAN.md`](M3_PLAN.md). No M4/M5
+implementation, remote push or full-model performance claim is included.
 
 ## Completed gates
 
@@ -18,8 +20,67 @@ M3 has not passed. This record tracks actual evidence as the gates in
   `M3_ARCHITECTURE.md`. This is a design/reference gate, not proof of RTL or
   model-level quantization accuracy.
 - G3: complete local numerical/protocol/lifecycle/cluster/ISA suite **PASS** on
-  the pipelined candidate, including the final signed17 ADD path. No FPGA timing
-  or physical-board gate is implied; new RTL changes require affected retests.
+  the qualified pipelined RTL, including the final signed17 ADD path. FPGA
+  and physical evidence are separate below; new RTL requires affected retests.
+- G4: two independent clean full-overlay builds **PASS** at 95 MHz:
+  qual3 +0.483 ns / qual5 +0.400 ns setup, zero TNS, positive hold, zero DSPs,
+  clean final clock/endpoint checks, no DRC/methodology errors or critical
+  warnings, and every remaining warning class reviewed.
+- G5: exact qual3 overlay physically passes M1 before/after, M2 regression,
+  all M3 packets and repeated actual-result chains. See the physical evidence
+  and `M3_PERFORMANCE.md`.
+- G6: evidence audit and coherent closure documentation **PASS**, recorded in
+  the scoped local milestone commit containing this closure record. No push,
+  M4/M5 work or changes to unrelated `NA/` files.
+
+## Source and tool identity
+
+The frozen numerical/reference checkpoint is local commit `a62bee7`; wide
+GEMM/shared arithmetic is `77f7053`; the complete pipelined G3 RTL is
+`61bc496`; the physical qualification driver and implementation-strategy
+selection are `ff9e294`. No arithmetic RTL changed during the subsequent
+qual1–qual5 physical-strategy work. Final closure adds evidence and selects the
+already-tested strategy; it does not alter the v1 numerical equations or ABI.
+
+Pinned dependencies (verified again with `bash scripts/check_deps.sh all`):
+
+- Ibex `34b0705760ef3dfa00e99637432473d2be8f22f3`, exactly the tracked
+  `patches/ibex-34b0705.m1-timing.diff`, SHA-256
+  `2e80154b3d9b24f01dd41d74024df3e696d92189b5a54d5d05982541db075b8e`.
+  No further Ibex modification was needed for M3 timing.
+- riscv-compliance `844c6660ef3f0d9b96957991109dfd80cc4938e2`, exactly the
+  tracked local patch, SHA-256
+  `f897aa07192485af86f52ffbe69e3157f834618f0a08299fd5293fda71780527`.
+  The four expected failures remain I-EBREAK-01, I-ECALL-01,
+  I-MISALIGN_JMP-01 and I-MISALIGN_LDST-01; 84 tests pass.
+- GPT-2 reference semantics: OpenAI GPT-2 commit
+  `9b63575ef42771a015060c964af2c3da4cf7c8ab`, `src/model.py`, as frozen in
+  `NUMERICS.md`. No checkpoint/calibration/tokenizer/model-quality claim.
+
+Host: Ubuntu 24.04.3 LTS, Vivado 2025.1 build 6140274,
+Digilent PYNQ-Z1 board part `www.digilentinc.com:pynq-z1:part0:1.0`,
+Verilator 5.020, FuseSoC 2.4.6, Edalize 0.6.8,
+RISC-V GCC 16.1.0 (`g6afcc4f6d`), Python 3.12.3 / NumPy 2.4.3.
+Physical runtime versions are separately recorded below. Both clean Vivado
+builds have private resolved source trees and captured build scripts.
+
+| Qualified RTL | SHA-256 |
+|---|---|
+| `rtl/sfpu/pa_sfpu.sv` | `387612215c5d4bd95505c74e807b5625cdbb77524e324269697df502d7d1d4dd` |
+| `rtl/sfpu/pa_sfpu_alu.sv` | `e347c4c686ddfbbe0264e5b88370c19c3d74dd39a9a6a9b10047a9d4d70331e5` |
+| `rtl/sfpu/pa_sfpu_compute.sv` | `12ec9ce52018733ba86ecbb4772381e00eb7737be9f4d1284d7ac7b3449aa0a4` |
+| `rtl/gemm/pa_gemm.sv` | `659d6156cbad7f315df38b447262ce749e39ef1696a2ec72e83cc0281512efcd` |
+| `rtl/gemm/pa_gemm_slot.sv` | `70e0ac4dd21b9e9ccecd8ab56adbb89bea7d33c7b98c1f16ab91a901955c24e2` |
+| `rtl/soc/pa_cluster_top.sv` | `9e71058fcd5a0658d182db5e4c1f763caf2033fa460f42d98e44c9fa46020d17` |
+
+After G3's complete 22-host-test aggregate run, two additional board-harness
+unit tests were added without RTL changes. The final **24 host tests pass** in
+`build/m3_final_host.log` (SHA-256
+`a7e82186260a7aea843efcac6d970bb0560044094e2d99dd77cf8bb2962f69a3`).
+Shell syntax checks pass for all M3 local/build/board runners. The final
+10,000-case-per-operation numerical result `build/m3_numerics_final.json` has
+the same hash as the frozen G2 qualification JSON below; no accuracy limit or
+reference equation was changed to close timing.
 
 ## G2 reference evidence
 
@@ -205,8 +266,8 @@ infers four RAMB36 blocks for X, preserving synchronous behavior. The first
 non-pipelined routes failed timing (-6.234 ns in explore2; -7.317 ns in explore3).
 These are **failed development candidates**, not accepted overlays. Their
 reports identify wide SFPU arithmetic and a high-fanout GEMM control net. No
-clock, jitter, uncertainty or numerical gate was relaxed. Pipeline/physical
-optimization work and two final clean builds remain required.
+clock, jitter, uncertainty or numerical gate was relaxed. These failures drove
+the pipeline/physical optimization; both final clean results are recorded below.
 
 The pipelined explore4 reached **+0.199 ns** and was rejected. Independent clean
 `build/m3_qual1` and `build/m3_qual2` builds from the signed17-ADD candidate both
@@ -223,8 +284,9 @@ they are not accepted evidence. A targeted **pre-route** adder-control
 replication experiment in `build/m3_fanout1`, using
 `zynq/replicate_m3_control.tcl`, finished at +0.074 ns and was discarded.
 Fresh candidates `build/m3_qual3` (Performance_ExploreWithRemap) and
-`build/m3_qual4` (Performance_ExtraTimingOpt) now test alternative physical
+`build/m3_qual4` (Performance_ExtraTimingOpt) tested alternative physical
 implementation strategies with exactly the same RTL/clock/acceptance limits.
+Qual3 passed at +0.483 ns; qual4 reached +0.190 ns and was rejected.
 The chosen strategy is explicit through `M3_IMPLEMENTATION_STRATEGY` and printed
 in the build log. Any adopted flow must be reproduced independently
 and pass every final timing/DRC/clock gate before board programming. This is
@@ -236,8 +298,9 @@ The complete current local-gate log `build/m3_local_qualified.log` has SHA-256
 The current `pa_sfpu_compute.sv` and both clean-build source copies have SHA-256
 `12ec9ce52018733ba86ecbb4772381e00eb7737be9f4d1284d7ac7b3449aa0a4`.
 
-Physical harnesses `zynq/m3_run.py` and `zynq/run_m3_board.sh` are implemented
-but **not yet run on M3 hardware**. They require a full-build PASS and a checked
+Physical harnesses `zynq/m3_run.py` and `zynq/run_m3_board.sh` are implemented.
+Physical qualification of the first timing-passing candidate **passed**. The
+harnesses require a full-build PASS and a checked
 source/vector/bit/HWH manifest, then run M1/M2, all M3 packet sets, seven operator
 benchmarks and both actual-result chains (three warmups/30 timed repeats).
 Numerical checking is outside timing; transfers, cache maintenance, A9 dynamic
@@ -245,12 +308,227 @@ quantization/patching and shared final-result publication remain inside the
 declared chain boundary. Prepacked fixed weights/metadata are an explicit
 exclusion; no full-model/token-rate or CPU speedup is inferred.
 
-## Open gates
+## G4 implementation evidence — two independent clean builds PASS
 
-- Recheck G3 if subsequent timing work changes the qualified RTL.
-- G4: two independent clean, fully constrained 95 MHz implementations.
-- G5: physical M1/M2/M3 qualification of the exact accepted M3 overlay.
-- G6: full evidence audit and scoped local milestone commit.
+The unchanged G3 RTL passes the complete build gate in `build/m3_qual3` using
+`Performance_ExploreWithRemap`. The independent same-strategy clean rebuild is
+`build/m3_qual5`, which also **passes**. Its resolved source tree and captured
+build scripts compare byte-for-byte equal with qual3. Synthesis checksum is
+`350ce63e` in both; independent placement/routing results differ, as reflected
+in the timing and artifact hashes. Reproducible acceptance does not mean
+byte-identical bitstreams or identical slack.
 
-No accepted M3 timing, physical operator performance or full-model claim is made here.
+```bash
+PYNQ_BOARD_REPO=/home/elfo/Documents/MASc/pynq-z1-llm-accel/external/board_files \
+M3_VIVADO_BUILD_DIR=build/m3_qual3 \
+M3_IMPLEMENTATION_STRATEGY=Performance_ExploreWithRemap PA_CLEAN=1 \
+bash zynq/build_m3.sh
+# Repeat the same command with a fresh build/m3_qual5 directory.
+diff -qr build/m3_qual3/resolved_sources/src build/m3_qual5/resolved_sources/src
+diff -qr build/m3_qual3/build_scripts build/m3_qual5/build_scripts
+```
+
+| Final full-design result | qual3 | qual5 |
+|---|---:|---:|
+| Fabric clock | 95 MHz / 10.526 ns | same |
+| Setup WNS / TNS | +0.483 ns / 0 | +0.400 ns / 0 |
+| Hold WHS / THS | +0.018 ns / 0 | +0.016 ns / 0 |
+| Clock/endpoint checks | all 12 categories zero | same |
+| Routing errors | 0 / fully routed | same |
+| DSP primitives | 0 | 0 |
+| LUT as logic / flip-flops | 27,294 / 23,019 | 27,293 / 23,019 |
+| Total slice LUTs (including memory) | 28,233 | 28,232 |
+| Block RAM tiles | 97 (96 RAMB36 + 2 RAMB18) | same |
+| Final DRC errors / critical warnings | 0 / 0 | 0 / 0 |
+| Final DRC warning / advisories | RTSTAT-10: 1 / REQP-181: 2 | same |
+| Methodology warnings | LUTAR-1: 2; no errors/critical warnings | same |
+
+The required +0.250 ns margin is met; the +0.500 ns stretch is not. The existing
+extra 0.526315 ns setup uncertainty is used only to guide implementation
+(Vivado rounds it to 0.526 ns), then removed for final reporting. MMCM/PS
+generated clocks and vendor jitter remain; no false paths or other exceptions
+were added to evade a failing path. The final bitstream is regenerated from the
+same optimized design that produced these final reports.
+
+The captured build scripts use an explicit `M3_IMPLEMENTATION_STRATEGY`
+override, shown above. Closure makes `Performance_ExploreWithRemap` the default
+as well; this selects exactly the tested flow, not a new RTL/constraint
+configuration. The board runner defaults to the physically accepted qual3
+artifact, not rejected qual2. Fresh reproduction directories remain mandatory.
+
+| qual3 artifact | SHA-256 |
+|---|---|
+| `m3_pynq.bit` | `78fc22f0e9263759ed2ac6417345ce8c6ef7815438febd9c6a4332532790be5b` |
+| `m3_pynq.hwh` | `20a2f3caa860b3dd644b9f4b5e7fa9bb8e7a70dc6a51dbd280e7e9347a3eafd6` |
+| `m3_pynq.xsa` | `b49bfb9ad6b72c0ae6663f96fdb05e3cd6446f7d796fb5545f72652202e97a57` |
+| `m3_pynq_final.dcp` | `40e1f647c2082eda8da780159085724bc261bd4d45660c96269c9a7fc0022c4a` |
+| `reports/m3_timing_summary.rpt` | `447ac00b6b9cdbd23d8c83bd2383e513bf573b8f15c5b1da1d116b32fc1f03ae` |
+| `reports/m3_utilization.rpt` | `aca660b9ff4988dc21a09551848d5c6df581859753b948cc6a09cef92e11701b` |
+| `reports/m3_drc.rpt` | `4c9fdafec5ae66d8fffc99c0c1b06a6b6a0446da4f4a482ddcdb29c595f4afc7` |
+| `reports/m3_methodology.rpt` | `bc0b017bbdc4922ffc0521b0a67da4f1dd09eb487cf31c7779c3d1448f825e45` |
+| `reports/m3_route_status.rpt` | `81da1c547f736cf834ddba1c569b3e3b1cce9f0bc3b319c1aa6040b5243bb778` |
+| `reset_audit.log` | `bb93cd111003ddc2d62df22fe316e95ebd9d6ff915a935a3a33ea00bc07c9df0` |
+
+| qual5 artifact | SHA-256 |
+|---|---|
+| `m3_pynq.bit` | `629af0b92a5422bfa1f12a7b940b46b0abb2a249fd846509bd87ab9a0d896e9e` |
+| `m3_pynq.hwh` | `1f4deba9bec5e5b4793165024c5e5d3974c0713fcaa1d9fc31700e3258326454` |
+| `m3_pynq.xsa` | `a60f6e1ca4fbf440943d69671b8eff2bb0ddecf528acd56e533bd9eb13c1931c` |
+| `m3_pynq_final.dcp` | `421c36f6a193a99a9ceb660249638a5417402f6816ff6633cfa2a08a9f2b427e` |
+| `reports/m3_timing_summary.rpt` | `53de654412f16d54ea0d1d5188ed91704e1b73fb0ec2877e379f676fa5ba791e` |
+| `reports/m3_utilization.rpt` | `9c7cb0e9d95163c8983a6ba45e4fe78b441c9559db9f5f710ec84b5f86627607` |
+| `reports/m3_drc.rpt` | `9ea1d4027f3c0a039567e96aa45d60ebbeacc1c1b901d9375305bbb4089c0af4` |
+| `reports/m3_methodology.rpt` | `398fbbf4039016a1109aff19f08bf4c1cf417eddfa83b97336acc2293d726504` |
+| `reports/m3_route_status.rpt` | `aa2cda7eab6201b786a606e08d2059456ffac00422563861f5b25df4078ee077` |
+| `reset_audit.log` | `3554098256a3deddeff1c9bf075942b703cc3ccc17f88c6887d1a93d6dd333aa` |
+| `vivado.log` | `158f9bbf2e28860b49a5c616d4b97a44a739b37e96b65b9519a93b52d3420fcf` |
+
+### Warning review
+
+Both consoles have identical diagnostic-class counts and were reviewed, including the
+earlier critical messages (two each of PSU-1, PSU-2 and Designutils 20-1280;
+one Timing 38-282 under artificial uncertainty). Final timing, DRC and
+methodology have no errors or critical warnings. This is a specific review,
+not an unrestricted waiver for future source or implementation changes. Both
+final-checkpoint reset audits pass, with the same LUT2 functions/input drivers
+and correctly derived clocks.
+
+| Messages | Disposition / evidence |
+|---|---|
+| `PSU-1`, `PSU-2` | Digilent board preset has DDR DQS skews -0.009/-0.033. Vendor settings retained, as in M1/M2; exact-M3 physical DDR/DMA qualification passed. |
+| `Designutils 20-1280` | Two optimized SmartConnect reset modules are absent; both named generated board XDC files were inspected and contain only a physical-constraints comment. No constraint is lost. |
+| `BD 41-1306` | GPIO is explicitly connected to core reset instead of an external board GPIO; polarity checked by build. |
+| `BD 41-3281` | Separate GP0 control and HP0 DMA SmartConnects are intentionally instantiated and explicitly addressed. |
+| `BD 41-2384`, `Synth 8-10507` | Generated internal SmartConnect payload/interface metadata. External streams are still 32-bit; local AXI tests and board transfer checks passed. |
+| `BD 41-702`, `IP_Flow 19-11770` | Initial interface-frequency metadata; final physical pins use the common MMCM 95 MHz clock, with all clock/endpoint categories zero. |
+| `Synth 8-11067` | Upstream package parameters are interpreted as localparams, consistent with package semantics. |
+| `Synth 8-2898` | Nine runtime assertions in the new SFPU are omitted from synthesis; they are active in the complete assertion-enabled Verilator suite. |
+| `Synth 8-3917` | Configured-out Ibex integrity, capability, cache and shadow outputs are constant; core configuration/pin and ISA regression unchanged. |
+| `Synth 8-6014`, `8-3332`, `8-3936` | Unused vendor/optional core state removed. The three SFPU names are block-local procedural temporaries (`difference`, `shift_remainder`, `positive_gelu`), not discarded live pipeline state; exact full-domain/vector tests pass. |
+| `Synth 8-7071`, `8-7023`, `8-7129` | Unused optional vendor ports and synchronous-DMA CDC helpers. Final clock/endpoint checks pass. |
+| `Synth 8-3848`, `8-3295` | Disabled scatter-gather/status connections and unused reset outputs; unused DMA status inputs tied low. |
+| `Synth 8-7137`, `8-4767` | Existing console storage is unreset inside a resettable process; reset occupancy prevents stale-byte visibility. Local regression and both physical console checks passed. |
+| `Synth 8-6841` | Whole-word/banked RAM write enables prevent the named byte-wide physical optimization; logical byte strobes remain tested. |
+| `Synth 8-3323` | Intermediate arithmetic mapping attempts DSP allocation; final implemented DSP count is strictly zero. |
+| `Vivado 12-7122`, deprecated `-fanout_limit` | No incremental checkpoint in this independently clean flow; deprecated option still accepted by pinned Vivado. |
+| `Vivado 12-2489` | Temporary setup uncertainty rounded to 0.526 ns; removed only for final qualification, not vendor jitter. |
+| `Route 35-39`, `Timing 38-282` | Implementation under deliberately extra uncertainty; final true-95-MHz timing must independently meet +0.250 ns / zero TNS / positive hold. |
+| `Power 33-332` | Default reset activity makes estimated power unreliable; no measured power claim. |
+| `Project 1-645` | XSA lacks board-image artwork; does not alter bit/HWH function. |
+| DRC `RTSTAT-10` | 20 generated SmartConnect reset-pipeline nets have no routable loads; all routable nets fully routed. |
+| DRC `REQP-181` | Two vendor DMA FIFO RAMs use WRITE_FIRST; vendor FIFO owns collision avoidance. Exact-M3 physical DMA checks passed. |
+| Methodology `LUTAR-1` | Exactly two LUT2s, both INIT=4'h7 (active-high reset NAND), combine GPIO core-reset and synchronized system-reset registers. Read-only final-checkpoint audit proves both inputs/drivers. Supported sequencing holds GPIO reset low during programming/system reset and releases only after clock/reset stabilize and firmware is loaded; no arbitrary simultaneous toggling is supported. |
+
+Reset audit reproduction:
+
+```bash
+M3_DIAGNOSTIC_DCP="$PWD/build/m3_qual3/m3_pynq_final.dcp" \
+/home/elfo/Documents/2025.1/Vivado/bin/vivado -mode batch -nojournal \
+  -log build/m3_qual3/reset_audit.log -source zynq/audit_m3_candidate.tcl
+```
+
+## G5 physical qualification — PASS
+
+```bash
+M3_VIVADO_BUILD_DIR=build/m3_qual3 bash zynq/run_m3_board.sh
+```
+
+SSH `xilinx@10.0.0.223`, staged at `/home/xilinx/pocketai_m3`, login-shell
+`sudo -E` with interactive authentication; no credential stored. The runner
+checks a 15-file manifest locally/remotely **before programming** and the M3
+driver rechecks requested artifact paths. The tested bit/HWH are the exact
+qual3 files in the table above, not a failed/internal candidate bitstream.
+
+Physical results, 2026-09-05 (M3 start 04:38:12 UTC):
+
+- M1 before and after: both harts print READY, count0=count1=10000,
+  messages `468aad43` / `85558c0a`, work `29c4c2c2` / `a3e316ec`.
+  Both `M1 BOARD PASS elapsed_s=0.047`.
+- Unchanged M2: 16×768×768 projection, 48 descriptors / 24 pairs,
+  12,288 int16 results, 6144 exact DDR and shared-scratchpad words, all pass.
+  Cycles 154,752 / MACs 9,437,184 remain unchanged. Its one-run
+  validation-inclusive latency was 107.529 ms; this does not replace G1 or
+  historical M2's repeated/acceptance evidence.
+- `M3 BOARD CONTROL PASS`: IDs/capabilities, both-engine busy route interlocks,
+  invalid op/length/parameter descriptor rejection, abort and recovery.
+- `M3 BOARD WIDE_MIXED_GEMM PASS cases=1007`: 251 legacy / 756 wide packets,
+  seed `0x50414733`; full-range K=3072, cancellation and all directed/random
+  packets also used by RTL qualification. Every output word and per-packet
+  cycles/MACs/bytes/tag/completion count/error/idle checks pass.
+- `M3 BOARD SFPU PASS cases=3472`, seed `0x53465033`: GELU 76 packets
+  (including all 65,536 scalar inputs), LayerNorm 1048, softmax 1120,
+  AFFINE 310, REQUANT8 310, AFFINE_GELU 310, ADD 298. Every delivered word,
+  length/cycles/bytes/tag/completion count/error/idle check passes against the
+  exact frozen reference vectors. Their high-precision errors are the G3
+  vector qualification figures above; physical agreement does not establish
+  additional model-quantization accuracy.
+- Seven representative operator benchmarks, three warmups / 30 timed trials
+  each, with all exact output/counter checks outside timing.
+- Both chain benchmarks, seed `0x43484e33`, three warmups / 30 trials each:
+  MLP 246 descriptors / 245 actual-result patches and attention 69 / 5.
+  All intermediate and final tensors match; compact shared-scratchpad
+  publication and last-descriptor/cumulative counters pass. Dynamic row
+  scaling uses actual results inside timing, not frozen golden parameters.
+- Final totals: **11,072 GEMM + 4033 SFPU = 15,105 descriptors** in the M3
+  harness, including warmups, plus the separate 48-descriptor M2 regression.
+  Final `M3 BOARD PASS` and `M3 PHYSICAL ACCEPTANCE PASS` are present.
+
+The driver resets DMA before releasing CMA buffers. The supported reset
+sequence and DDR/DMA transfers pass on the exact overlay; this is workload
+qualification, not an exhaustive voltage/temperature/reset-glitch campaign.
+Reset/abort/framing/IRQ exhaustive phase/boundary coverage remains the G3
+simulation evidence, not an invented physical fault-injection claim.
+
+| Physical evidence | SHA-256 |
+|---|---|
+| `build/m3_qual3/board.log` | `074af80835b0c71b180a5a558e60594aa0e706f50ec61badce91fe49d1c540b1` |
+| `build/m3_qual3/board.json` | `cb7faf85c66a5b097b01e88091e75c82e42a1d21daea193058b5f50100ebabe4` |
+| `build/m3_qual3/board_manifest.json` | `0c304167a86517ca834c7665c520000befa4639ce72a6647e86ae80b8da686d5` |
+| `build/m3_qual3/vivado.log` | `0ff4d1775010014d1e9809976162f352284bb237e3fa0f5576b92f848754c801` |
+| `build/pa_sfpu/vectors.bin` | `79a3933da00f82a796acdfe90fde4147dd5548b5abb702d060c4b201bec6b082` |
+| `build/pa_gemm_v3/vectors.bin` | `b1bb34c09327b1f89ffa1d9ca29ea6dc62a38084c9ed78d832063e419dc6ade5` |
+| `build/pa_cluster_m3/chains.bin` | `1245e3c069492728de312af6c2d2aaccc5136e6fa7b53450ddd837adb06d8930` |
+| `build/pa_cluster/cluster.bin` | `1c877c4ccf82060ae3dd71645fe5e1892215b03d95fad1edb2e020ca6f85dcc0` |
+| `zynq/m3_run.py` | `aec8ff011ea0663da08d10ee5ae888367b460206c7b698900bca2b7447ad1e2f` |
+| `zynq/m3_manifest.py` | `36b0cda0b0c3ac2df28b8ea12b0f49bc74e87cea1de200ddba4768e30b2f1d8f` |
+
+The manifest also hashes all staged references, M1/M2 runners, full resolved
+build sources, build-script snapshots and final reports. Runtime/platform,
+clock-tree readback and every performance sample are in `board.json`. Timed
+boundaries, latency/tail/variability/bytes and limitations are fully described in
+[`M3_PERFORMANCE.md`](M3_PERFORMANCE.md). No full-model/token-rate claim is made.
+
+## G6 closure audit and limitations — PASS
+
+All required G0–G6 outcomes are satisfied by the associated evidence above.
+The final hash audit rechecks all 189 build-evidence files in the physical
+manifest, exact tested bit/HWH, vectors, driver and frozen reference. The
+independent qual5 source/script trees match qual3, all final reports pass, and
+both warning/reset audits are complete. Dependency pins/patches, M1 firmware,
+historical M2 bit/HWH and G1 baseline JSON were rechecked unchanged. Scoped
+diff/shell/host checks pass. Closure documentation is included in the local
+milestone commit; `NA/` is untouched and nothing is pushed remotely. This is
+the implementation agent's evidence review, not independent external peer review.
+
+No mandatory M3 work remains. Important limits for the next milestone:
+
+- This is **W8A8 GEMM arithmetic with int16 activation storage**, not W8A16
+  matrix multiplication. Wide int32 results and K=3072 prevent premature
+  saturation, but do not prove model-level quantization accuracy.
+- GPT-2 semantics/operator accuracy are pinned; actual checkpoint, tokenizer,
+  calibration, layer-by-layer model comparison and tokens are M4 work.
+- The SFPU shares sequential arithmetic and one descriptor slot. It is exact
+  within the frozen budgets, not claimed to be the fastest possible design.
+- Chains retain A9 descriptor ownership, dynamic-scale calculation, DDR
+  intermediate round trips and final A9 scratchpad publication. No direct
+  fabric forwarding, autonomous inference, or physical concurrent-hart speed
+  result is claimed. Local concurrent-hart/accelerator tests pass.
+- Timing is qualified at **95 MHz**, not 100 MHz. +0.500 ns remains an
+  unachieved stretch; both builds exceed the unchanged +0.250 ns hard gate.
+  Future M4 changes need their own timing/resource/physical qualification.
+- Full overlay uses 97/140 BRAM tiles and approximately 53.1% of slice LUTs;
+  later buffers/features must fit the remaining resources. No ASIC/PPA,
+  measured power/energy, full-model speedup or token-rate claim is made.
+
 M1/M2 historical closure records and qualified overlays remain unchanged.
+M4 and M5 are **not started**.

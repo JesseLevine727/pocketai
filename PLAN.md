@@ -4,7 +4,7 @@
 Design a fabric-resident AI inference SoC (2× RISC-V cores + int8 GEMM unit +
 special-function unit) on the PYNQ Z1 (Zynq-7020: 53,200 LUT, 106,400 FF,
 630 KiB BRAM, 220 DSP48; M1/M2 qualified at 95 MHz, 100 MHz stretch).
-Run GPT-2 124M (int8 weights, int16 activations) with weight-streaming from DDR3.
+Run GPT-2 124M (W8A8 GEMM arithmetic, int16 activation storage) with weight-streaming from DDR3.
 Then port the *identical* RTL to Sky130 via
 OpenLane and deliver a **PPA report** (fabric vs silicon: area, timing,
 power, bandwidth) as a first-class deliverable.
@@ -171,7 +171,7 @@ Closed design decisions and limits:
 
 ### M3 — GPT-2 SFPU, numerical interfaces, and measured dataflow
 
-**Status (2026-09-04): IN PROGRESS — not qualified.**
+**Status (2026-09-05): COMPLETE — qualified at 95 MHz on PYNQ-Z1.**
 
 The comprehensive staged goal and acceptance checklist are in
 [`docs/M3_PLAN.md`](docs/M3_PLAN.md). Its ordered gates are:
@@ -193,6 +193,15 @@ The comprehensive staged goal and acceptance checklist are in
    reviewed), then physical SSH qualification of the exact accepted overlay.
 6. Complete `docs/M3_VERIFICATION.md` with hashes, reproducible commands,
    operator/integrated measurements and limitations; scoped local commit.
+
+All required gates passed; see [`docs/M3_VERIFICATION.md`](docs/M3_VERIFICATION.md)
+and [`docs/M3_PERFORMANCE.md`](docs/M3_PERFORMANCE.md). Clean builds qual3/qual5
+close at +0.483/+0.400 ns setup, +0.018/+0.016 ns hold, zero TNS, zero DSPs,
+fully routed/constrained with reviewed warnings. The exact qual3 bit passes
+physical M1/M2/M3/M1, 1007 mixed GEMM cases, 3472 SFPU cases, and repeated
+actual-result MLP/attention chains. The frozen v1 numerics/ABI and all M1/M2
+regressions remain intact. The fair M2 baseline, matching CPU comparison,
+measured host improvements and all timing boundaries are recorded honestly.
 
 +0.500 ns and 100 MHz are stretch only. No M4/M5 implementation, autonomous
 KV management, full-model throughput, token-rate claim, or remote push in M3.

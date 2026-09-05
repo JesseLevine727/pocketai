@@ -1,9 +1,9 @@
 # M3 architecture and interface contract v1
 
-Frozen before arithmetic RTL, 2026-09-04 local time. **Implemented; FPGA timing
-and physical qualification are still open.** Wide GEMM, all seven SFPU operators,
-shared stream routing and actual-result cluster chains have local evidence in
-`M3_VERIFICATION.md`. Numerical semantics and fixed acceptance
+Frozen before arithmetic RTL, 2026-09-04 local time. **Implemented and qualified
+at 95 MHz, 2026-09-05.** Wide GEMM, all seven SFPU operators, shared stream
+routing and actual-result chains have local and exact-overlay physical evidence
+in `M3_VERIFICATION.md`, with two clean timing builds. Numerical semantics and fixed acceptance
 limits are in [`NUMERICS.md`](NUMERICS.md); staged gates are in `M3_PLAN.md`.
 
 ## Integration and dataflow

@@ -185,7 +185,8 @@ set_property STEPS.SYNTH_DESIGN.ARGS.MAX_DSP 0 [get_runs synth_1]
 set_property STEPS.SYNTH_DESIGN.ARGS.FLATTEN_HIERARCHY full [get_runs synth_1]
 set_property -name {STEPS.SYNTH_DESIGN.ARGS.MORE OPTIONS} \
     -value {-fanout_limit 16} -objects [get_runs synth_1]
-set implementation_strategy Performance_NetDelay_high
+# Qualified in two independent clean builds (m3_qual3 / m3_qual5).
+set implementation_strategy Performance_ExploreWithRemap
 if {[info exists ::env(M3_IMPLEMENTATION_STRATEGY)]} {
     set implementation_strategy $::env(M3_IMPLEMENTATION_STRATEGY)
 }

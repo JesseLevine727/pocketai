@@ -193,5 +193,131 @@ RTL, dependency pin, accepted M2 artifact or hardware clock changed.
 
 These are two synthetic warm projection workloads, one CPU implementation and
 one Linux/PYNQ operating environment. No full-model speedup, token/s, power,
-energy, concurrent-hart performance or peak-DDR claim is made. M3's eventual
-overlay and operators require new measurements and independent qualification.
+energy, concurrent-hart performance or peak-DDR claim is made. These baseline
+figures qualify only the unchanged M2 overlay; new M3 measurements follow.
+
+## G5: physical M3 operators and chains — PASS
+
+Run start: **2026-09-05T04:38:12 UTC**, physical PYNQ-Z1 over SSH. Exact overlay:
+`build/m3_qual3/m3_pynq.bit`, SHA-256
+`78fc22f0e9263759ed2ac6417345ce8c6ef7815438febd9c6a4332532790be5b`.
+It passed the 95 MHz implementation gate at +0.483 ns setup / +0.018 ns hold,
+zero TNS and zero DSPs. The independent rebuild is recorded separately in
+`M3_VERIFICATION.md`; it does not change these measured samples.
+
+```bash
+M3_VIVADO_BUILD_DIR=build/m3_qual3 bash zynq/run_m3_board.sh
+```
+
+The runner checks the manifest locally and remotely before programming, then
+runs unchanged M1, unchanged M2, M3 qualification/benchmarks, and M1 again on
+the **same bit/HWH**. All passed. M3 executes 11,072 GEMM and 4,033 SFPU
+descriptors, including 1007 mixed GEMM and 3472 SFPU qualification packets,
+seven repeated operator tests and both repeated chains. Exact output, numerical
+budgets, descriptor counters, tags and cycles are checked, as described in the
+verification record. Board Python 3.10.4, NumPy 1.21.5, PYNQ 3.1.1 and Linux
+6.6.10-xilinx-v2024.1 are unchanged from G1. FCLK0 is configured at 100 MHz;
+the qualified MMCM supplies 95 MHz. No board-global tuning was performed.
+
+### Measurement boundary
+
+Every operator and chain has **three warmups and 30 timed repeats**. Operator
+order is deterministically shuffled within each repetition; each chain runs
+its own repeated workload. These are warm repeated synthetic inputs, not cold
+checkpoint loading. Raw samples, median, p95, min/max, mean and coefficient of
+variation are retained in JSON. p95 uses NumPy's linear percentile.
+
+- Operator timing starts with prepacked input in ordinary DDR and ends with
+  the result copied into ordinary DDR. CMA staging, descriptor/route dispatch,
+  both DMA channels, required flush/invalidate, waiting and output copy are
+  inside timing. Allocation, packet preparation and reference checking are out.
+- Chain timing additionally includes patching consumers from **actual previous
+  results**, A9 calculation of dynamic row-quantization parameters, int8 packet
+  packing, intermediate assembly, and compact final publication to shared
+  scratchpad with an ordered read fence. Fixed weights/coefficients and packet
+  layouts are prepacked before timing. No direct fabric GEMM→SFPU forwarding
+  is implied; each descriptor returns through DDR and A9 control.
+- All reference/tensor checks occur **after** the complete operator or chain.
+  Intermediate result captures are retained inside the chain boundary so they
+  can be checked later; this overhead is not silently subtracted.
+- Harts are held reset during timed work. Both harts pass M1 separately before
+  and after testing; concurrent operation is qualified in cluster simulation,
+  not claimed as a physical performance result. Bounded spin polling occupies
+  an A9 thread. Compute counters overlap DMA/control intervals and must not be
+  added to delivered wall latency or treated as disjoint host phases.
+
+### Operator results
+
+All times below are milliseconds. Compute is the validated hardware counter
+divided by 95 MHz; delivered latency is the measured boundary above. Non-GEMM
+operators are reported in latency, **not GMAC/s**.
+
+| Operation / length | Compute cycles | Compute ms | Delivered median / p95 ms | Input / output bytes |
+|---|---:|---:|---:|---:|
+| GELU / 3072 | 18,432 | 0.194021 | 1.371216 / 1.413509 | 12,288 / 12,288 |
+| LayerNorm + affine / 768 | 216,121 | 2.274958 | 3.334824 / 3.390267 | 9,216 / 3,072 |
+| Masked softmax / 1024 | 120,576 | 1.269221 | 2.319736 / 2.379861 | 4,096 / 4,096 |
+| AFFINE / 1024 | 76,800 | 0.808421 | 1.898761 / 1.970099 | 12,288 / 4,096 |
+| REQUANT8 / 3072 | 230,400 | 2.425263 | 3.618817 / 3.680158 | 12,288 / 12,288 |
+| AFFINE_GELU / 3072 | 236,544 | 2.489937 | 3.802430 / 3.870529 | 36,864 / 12,288 |
+| Residual ADD / 768 | 3,072 | 0.032337 | 1.161652 / 1.230000 | 6,144 / 3,072 |
+
+| Operation (same order) | Delivered min–max ms | CV |
+|---|---:|---:|
+| GELU | 1.354586–1.445638 | 1.391% |
+| LayerNorm | 3.309021–3.418720 | 0.818% |
+| Softmax | 2.297053–2.402604 | 0.994% |
+| AFFINE | 1.876663–1.979998 | 1.388% |
+| REQUANT8 | 3.577023–3.705910 | 0.754% |
+| AFFINE_GELU | 3.778568–3.884304 | 0.720% |
+| ADD | 1.134719–1.243286 | 2.517% |
+
+The 64-bit shared sequential arithmetic deliberately trades latency for
+portability, bounded resource use and exact frozen numerics. For example,
+REQUANT8 has one output word per element even though its value is int8, and
+its multiplication/rounding takes 75 cycles per element. Neither these numbers
+nor the original GEMM peak establish an SFPU CPU speedup.
+
+### Integrated actual-result chains
+
+The MLP is a **single-row pre-LayerNorm MLP sub-block**, not a transformer layer:
+768→3072→768, dynamic int8 conversion, wide K=3072 down-projection,
+affine/GELU, rescaling and residual ADD. The attention test is **one 64-wide
+head**, 1024 keys with 768 valid entries, scale 1/8, stable masked softmax,
+probability conversion and **only a 16-column value output tile**. There are no
+Q/K/V projections, full multi-head output projection, embedding lookup, model
+checkpoint or token loop in either measurement.
+
+| Chain | Descriptors / actual-result patches | Engine compute ms | Delivered median / p95 ms | Min–max ms / CV |
+|---|---:|---:|---:|---:|
+| MLP 1×768→3072→768 | 246 / 245 | 11.595042 | 344.713333 / 345.789204 | 343.758701–345.888483 / 0.167% |
+| Attention 64×1024→16 | 69 / 5 | 2.967642 | 78.038904 / 78.275496 | 77.899497–78.828666 / 0.224% |
+
+| Chain | Input / output DMA bytes | Final publication bytes | Useful GEMM MACs |
+|---|---:|---:|---:|
+| MLP | 5,090,304 / 52,224 | 1,536 | 4,718,592 |
+| Attention | 107,712 / 16,512 | 32 | 81,920 |
+
+Engine time is the sum of validated per-descriptor compute counters, not an
+alternate end-to-end latency. JSON also gives GEMM MACs divided by the whole
+mixed-chain wall time; this is **not** the SFPU's arithmetic rate, kernel GMAC/s
+or an apples-to-apples replacement for the G1 projection benchmark. Delivered
+latency is the fair headline for these mixed workloads. No native CPU baseline
+for these complete chains was measured, so no chain speedup is claimed.
+
+### Evidence and limitations
+
+| Evidence | SHA-256 |
+|---|---|
+| `build/m3_qual3/board.log` | `074af80835b0c71b180a5a558e60594aa0e706f50ec61badce91fe49d1c540b1` |
+| `build/m3_qual3/board.json` | `cb7faf85c66a5b097b01e88091e75c82e42a1d21daea193058b5f50100ebabe4` |
+| `build/m3_qual3/board_manifest.json` | `0c304167a86517ca834c7665c520000befa4639ce72a6647e86ae80b8da686d5` |
+| `zynq/m3_run.py` | `aec8ff011ea0663da08d10ee5ae888367b460206c7b698900bca2b7447ad1e2f` |
+
+The manifest contains all staged source/vector/bit/HWH hashes and captured
+build-source/report hashes. The G1 CPU comparison and historical M2 figures
+remain immutable; the unchanged M2 acceptance harness on this new M3 overlay
+also passes (107.529 ms, validation included), but that single regression run
+is not a new repeated performance comparison. These tests establish exact
+operator/chain functionality with measured costs, **not** GPT-2 model accuracy,
+inference latency, tokens/s, CPU speedup, measured power or autonomous inference.

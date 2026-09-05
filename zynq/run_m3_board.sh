@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 BOARD_HOST="${PYNQ_HOST:-xilinx@10.0.0.223}"
 REMOTE_DIR="${PYNQ_M3_DIR:-/home/xilinx/pocketai_m3}"
-BUILD_DIR="$(realpath "${M3_VIVADO_BUILD_DIR:-$ROOT/build/m3_qual2}")"
+BUILD_DIR="$(realpath "${M3_VIVADO_BUILD_DIR:-$ROOT/build/m3_qual3}")"
 BOARD_LOG="${M3_BOARD_LOG:-$BUILD_DIR/board.log}"
 if [[ ! "$REMOTE_DIR" =~ ^/home/xilinx/[a-zA-Z0-9_./-]+$ ]]; then
   echo "[run_m3_board] FAIL: unsafe remote staging path" >&2

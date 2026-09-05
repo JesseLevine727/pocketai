@@ -1,8 +1,9 @@
 # M3 goal — GPT-2-correct SFPU and honest measured performance
 
-Status: **ACTIVE / NOT QUALIFIED**, started 2026-09-04. M1 and M2 remain closed.
-This is the implementation and acceptance plan, not a claim that its gates have
-passed. The active goal must stay open until all required evidence is recorded.
+Status: **COMPLETE / QUALIFIED**, started 2026-09-04, closed 2026-09-05.
+All required gates below pass with evidence in `M3_VERIFICATION.md` and
+`M3_PERFORMANCE.md`. M1/M2 remain closed; M4/M5 remain unstarted. The plan is
+retained as the acceptance contract, not a promise of full-model performance.
 
 ## Scope and invariants
 
@@ -27,13 +28,13 @@ for physical-board acceptance.
 
 | Gate | Required outcome | Current status |
 |---|---|---|
-| G0 | Coherent scope, ordering, and acceptance criteria recorded | Recorded |
+| G0 | Coherent scope, ordering, and acceptance criteria recorded | PASS |
 | G1 | Fair physical M2 baseline, CPU comparison, measured host/dataflow improvement | PASS — [evidence](M3_PERFORMANCE.md) |
 | G2 | Pinned GPT-2 semantics, validated/frozen numerics and interface contract | PASS — v1 frozen; [evidence](M3_VERIFICATION.md) |
-| G3 | GEMM extensions and portable SFPU pass local numerical/protocol/integration tests | PASS — full suite on the pipelined timing candidate; recheck if RTL changes |
-| G4 | Two clean full-overlay implementations pass timing/resource/DRC checks | In progress — both initial clean candidates rejected at +0.238 ns; gate stays +0.250 ns |
-| G5 | Exact accepted overlay passes physical M1/M2/M3 tests and performance measurement | Pending |
-| G6 | Evidence audit, coherent closure documentation, scoped local commit | Pending |
+| G3 | GEMM extensions and portable SFPU pass local numerical/protocol/integration tests | PASS — full suite on the qualified RTL; future changes require requalification |
+| G4 | Two clean full-overlay implementations pass timing/resource/DRC checks | PASS — qual3 +0.483 ns / qual5 +0.400 ns, positive hold, zero TNS/DSPs, reviewed warnings |
+| G5 | Exact accepted overlay passes physical M1/M2/M3 tests and performance measurement | PASS — exact qual3 bit/HWH, all packets/chains, 3 warmups/30 repeats; [evidence](M3_PERFORMANCE.md) |
+| G6 | Evidence audit, coherent closure documentation, scoped local commit | PASS — closure record and scoped local milestone commit; no push |
 
 G1 and reference exploration for G2 may proceed independently. G2 must pass
 before modifying arithmetic RTL. A future implementation change invalidates any

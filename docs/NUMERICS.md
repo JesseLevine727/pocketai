@@ -62,7 +62,8 @@ Frozen 2026-09-04 local time. This extends, **not replaces**, M2's contract.
 Executable references: `ref/sfpu_ref.py` and `ref/gemm_v3_ref.py`. Stream/register
 encoding and lifecycle are specified in `docs/M3_ARCHITECTURE.md`. A numerical
 change requires a documented versioned rationale and complete requalification;
-never silently relax an error budget. M3 hardware is not yet qualified.
+never silently relax an error budget. M3 hardware is qualified against this v1
+contract; evidence and limitations are in `M3_VERIFICATION.md`.
 
 ### GPT-2 reference and shapes
 
