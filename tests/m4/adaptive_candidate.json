@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "status": "FROZEN_V3_BEFORE_HELD_OUT_REQUALIFICATION_NOT_YET_QUALIFIED",
+  "date": "2026-09-05",
+  "version": "m4-adaptive-v3-development",
+  "alpha": 0.5,
+  "selection": "Correct only the balancing overflow found by the existing 1024-token DEVELOPMENT stress. V3 is exactly equal to frozen v2 on all 2048 development predictions and passes the full-context range/cache check. No weights, calibration, thresholds, prompts or data selection changed.",
+  "held_out_history": "V2 held-out results were already known. V3 is a development-driven functional range correction, not a fresh blind benchmark. The same frozen held-out set is re-evaluated transparently, without threshold tuning.",
+  "source_sha256": {
+    "ref/gpt2_adaptive.py": "1c6c91c92182d6948f374e8192a4ce799470ee96e3b3b102004a36ba58ee71ba",
+    "ref/gpt2_scaled.py": "dc6deea8c8baa2c7b7913ad09ea867e295bd16d41b77312d2e79eab2f317fd21",
+    "ref/gpt2_quantized.py": "e1694d25860c85eb99c97f3ca85734626641ac1c515272cff7cb30b887f49dd7",
+    "ref/sfpu_ref.py": "1156d7ef30657200a384a93627fad1eec9b6b9c76d7b377a995535b8dc946d23",
+    "ref/gpt2_float.py": "9a9258ff1ecf8d3b3542381ca534fb964c6596267495e540ce46beefceb1548d",
+    "tests/m4/evaluate_scaled.py": "bb9995b346e547978c741f015e1f41fd3342a5f8147b7715d20112c675b83a66",
+    "tests/m4/quality_policy.json": "97ba47854881a10646be03aee30a194e0b14a3efb1632c558b7b44f6ed6f97f0",
+    "tests/m4/qualify_scaled_quality.py": "eb5cebcfaa7645da11a9b37cebe05b3b3ea1d610c2f36bbfc8b432b48cfbe743",
+    "tests/m4/qualify_scaled_generation.py": "3d84c19993159a1637885c6015d70559e8d0cb3855b874856130d6de4a2fce7b"
+  },
+  "asset_sha256": {
+    "build/m4_model/model.safetensors": "248dfc3911869ec493c76e65bf2fcf7f615828b0254c12b473182f0f81d3a707",
+    "build/m4_model/model_manifest.json": "01b56d06d25a66e3e431961906bab5bf1dcb5eb968b3d54f272478ea8a0a2fdf",
+    "build/m4_calibration.json": "901dfac4851870c7a97d1a296bbfa0d9a431867b320977fa857ae6a73445f007",
+    "build/m4_quality_data/manifest.json": "0a7cb11721a4748cd5f2c9acd0327200a37a345819bae00d31d5a391146d08b9"
+  },
+  "selection_evidence_sha256": {
+    "build/m4_v3_development.json": "f71bf0ca59d3b9e63c30358423ee8882c5bb7935e53a55e2f1db91be9bef831b",
+    "tests/m4/scaled_candidate.json": "ffebd8cd032bfcc92fb248c596a70082e15b3e7f858b15d8ff90eb1a2637b3ee"
+  },
+  "host_environment": {"numpy": "2.4.3", "torch": "2.11.0+cu130", "execution_device": "cpu", "cpu_threads": 4},
+  "physical_status": "Native ARM integer GEMM is separately checked. No M4 FPGA model integration, complete CPU model baseline, performance or closure claim."
+}

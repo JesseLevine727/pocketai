@@ -58,6 +58,22 @@ full-vocabulary output scale. Scalar REQUANT8 scales may require separate
 packets; metadata computation is not free. A practical native A9 integer GEMM
 baseline is also still required.
 
+### Native CPU kernel preparation
+
+`zynq/m4_cpu_gemm.c` and `ref/m4_cpu.py` implement exact tiled int8 GEMM with
+int32 outputs. Portable C passes 20 host cases; the **actual physical A9 NEON
+backend** also passes all 20, including full-range positive/negative/cancellation,
+K=3072, N=50257 and row/column tails. The NumPy int64 oracle converts B in
+128-column chunks to bound reference memory on the board. This is a native
+kernel check, **not a complete CPU model or an inference performance result**.
+
+Board GCC 11.2.0, NumPy 1.21.5; build flags:
+`-O3 -Wall -Wextra -Werror -shared -fPIC -mcpu=cortex-a9 -mfpu=neon`.
+The test ran over SSH without sudo in the newly created owned temporary
+directory `/tmp/pocketai_m4_cpu.xh9AfQ`; no FPGA programming or board-global
+changes were made. Evidence is `build/m4_cpu_gemm_arm.json`, SHA-256
+`b5b1bec44d945f1db4fc535ccc4e2f58a6e6f8ef8d5fc34afe8c7057885756eb`.
+
 Reuse the accepted M3 qual3 overlay and hash-check it. Preserve single-owner
 DMA, route interlocks, completion/errors/timeouts, cache synchronization, buffer
 lifetime and recovery. No M4 overlay programming, board inference, measured

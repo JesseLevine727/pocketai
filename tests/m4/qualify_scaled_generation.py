@@ -1,4 +1,6 @@
 """Frozen 3x20 generation comparison; no tuning or float-identity requirement."""
+import argparse
+import hashlib
 import json
 from pathlib import Path
 import numpy as np
@@ -9,10 +11,15 @@ from tests.m4.evaluate_scaled import sha
 
 
 def main():
-    output = Path('build/m4_v2_generation.json')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--adaptive-v3', action='store_true')
+    args = parser.parse_args()
+    freeze_path = 'tests/m4/adaptive_candidate.json' if args.adaptive_v3 else 'tests/m4/scaled_candidate.json'
+    version = 'v3' if args.adaptive_v3 else 'v2'
+    output = Path(f'build/m4_{version}_generation.json')
     if output.exists():
         raise ValueError('refusing to overwrite generation evidence')
-    freeze = verify_frozen()
+    freeze = verify_frozen(freeze_path)
     fixture_file = Path('tests/m4/prompts.json')
     fixture = json.loads(fixture_file.read_text())
     floating_file = Path('build/m4_float_qualification.json')
@@ -22,7 +29,11 @@ def main():
         raise ValueError('floating generation evidence changed')
     floating = json.loads(floating_file.read_text())
     tokenizer = GPT2TokenizerFast.from_pretrained('build/m4_model', local_files_only=True)
-    model = ScaledGPT2('build/m4_model', 'build/m4_calibration.json', freeze['alpha'])
+    if args.adaptive_v3:
+        from ref.gpt2_adaptive import AdaptiveGPT2
+        model = AdaptiveGPT2('build/m4_model', 'build/m4_calibration.json', freeze['alpha'])
+    else:
+        model = ScaledGPT2('build/m4_model', 'build/m4_calibration.json', freeze['alpha'])
     cases = []
     for prompt, base in zip(fixture['prompts'], floating['generation']):
         if prompt['text'] != base['prompt']:
@@ -41,7 +52,7 @@ def main():
                 np.testing.assert_array_equal(v, ov)
             token = int(logits[0].argmax())
             generated.append(token)
-            per_step.append({'step': step, 'token': token, 'logits_sha256': __import__('hashlib').sha256(logits.astype('<f8').tobytes()).hexdigest()})
+            per_step.append({'step': step, 'token': token, 'logits_sha256': hashlib.sha256(logits.astype('<f8').tobytes()).hexdigest()})
         differences = [i for i, (a, b) in enumerate(zip(generated, base['new_token_ids'])) if a != b]
         case = {'id': prompt['id'], 'prompt': prompt['text'], 'input_tokens': tokens,
                 'new_token_ids': generated, 'text': tokenizer.decode(tokens + generated),
@@ -53,7 +64,7 @@ def main():
         print('M4 GENERATION EXACT CACHE PASS', json.dumps(case, ensure_ascii=False), flush=True)
     clipping = {k: v for k, v in model.stats.items() if k.endswith('.clipped') and v}
     report = {'status': 'GENERATION_REFERENCE_PASS_NOT_PHYSICAL_M4_CLOSURE',
-              'candidate_sha256': sha('tests/m4/scaled_candidate.json'), 'runner_sha256': sha(__file__),
+              'candidate_sha256': sha(freeze_path), 'runner_sha256': sha(__file__),
               'prompt_sha256': sha(fixture_file), 'cases': cases, 'unintended_clipping': clipping,
               'notes': 'Free-running float and quantized outputs can diverge after a near tie. Same-step token matches after divergence are descriptive, not teacher-forced quality. All 60 cached/recomputed steps are exact.'}
     if clipping:

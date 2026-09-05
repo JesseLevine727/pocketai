@@ -1,4 +1,4 @@
-# M4 model arithmetic — scaled v2, host quality PASS / physical checks pending
+# M4 model arithmetic — scaled v2 and range-safe adaptive v3
 
 This is a **model-level representation**, composed from unchanged M3 v1
 operators. It is not a change to `ref/sfpu_ref.py`, M3's packet ABI, its error
@@ -88,6 +88,25 @@ Such tails have differences above 32768 raw, already beyond M3's exact
 4096-raw exponential cutoff; their represented probability was zero anyway.
 These **intentional zero-tail clamps** are counted separately from unintended
 clipping. Positive-score saturation before centering is not allowed.
+
+## V3: bounded post-nonlinearity balancing
+
+The 1024-token development stress found out-of-calibration overflow in block 0
+context/post-GELU balancing, despite passing held-out quality on v2. V2 and its
+failure evidence remain immutable. `ref/gpt2_adaptive.py` extends v2 only at
+these balancing boundaries: prospectively compute the exact affine raw output
+and use the original path when it fits int16. Otherwise choose a per-row
+nonnegative exponent giving 32700 raw headroom and AFFINE by `1/(s*2^e)`.
+Carry the unit `2^e/256` into the following dynamic-int8/GEMM scale metadata.
+No nonlinear operation sees a different logical unit, and weights/calibration
+are unchanged. The extra range scan is required A9 work, not excluded overhead.
+
+V3 reproduces **all 2,048 development logits and caches exactly** from v2, and
+passes the 1024-position full/chunked cache test with **zero clipping**. The
+v3 source and selection evidence are frozen in `tests/m4/adaptive_candidate.json`
+before requalification on the same held-out set. V2 held-out results were
+already known; this is a transparent functional correction based on development
+stress, not a new blind benchmark or calibration/threshold change.
 
 ## Acceptance status and remaining physical checks
 

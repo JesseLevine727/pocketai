@@ -1,4 +1,5 @@
 """One frozen candidate, untouched held-out windows, precommitted hard gates."""
+import argparse
 import json
 import os
 import time
@@ -18,8 +19,8 @@ def check_limits(result, limits):
             'mean_forward_kl': result['mean_forward_kl_nats'] <= limits['maximum_mean_forward_kl_nats']}
 
 
-def verify_frozen():
-    freeze_file = Path('tests/m4/scaled_candidate.json')
+def verify_frozen(freeze_path='tests/m4/scaled_candidate.json'):
+    freeze_file = Path(freeze_path)
     freeze = json.loads(freeze_file.read_text())
     for collection in ('source_sha256', 'asset_sha256', 'selection_evidence_sha256'):
         for path, expected in freeze[collection].items():
@@ -33,22 +34,31 @@ def verify_frozen():
 
 
 def main():
-    output = Path('build/m4_v2_heldout_quality.json')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--adaptive-v3', action='store_true')
+    args = parser.parse_args()
+    freeze_path = 'tests/m4/adaptive_candidate.json' if args.adaptive_v3 else 'tests/m4/scaled_candidate.json'
+    version = 'v3' if args.adaptive_v3 else 'v2'
+    output = Path(f'build/m4_{version}_heldout_quality.json')
     if output.exists():
         raise ValueError('refusing to overwrite held-out evidence')
-    freeze = verify_frozen()
+    freeze = verify_frozen(freeze_path)
     torch.set_num_threads(4)
     torch.set_num_interop_threads(1)
     torch.use_deterministic_algorithms(True)
     policy = json.loads(Path('tests/m4/quality_policy.json').read_text())
     manifest = json.loads(Path('build/m4_quality_data/manifest.json').read_text())
     fmodel = FloatGPT2('build/m4_model')
-    qmodel = ScaledGPT2('build/m4_model', 'build/m4_calibration.json', freeze['alpha'])
+    if args.adaptive_v3:
+        from ref.gpt2_adaptive import AdaptiveGPT2
+        qmodel = AdaptiveGPT2('build/m4_model', 'build/m4_calibration.json', freeze['alpha'])
+    else:
+        qmodel = ScaledGPT2('build/m4_model', 'build/m4_calibration.json', freeze['alpha'])
     if qmodel.identity['version'] != freeze['version']:
         raise ValueError('candidate version changed')
     initial_clipping = {k: v for k, v in qmodel.stats.items() if k.endswith('.clipped') and v}
     qmodel.stats.clear(); qmodel.maxima.clear()
-    report = {'status': 'IN_PROGRESS_NOT_QUALIFIED', 'candidate_sha256': sha('tests/m4/scaled_candidate.json'),
+    report = {'status': 'IN_PROGRESS_NOT_QUALIFIED', 'candidate_sha256': sha(freeze_path),
               'runner_sha256': sha(__file__), 'groups': {}, 'initial_weight_clipping': initial_clipping}
     all_rows = []
     started = time.monotonic()

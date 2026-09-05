@@ -14,13 +14,21 @@ from tests.m4.qualify_scaled_quality import verify_frozen
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output', type=Path, default=Path('build/m4_pack_v2'))
+    parser.add_argument('--output', type=Path)
+    parser.add_argument('--adaptive-v3', action='store_true')
     args = parser.parse_args()
+    if args.output is None:
+        args.output = Path('build/m4_pack_v3' if args.adaptive_v3 else 'build/m4_pack_v2')
     if args.output.exists():
         raise ValueError('refusing to overwrite existing model-pack directory')
-    freeze = verify_frozen()
-    candidate_hash = file_sha256('tests/m4/scaled_candidate.json')
-    model = ScaledGPT2('build/m4_model', 'build/m4_calibration.json', freeze['alpha'])
+    freeze_path = 'tests/m4/adaptive_candidate.json' if args.adaptive_v3 else 'tests/m4/scaled_candidate.json'
+    freeze = verify_frozen(freeze_path)
+    candidate_hash = file_sha256(freeze_path)
+    if args.adaptive_v3:
+        from ref.gpt2_adaptive import AdaptiveGPT2
+        model = AdaptiveGPT2('build/m4_model', 'build/m4_calibration.json', freeze['alpha'])
+    else:
+        model = ScaledGPT2('build/m4_model', 'build/m4_calibration.json', freeze['alpha'])
     args.output.mkdir(parents=True, exist_ok=False)
     manifest = {'schema': 1, 'status': 'EXPORTED_NOT_PHYSICALLY_QUALIFIED',
                 'candidate_sha256': candidate_hash, 'layout': 'N16_K_16_signed_int8',
