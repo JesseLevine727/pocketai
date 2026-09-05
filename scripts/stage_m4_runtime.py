@@ -30,7 +30,8 @@ def main():
         (stage / folder).mkdir()
     sources = ('ref/__init__.py', 'ref/m4_model_pack.py', 'ref/m4_cpu.py', 'ref/m4_cpu_sfpu.py',
                'ref/sfpu_ref.py', 'ref/sfpu_stream.py', 'zynq/m4_offload.py', 'zynq/m4_driver.py',
-               'zynq/m4_run.py', 'zynq/m4_control_checks.py', 'zynq/m4_cpu_gemm.c', 'zynq/m4_cpu_sfpu.c')
+               'zynq/m4_run.py', 'zynq/m4_control_checks.py', 'zynq/m4_benchmark.py',
+               'zynq/m4_cpu_gemm.c', 'zynq/m4_cpu_sfpu.c')
     for name in sources:
         shutil.copy2(root / name, stage / name)
     for filename in ('m3_pynq.bit', 'm3_pynq.hwh'):
@@ -39,7 +40,8 @@ def main():
     shutil.copy2(args.sfpu_library, stage / 'm4_cpu_sfpu.so')
     shutil.copytree(source_pack, stage / 'pack')
     shutil.copytree(fixtures, stage / 'fixtures')
-    manifest = {'schema': 1, 'purpose': 'M4 runtime correctness; no performance or closure claim',
+    shutil.copy2(root / 'tests/m4/performance_policy.json', stage / 'performance_policy.json')
+    manifest = {'schema': 1, 'purpose': 'M4 correctness and frozen paired performance runners; staging alone is not qualification',
                 'stager_sha256': file_sha256(__file__),
                 'sha256': {str(path.relative_to(stage)): file_sha256(path) for path in sorted(stage.rglob('*')) if path.is_file()}}
     (stage / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
