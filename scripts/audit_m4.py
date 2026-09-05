@@ -114,7 +114,7 @@ def check_local():
                    'M1 COMPLIANCE PASS rv32imc=25/25 rv32im=8/8 rv32i=44/48+4-xfail rv32Zicsr=6/6 rv32Zifencei=1/1'):
         require(marker in log, 'missing local regression: ' + marker)
     require(read_json('build/m4_m3_numerics_regression.json')['status'] == 'PASS', 'M3 numerical budget regression')
-    for name, count in (('build/m4_benchmark_host_tests.log', 31), ('build/m4_m3_host_regression.log', 24)):
+    for name, count in (('build/m4_analysis_host_tests.log', 37), ('build/m4_m3_host_regression.log', 24)):
         text = (ROOT / name).read_text()
         require(f'Ran {count} tests' in text and text.rstrip().endswith('OK'), 'missing host tests: ' + name)
     boundary = read_json('build/m4_runtime_host_boundary.json')

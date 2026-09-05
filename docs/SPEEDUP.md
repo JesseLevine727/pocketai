@@ -47,3 +47,30 @@ automatically an integrated improvement. Report any slowdowns.
 
 Results, source/board/tool hashes, raw evidence paths and limitations will be
 added only after physical measurements and validation complete.
+
+## Reproducible analysis and instrumentation costs
+
+`scripts/summarize_m4_performance.py` refuses partial/failed runs and changed
+policy/runtime identities, audits the complete raw sample inventory, and emits
+statistics directly from those observations. Use a fresh output path:
+
+```bash
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.summarize_m4_performance --input build/m4_benchmark_board.json --output build/m4_performance_analysis.json
+```
+
+It reports both the ratio of CPU/FPGA median latencies and paired trial ratios;
+values below one mean the FPGA is slower. Throughput distributions are computed
+from each observation, not by relabelling a latency percentile. Full-generation
+latency has **three chain observations**; the 57 cached step observations are
+nested within those chains at successive contexts 14–32 and are not independent
+repeated chain samples. Raw warmups and all chain totals remain available.
+
+The benchmark shares one model pack/runtime/cache and switches backends.
+FPGA libraries and the small CMA allocation remain resident during CPU samples
+too; separate CPU-only and FPGA correctness runs provide additional memory
+measurements. Full generation retains 20 returned float64 logit arrays
+(8,041,120 payload bytes) for validation after the clock stops. Their reference
+checks are outside timing, but list/timestamp/profiling overhead is included
+for both backends, and retained output memory is included in process RSS/PSS.
+The cached-prefix snapshot is also explicitly counted. These costs must not
+be hidden or attributed to model weights alone.

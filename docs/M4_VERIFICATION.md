@@ -362,7 +362,8 @@ per-lane AFFINE when it reduces packet count. Exhaustive represented-range
 tests and the frozen full-model checks pass, without changing v3 reference,
 pack or output hashes. Native host qualification passes 196 tensor boundaries
 across prefill/cached blocks, logits/all KV and 60 generated tokens. Current
-M4 unit tests: **34 PASS** (including seven benchmark and three evidence-audit tests); M3 host tests:
+M4 unit tests: **37 PASS** (including seven benchmark, three evidence-audit and
+three performance-analysis tests); M3 host tests:
 **24 PASS**. Controlled physical before/after measurements are still required
 before claiming a speedup from this batching.
 
@@ -491,6 +492,7 @@ closure commit. The goal remains active; no M4 closure or extra push is claimed.
 | `build/m4_m1_m2_m3_m1_board_tty.log` | `a24bcf1b6beacc2f6cbefe83e846223a07d211f3218929e2e2cb937dad69659a` |
 | `build/m4_final_host_tests.log` | `9cdba776484ebc345aac5ea84f48798310320ea4bb4b6220713df9275db6aed7` |
 | `build/m4_evidence_preflight_v3.json` | `5fb75d2c157ee062cd9e13090bfaa61eca247cbc610026dae0ea31355cb5d88e` |
+| `build/m4_analysis_host_tests.log` | `8fccac7fb240325f5d2e0e30ca8101945bc5077dcf69cfd8e12b1c8928e76638` |
 
 All M4 model/board/quality/performance closure gates remain mandatory. No M4
 PASS, full-model speedup or tokens/s is claimed here.
