@@ -137,11 +137,16 @@ complete numerical/protocol/ISA evidence and physical results.
 
 The [M4 goal](docs/M4_PLAN.md) is active. The real checkpoint/tokenizer are
 pinned and an independent floating reference passes three 20-token generations,
-cache equivalence and context-boundary checks against Transformers. The first
-integer candidate is **not qualified**: real GPT-2 residual outliers exceed
-M3's fixed activation range and degrade model quality. Explicit scale/calibration
-work is required before FPGA integration; [evidence](docs/M4_VERIFICATION.md)
-records the rejected candidate. No full-model hardware performance is claimed.
+cache equivalence and context-boundary checks against Transformers. The scaled
+W8A8 candidate now passes frozen held-out quality: **1.63% perplexity increase,
+89.37% top-1 agreement, 99.84% top-5 inclusion**, with no unintended clipping
+across 8,192 predictions. All 60 frozen generation steps have exact cached versus
+recomputed logits and KV tensors. A compact 195.8-MiB model pack is verified.
+A separate 1024-token stress exposed balancing-range clips; those remain to
+be corrected before physical integration.
+[Evidence](docs/M4_VERIFICATION.md) preserves the rejected fixed-Q8 candidate and
+separates host quality from remaining physical integration/performance gates.
+No full-model hardware performance is claimed.
 M5/M6 remain unstarted.
 
 ## Repo hygiene

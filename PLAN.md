@@ -208,14 +208,17 @@ KV management, full-model throughput, token-rate claim, or remote push in M3.
 
 ### M4 — Hybrid GPT-2 124M offload  [~1.5 wk]
 
-**Status (2026-09-05): IN PROGRESS — reference/model-quality work; not qualified.**
+**Status (2026-09-05): IN PROGRESS — host model-quality PASS; physical integration pending.**
 The comprehensive acceptance contract is [`docs/M4_PLAN.md`](docs/M4_PLAN.md).
 It adds explicit floating-model quality gates, full-model/cache/tensor checks,
 bounded board memory and repeated fair CPU comparisons to the sketch below.
 The qualified baseline is 95 MHz; positive speedup is measured, not presumed.
-The pinned floating reference passes; the direct fixed-Q8 integer model fails
-quality because real residual outliers exceed the storage range. Numerical
-work precedes hardware integration; see `docs/M4_VERIFICATION.md`.
+The pinned floating reference and scaled W8A8 candidate pass: held-out perplexity
+ratio 1.01634, top-1 agreement 89.37%, no unintended clipping, and exact cached
+versus recomputed generation. The rejected direct fixed-Q8 diagnostic is retained.
+A compact model pack is verified; a 1024-token stress found out-of-calibration
+balancing clips requiring a range-safe revision. The A9 offload runtime and physical/performance
+gates remain open. See `docs/M4_VERIFICATION.md` and `docs/M4_RUNTIME.md`.
 
 Deliverables:
 - GPT-2 124M loaded on A9 using the quantization and pinned reference established

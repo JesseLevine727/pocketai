@@ -1,4 +1,4 @@
-# M4 model arithmetic — scaled candidate v2, not yet qualified
+# M4 model arithmetic — scaled v2, host quality PASS / physical checks pending
 
 This is a **model-level representation**, composed from unchanged M3 v1
 operators. It is not a change to `ref/sfpu_ref.py`, M3's packet ABI, its error
@@ -89,12 +89,13 @@ Such tails have differences above 32768 raw, already beyond M3's exact
 These **intentional zero-tail clamps** are counted separately from unintended
 clipping. Positive-score saturation before centering is not allowed.
 
-## Acceptance still required
+## Acceptance status and remaining physical checks
 
 Unit tests establish scaling algebra, exact M3 affine/LN behavior, range
 selection and zero-tail equivalence. Real-checkpoint cached/full-prefill and
-independent float comparisons remain separate gates. Development results select
-the candidate; held-out thresholds cannot be tuned. Model-pack/source identities
-must be frozen before held-out testing and physical integration. Every affected
+independent float comparisons pass as recorded in `M4_VERIFICATION.md`, including
+8,192 held-out predictions and all 60 generated cache/recomputation steps. The
+source/calibration policy was frozen before held-out testing; thresholds were
+not tuned. The compact model-pack serialization is verified. Every affected
 composition still requires physical-board equivalence on the accepted overlay;
 host equations alone do not prove delivered hardware behavior or performance.

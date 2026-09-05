@@ -9,12 +9,15 @@ board programming has changed. M5/M6 remain unstarted. Full acceptance is in
 
 - G0 plan/status: recorded.
 - G1: checkpoint/tokenizer pinned; independent floating-model equations pass
-  oracle/cached/generation tests. First complete integer reference is a
-  **development candidate**, not a model-quality PASS.
-- G2: **not passed**. Direct use of M3's fixed activation range fails on real
-  GPT-2. The diagnostic evidence below changes the next implementation step:
-  represent outliers without clipping and qualify calibrated quantization.
-- G3–G7: not passed; no M4 physical inference/performance claim.
+  oracle/cached/generation tests. Scaled integer reference passes exact cached
+  generation, including exact 1024-position integer cache/boundary behavior.
+- G2: **held-out model-quality PASS** for frozen scaled v2. Every held-out
+  context-length group and aggregate passes the precommitted limits. The failed
+  direct fixed-Q8 candidate remains preserved below. A separate 1024-token
+  development stress found balancing range clips, so G2 is not fully closed.
+  Physical qualification of the versioned compositions is required in G4/G5.
+- G3: compact mmap model-pack export/reload passes; A9 offload runtime not yet
+  implemented. G3–G7 remain open; no M4 physical inference/performance claim.
 
 ## Identity, data and reproduction
 
@@ -35,10 +38,11 @@ an unpinned model revision. Original source text/license are also hash pinned.
 Quality-data source: [Salesforce WikiText](https://huggingface.co/datasets/Salesforce/wikitext/tree/b08601e04326c79dfdd32d625aee71d232d685c3),
 `wikitext-2-raw-v1`, revision `b08601e04326c79dfdd32d625aee71d232d685c3`,
 CC-BY-SA-3.0/GFDL as recorded in its dataset card. Train, validation and test
-parquet files are separately fetched/hash-checked; **no held-out model-quality
-evaluation has run yet**. Sampling/quality thresholds are now frozen as below,
-before the second candidate is evaluated or FPGA integration begins. No published benchmark perplexity is
-being claimed for an unmeasured subset.
+parquet files are separately fetched/hash-checked. Sampling/quality thresholds
+were committed in `12f5386` before v2 evaluation; the selected candidate was
+committed in `17b1b98` before held-out evaluation. Held-out results below use
+the exact frozen subset, not a claim of complete published WikiText benchmark
+coverage. No quality threshold or test selection was changed after results.
 
 ```bash
 python3 -m venv --system-site-packages build/m4_venv
@@ -186,11 +190,86 @@ Ten M4 unit tests and all 24 M3 host regression tests pass.
 Candidate sources, alpha, model/calibration/data identities and selection
 evidence are frozen in `tests/m4/scaled_candidate.json` **before held-out
 evaluation**. No alpha sweep was required. Development success does not itself
-pass G2, and no M4 FPGA inference/performance is being claimed.
+pass G2 by itself. The subsequent held-out gate is recorded next; no M4 FPGA
+inference/performance is being claimed.
+
+### Frozen held-out quality — PASS
+
+`tests/m4/qualify_scaled_quality.py` verifies all frozen sources, checkpoint,
+calibration, data, selection evidence and host library versions before running.
+It refuses to overwrite evidence. Each group and the aggregate pass **every**
+precommitted distribution limit:
+
+| Context predictions/window | Predictions | Float PPL | Quantized PPL | PPL ratio | Top-1 agreement | Top-5 inclusion | Mean KL, nats |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 256 | 4096 | 41.41489 | 42.07706 | 1.015989 | 89.6973% | 99.9023% | 0.0214778 |
+| 512 | 4096 | 39.33692 | 39.99329 | 1.016686 | 89.0381% | 99.7803% | 0.0226370 |
+| Token-weighted aggregate | 8192 | 40.36254 | 41.02195 | 1.016337 | 89.3677% | 99.8413% | 0.0220574 |
+
+No unintended weight/activation/residual clipping, nonfinite values or
+unrepresentable nonzero affine scales occurred. Centered logit RMSE is
+0.403772; maximum centered error is 17.2197, so low average loss does **not**
+mean every vocabulary logit is close. First-window layer errors in both
+context groups, all per-window metrics, exponents, tail clamps and range
+counters are retained in `build/m4_v2_heldout_quality.json`.
+
+### Frozen generation — exact reference cache checks, not float token identity
+
+All three original prompts produce exactly 20 new tokens. For **all 60 steps**,
+cached decode and full recomputation on the same generated prefix have exact
+logits and all twelve K/V tensors. No unintended clipping occurs. The output
+texts/tokens/logit hashes are in `build/m4_v2_generation.json`.
+
+Greedy quantized text differs from float at new-token indices 1, 2 and 0
+(zero-based) for story, science and computing respectively. These differences
+are disclosed, not repaired by replacing prompts. Once generation diverges,
+later same-position matches are not a teacher-forced accuracy metric. The
+frozen quality policy never required universal float token identity.
+
+For example, the computing prompt continues in the quantized model:
+`analyzing the data and then performing a series of calculations to determine
+the correct answer.` The float continuation begins `solving a problem.` Neither
+selective text inspection nor integer self-agreement replaces the held-out
+distribution gate above. Physical hardware must still match the **frozen
+quantized** outputs, not substitute either text as a new golden.
+
+### 1024-position stress — exact cache PASS, range check FAIL
+
+`tests/m4/check_scaled_boundary.py` concatenates four existing 256-token
+**development** windows for a functional stress, not an additional held-out
+quality sample. Full 1024-token prefill matches chunked 512+511+1 execution
+exactly in final logits and every K/V tensor. Position 1024 is rejected without
+mutating the cache.
+
+However, the range audit finds **6 attention-context balancing clips and 594
+post-GELU balancing clips**, counting both schedules, in block 0. These are
+out-of-calibration **balancing** ranges, not residual clipping or cache failure.
+`build/m4_v2_context_boundary.json` is correctly **FAIL_UNINTENDED_CLIPPING**.
+The 8,192-prediction held-out result remains valid; it does not qualify this
+long-context stress. Next: add an explicit range-safe balanced-input exponent
+and carry its units into GEMM scale metadata. Preserve v2, thresholds, failed
+evidence and weight calibration; independently requalify any revised candidate.
+
+### Compact model pack and host regressions
+
+`scripts/export_m4_pack.py` exports 248 hash-checked mmap arrays containing all
+49 linears and 25 normalizations. Every weight byte and metadata element is
+compared after serialization/reload. Payload is **205,271,824 bytes (195.7625
+MiB)**; no float64-expanded weights are required on A9. Full-context int16 KV
+storage is another 36 MiB. These are allocation budgets, not measured physical
+peak memory. [`M4_RUNTIME.md`](M4_RUNTIME.md) records layout, hashes and remaining
+runtime work. Fifteen M4 unit tests and all 24 M3 host regressions pass.
+
+```bash
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.qualify_scaled_quality
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.qualify_scaled_generation
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.check_scaled_boundary
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.export_m4_pack
+```
 
 ### Numerical rationale retained from v1 diagnosis
 
-Explore a versioned **model-level** scale policy that preserves large residuals
+The v2 design implements a versioned **model-level** scale policy that preserves large residuals
 in int16 storage with explicit power-of-two scale metadata, and balances
 activation/weight channels before int8 conversion. The latter follows the
 algebraic idea studied by [SmoothQuant](https://arxiv.org/abs/2211.10438v7):
@@ -202,7 +281,9 @@ with unchanged epsilon is not exactly normalizing `x`. Derive/test explicit
 correction or a versioned operator extension; do not silently rely on approximate
 scale invariance. Quantization/calibration must use train/development data,
 not tune on the acceptance prompts or held-out test. No M3 numerical limit,
-RTL, ABI or quality gate has been relaxed. G2 remains open.
+RTL, ABI or quality gate has been relaxed. Held-out quality passes, but the
+long-context balancing range correction remains open. Physical qualification
+of these compositions remains mandatory in G4/G5.
 
 ## Board resource inventory (read-only)
 
@@ -226,6 +307,15 @@ No board reprogramming or global settings change was made in this work.
 | `build/m4_float_qualification.log` | `6b46da7626bf5b1f896255c21bc00c52d80f9fda8784ab8b7da47470d226cd68` |
 | `build/m4_quantization_v1_diagnostic.json` | `366ac6d49b4685f1a8c94573d3eb9fe31c2f8a518ba629b17d91af2a8ac84a33` |
 | `build/m4_quantization_v1_diagnostic.log` | `a58125da48eaf70aa909094b5d035ff4d4782320e0600f8607bbce8eacd30fe4` |
+| `tests/m4/quality_policy.json` | `97ba47854881a10646be03aee30a194e0b14a3efb1632c558b7b44f6ed6f97f0` |
+| `tests/m4/scaled_candidate.json` | `ffebd8cd032bfcc92fb248c596a70082e15b3e7f858b15d8ff90eb1a2637b3ee` |
+| `build/m4_v2_heldout_quality.json` | `0ff3d639dcb2e6ec4432ed805fa8679115f58d8fa3ba2ff7eca16124b54cb6af` |
+| `build/m4_v2_heldout_quality.log` | `36fb8f30c842bb61a8541bea4b44c568373e24810dd509bf1df74f5eb345bd0a` |
+| `build/m4_v2_generation.json` | `0904ebee52d2a9b9b61b10427c26f40bd904b5b213e4bfec45e03a2a503525f4` |
+| `build/m4_v2_generation.log` | `1e957bbbc71fa7d69721eb2f47fdf1f972cc515a1cc14c9cd8542de5cc476dfd` |
+| `build/m4_pack_v2/manifest.json` | `87ca19ae6557d071db4a79664bd7ced53dbef78b62ad936f065b063be4e004a8` |
+| `build/m4_v2_context_boundary.json` | `ba8e82e8dfe9b6ce0d70cbe0c60f4f3e9cb5e2acff9d0312c03350d861dcf170` |
+| `build/m4_v2_context_boundary.log` | `40e7ce06c7105c5c30d2f927e81d83e0233917a3886d80818c0cc9e6dc3813fd` |
 
 All M4 model/board/quality/performance closure gates remain mandatory. No M4
 PASS, full-model speedup or tokens/s is claimed here.
