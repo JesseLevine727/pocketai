@@ -34,7 +34,7 @@ decode and CPU-relative performance; a speedup is not assumed or required.
 |---|---|---|
 | G0 | Coherent acceptance plan and scope recorded | Recorded |
 | G1 | Pinned checkpoint/tokenizer and independent full-model references | In progress — floating reference passes; integer development candidate implemented |
-| G2 | Full-model quantization and frozen quality criteria qualified | Open — direct fixed-Q8 diagnostic rejected; no quality freeze yet |
+| G2 | Full-model quantization and frozen quality criteria qualified | Open — quality policy/data selection frozen; direct fixed-Q8 diagnostic rejected |
 | G3 | Bounded-memory A9 hybrid runtime, prefill and cached decode | Pending |
 | G4 | Real-checkpoint tensor/layer tests and affected regressions | Pending |
 | G5 | Exact-overlay physical model correctness and 3×20-token acceptance | Pending |
@@ -72,7 +72,9 @@ accumulated layer/logit error against the floating model. Establish justified,
 explicit numerical acceptance thresholds before FPGA integration, including
 held-out perplexity or negative log-likelihood, logit/top-token agreement and
 deterministic generation comparisons. Record the thresholds and freeze them;
-they are not yet selected at initialization.
+they were not yet selected at initialization. They are now frozen in
+`tests/m4/quality_policy.json`; see `M4_VERIFICATION.md` for the exact data split,
+limits and finite-sample interpretation. Passing them remains open.
 
 Exact FPGA-versus-quantized-CPU agreement alone does not prove useful GPT-2
 quality. Do not silently relax thresholds, calibrate on held-out tests, hide

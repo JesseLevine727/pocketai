@@ -36,8 +36,8 @@ Quality-data source: [Salesforce WikiText](https://huggingface.co/datasets/Sales
 `wikitext-2-raw-v1`, revision `b08601e04326c79dfdd32d625aee71d232d685c3`,
 CC-BY-SA-3.0/GFDL as recorded in its dataset card. Train, validation and test
 parquet files are separately fetched/hash-checked; **no held-out model-quality
-evaluation has run yet**. Sampling/quality thresholds still need definition
-and freezing before FPGA integration. No published benchmark perplexity is
+evaluation has run yet**. Sampling/quality thresholds are now frozen as below,
+before the second candidate is evaluated or FPGA integration begins. No published benchmark perplexity is
 being claimed for an unmeasured subset.
 
 ```bash
@@ -125,6 +125,41 @@ Actual checkpoint hazards, measured on the first frozen prompt:
 `DIAGNOSTIC_NOT_QUALIFIED`, with per-layer errors and clipping counts. It is
 not a held-out benchmark, calibration set, numerical freeze or accepted model
 pack, and it will not be used for M4 physical acceptance.
+
+### Frozen quality policy and training-only calibration
+
+`tests/m4/quality_policy.json` fixes the sample selection seed, independent
+split roles, and hard limits before candidate v2 evaluation. Each held-out
+context-length group and the token-weighted aggregate must satisfy:
+
+- Perplexity ratio (quantized / float) <= 1.10.
+- Teacher-forced top-1 agreement >= 85%; float top-1 in quantized top-5 >= 97%.
+- Mean forward KL divergence <= 0.05 nats/token.
+- No unintended residual clipping or nonfinite values.
+
+The perplexity ratio limits average extra next-token loss to log(1.10) nats.
+Ranking and distribution criteria catch different failure modes, without
+demanding identical decisions at every near tie. These are project-specific
+finite-sample limits, not full WikiText benchmark coverage. They must not be
+relaxed in response to a held-out failure. Greedy float/quantized differences
+are separately recorded; physical/quantized agreement must be exact.
+
+Training calibration uses 32 windows of 256 predictions (8,192 total),
+development uses eight validation windows of 256 (2,048), and final held-out
+evaluation uses 16 test windows of 256 plus eight of 512 (8,192). Raw text rows
+are joined with two newlines and tokenized with the pinned tokenizer. Seeded
+selection without replacement from 513-token slots prevents overlapping
+windows within a split. Window indices, tensor shapes and hashes are recorded
+in `build/m4_quality_data/manifest.json`. Preparation does not evaluate a model.
+
+`tests/m4/calibrate_channels.py` measures per-channel linear-input maxima and
+residual ranges on **training windows only**. It does not use the frozen
+generation prompts, development windows, or held-out test windows.
+
+```bash
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.prepare_quality_data
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.calibrate_channels
+```
 
 ### Next numerical work
 

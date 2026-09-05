@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "status": "FROZEN_BEFORE_V2_EVALUATION_AND_FPGA_INTEGRATION",
+  "date": "2026-09-05",
+  "dataset_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+  "dataset_configuration": "wikitext-2-raw-v1",
+  "join_separator": "\n\n",
+  "selection_seed": 1295270993,
+  "calibration": {"split": "train", "blocks": 32, "predictions_per_block": 256},
+  "development": {"split": "validation", "blocks": 8, "predictions_per_block": 256},
+  "held_out": [
+    {"split": "test", "blocks": 16, "predictions_per_block": 256},
+    {"split": "test", "blocks": 8, "predictions_per_block": 512}
+  ],
+  "gates": {
+    "maximum_perplexity_ratio": 1.10,
+    "minimum_teacher_forced_top1_agreement": 0.85,
+    "minimum_float_top1_in_quantized_top5": 0.97,
+    "maximum_mean_forward_kl_nats": 0.05,
+    "maximum_unintended_residual_clipping": 0,
+    "maximum_nonfinite_values": 0
+  },
+  "gate_scope": "Each held-out context-length group AND their token-weighted aggregate must pass every distribution/quality limit. Greedy generation differences from float are recorded, not required to match universally. Hardware must separately match the quantized reference exactly.",
+  "notes": [
+    "Teacher forcing evaluates identical ground-truth prefixes, not diverging generated text.",
+    "10% perplexity ratio bounds aggregate next-token quality loss to log(1.10) nats/token.",
+    "85% top1 plus 97% top5 inclusion constrain ranking changes without demanding identity at near-tied logits.",
+    "Mean KL additionally detects a changed probability distribution even when top tokens agree.",
+    "These are project-specific finite-sample acceptance limits, not a claim of full WikiText benchmark coverage.",
+    "No calibration on held-out test data or the three frozen generation prompts; do not silently relax a failing limit."
+  ]
+}
