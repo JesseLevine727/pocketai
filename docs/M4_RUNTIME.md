@@ -76,7 +76,10 @@ reuses length-specific views, preserves padding/unsigned probabilities, checks
 descriptor acceptance, DMA byte counts and completion tags/counts, and prevents
 buffer rewrites after a failed operation. Reset/restart is bounded by deadlines;
 failed DMA reset retains allocations. Route changes require idle engines.
-These are implemented safeguards, not yet claimed physically qualified.
+The physical driver control test now passes both busy-route directions,
+descriptor rejection, a real missing-producer DMA timeout, refusal to rewrite
+failed-transfer buffers, reset/restart, and K=3072/N=13 wide GEMM after recovery.
+`build/m4_driver_board_control.json` records the exact driver source and checks.
 
 `tests/m4/export_runtime_fixtures.py` exports from the **frozen independent
 reference**, not this runtime: four tensor cases, all 60 generation logit/KV
@@ -90,6 +93,27 @@ manifest SHA-256 `cfff45881ba6ff1937bf809ac865a27647ba8432f95e318c3dfa43eb9c5b41
 Physical staging uses the fresh owned directory
 `/home/xilinx/pocketai_m4_runtime.ptyLjY`. Every staged file is hash-checked before
 programming; the runtime independently checks the accepted pack and overlay.
+
+The initial scalar-bridge board run passes **all four tensor cases** (single,
+story, science, computing) with exact layer/logit/KV checks. Its generation
+phase was intentionally interrupted after a verified batching improvement;
+the old log and partial JSON remain in `build/m4_runtime_board_cpu.log` and
+`build/m4_runtime_board_cpu_partial.json`. The latter retains its original
+`RUNNING` status because that old runner did not catch KeyboardInterrupt. It
+is **not** a completed generation/performance PASS. The process was explicitly
+sent SIGINT, its traceback/output preserved, and its terminal SSH handle polled.
+
+The replacement batches dynamically scaled columns through equivalent M3
+AFFINE packets, as proved in `M4_NUMERICS.md`. It passes 24 host unit tests,
+all 196 full-model tensor boundaries, logits/KV and 60 frozen generated tokens.
+This avoids spending most A9 time dispatching thousands of tiny column calls.
+Full physical qualification of this replacement is in progress; no inference
+speedup is claimed from the dispatch-count reduction alone.
+
+Current bundle: `build/m4_runtime_stage.l3_ox1tq`, manifest SHA-256
+`99897c20ad4c7cfa1a47507a94b34c1f0a72c85091435f7628ef54916e307fe7`,
+staged at `/home/xilinx/pocketai_m4_runtime.LrxYKW`. The accepted model pack,
+reference fixtures, C kernels and M3 overlay are unchanged.
 
 ### Native CPU kernel preparation
 

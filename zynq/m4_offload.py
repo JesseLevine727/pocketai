@@ -131,6 +131,41 @@ class Runtime:
             m, effective = 0, 1.0
         return self.operator(Op.REQUANT8, (raw,), shift=24, multiplier=m).astype(np.int8), effective
 
+    def requant_columns(self, raw, unit):
+        """Exact dynamic W8A8 bridge, batched through existing per-lane AFFINE.
+
+        For amax<=32768, rounded m=RNE(127*2^24/amax) gives an unrounded
+        endpoint within 127 +/- 0.000977. Thus final RNE lies in [-127,127]:
+        REQUANT8 saturation is inactive. AFFINE(m,0,24) is exactly equivalent,
+        and its per-lane multipliers batch many columns into fewer packets.
+        """
+        raw = np.asarray(raw, dtype=np.int32)
+        if raw.ndim != 2 or not 1 <= raw.shape[0] <= 3072 or not raw.shape[1]:
+            raise ValueError('invalid batched requantization shape')
+        if np.any(raw < -32768) or np.any(raw > 32768):
+            raise ValueError('batched bridge input outside represented domain')
+        length, columns = raw.shape
+        # Do not triple transfer planes if batching cannot reduce packet count.
+        if (raw.size + 3071) // 3072 >= columns:
+            result = np.empty(raw.shape, dtype=np.int8)
+            units = np.empty(columns, dtype=np.float64)
+            for i in range(columns):
+                result[:, i], units[i] = self.requant(raw[:, i], unit)
+            return result, units
+        maxima = np.abs(raw).max(axis=0).astype(np.int64)
+        denominator = np.maximum(maxima, 1)
+        mult, remainder = np.divmod(127 << 24, denominator)
+        mult += ((2 * remainder > denominator) | ((2 * remainder == denominator) & (mult % 2 == 1)))
+        mult[maxima == 0] = 0
+        units = (1 << 24) / np.maximum(mult, 1) * unit
+        units[mult == 0] = 1.0
+        plane = np.broadcast_to(mult, raw.shape).reshape(-1)
+        result = self.operator(Op.AFFINE, (raw.reshape(-1), plane, np.zeros(raw.size, dtype=np.int32)), shift=24)
+        if np.any(result < -127) or np.any(result > 127):
+            raise RuntimeError('batched dynamic bridge violated its proven int8 bound')
+        self.metadata_counts['batched_requant_columns'] += columns
+        return result.astype(np.int8).reshape(raw.shape), units
+
     def norm(self, rows, exponents, name):
         gain, bias = self.pack.norms[name]
         result = np.empty_like(rows)
@@ -175,10 +210,8 @@ class Runtime:
         else:
             balance_exp = np.zeros(len(x), dtype=np.int32)
         tiles, static_scales, bias, (k, n) = self.pack.linears[name]
-        q = np.empty(x.shape, dtype=np.int8)
-        units = np.empty(len(x), dtype=np.float64)
-        for i, row in enumerate(x):
-            q[i], units[i] = self.requant(row, 1 / 256)
+        q_columns, units = self.requant_columns(x.T, 1 / 256)
+        q = np.ascontiguousarray(q_columns.T)
         sums = self.backend.gemm(q, tiles, n)
         scales = (units[:, None] * static_scales[None, :]) * 2.0 ** balance_exp[:, None]
         logical = sums * scales + bias
@@ -212,11 +245,11 @@ class Runtime:
         self.v[layer, :, past:end] = new_v
         context = np.empty((batch, 12, 64), dtype=np.int16)
         for head in range(12):
-            for i in range(batch):
-                self.k8[layer, head, past + i], self.kunits[layer, head, past + i] = self.requant(new_k[head, i], 1 / 256)
-            queries, qunits = np.empty((batch, 64), dtype=np.int8), np.empty(batch)
-            for i in range(batch):
-                queries[i], qunits[i] = self.requant(q[head, i], 1 / 256)
+            keys, key_units = self.requant_columns(new_k[head].T, 1 / 256)
+            self.k8[layer, head, past:end] = keys.T
+            self.kunits[layer, head, past:end] = key_units
+            query_columns, qunits = self.requant_columns(q[head].T, 1 / 256)
+            queries = np.ascontiguousarray(query_columns.T)
             kt = tile_weights(self.k8[layer, head, :end].T)
             scores_wide = self.backend.gemm(queries, kt, end)
             for i in range(batch):
@@ -228,10 +261,7 @@ class Runtime:
                 centered = self.affine(raw, coefficients, np.full(length, -maximum, dtype=np.int64))
                 probability = self.operator(Op.SOFTMAX, (centered, np.ones(length, dtype=bool)))
                 p8, punit = self.requant(probability, 1 / 32768)
-                value8 = np.empty((length, 64), dtype=np.int8)
-                vunits = np.empty(64, dtype=np.float64)
-                for channel in range(64):
-                    value8[:, channel], vunits[channel] = self.requant(self.v[layer, head, :length, channel], 1 / 256)
+                value8, vunits = self.requant_columns(self.v[layer, head, :length], 1 / 256)
                 reduced = self.backend.gemm(p8.reshape(1, length), tile_weights(value8), 64)[0]
                 context[i, head] = self.affine(reduced, punit * vunits * 256, np.zeros(64, dtype=np.int32))
         return context.reshape(batch, 768)

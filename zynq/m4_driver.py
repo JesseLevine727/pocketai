@@ -173,6 +173,7 @@ class FpgaBackend:
     def recover(self):
         if self.closed:
             raise RuntimeError('closed backend cannot recover')
+        self.failed = True
         self.reset_dma()
         for engine in self.engines:
             engine.write(0x1c, 4)

@@ -30,7 +30,7 @@ def main():
         (stage / folder).mkdir()
     sources = ('ref/__init__.py', 'ref/m4_model_pack.py', 'ref/m4_cpu.py', 'ref/m4_cpu_sfpu.py',
                'ref/sfpu_ref.py', 'ref/sfpu_stream.py', 'zynq/m4_offload.py', 'zynq/m4_driver.py',
-               'zynq/m4_run.py', 'zynq/m4_cpu_gemm.c', 'zynq/m4_cpu_sfpu.c')
+               'zynq/m4_run.py', 'zynq/m4_control_checks.py', 'zynq/m4_cpu_gemm.c', 'zynq/m4_cpu_sfpu.c')
     for name in sources:
         shutil.copy2(root / name, stage / name)
     for filename in ('m3_pynq.bit', 'm3_pynq.hwh'):

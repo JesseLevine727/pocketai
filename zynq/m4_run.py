@@ -156,8 +156,9 @@ def main():
         report['notes'] = ['Diagnostic wall time includes reference checking and is not inference performance.',
                            'Only explicitly selected tensor/generation/boundary checks are claimed.']
         print('M4 BOARD RUNTIME FINAL', args.backend, report['status'], flush=True)
-    except Exception as error:
-        report['status'], report['error'] = 'FAIL', repr(error)
+    except (Exception, KeyboardInterrupt) as error:
+        report['status'] = 'INTERRUPTED' if isinstance(error, KeyboardInterrupt) else 'FAIL'
+        report['error'] = repr(error)
         raise
     finally:
         if hardware is not None:

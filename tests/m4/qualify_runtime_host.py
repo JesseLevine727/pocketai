@@ -1,4 +1,5 @@
 """Independent bounded/native scheduler vs frozen full-model reference."""
+import argparse
 import json
 from pathlib import Path
 import numpy as np
@@ -8,7 +9,10 @@ from zynq.m4_offload import Runtime, CpuBackend
 
 
 def main():
-    output = Path('build/m4_runtime_host.json')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--output', type=Path, default=Path('build/m4_runtime_host.json'))
+    args = parser.parse_args()
+    output = args.output
     if output.exists():
         raise ValueError('refusing to overwrite runtime evidence')
     backend = CpuBackend('build/m4_cpu_gemm_host.so', 'build/m4_cpu_sfpu_host.so')

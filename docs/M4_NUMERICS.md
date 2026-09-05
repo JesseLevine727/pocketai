@@ -112,6 +112,25 @@ stress, not a new blind benchmark or calibration/threshold change.
 
 ## Acceptance status and remaining physical checks
 
+### Runtime batching without a numerical change
+
+The bounded runtime batches independent dynamic-int8 columns using M3 AFFINE
+with per-lane multipliers and zero bias at shift 24. This is exactly the frozen
+REQUANT8 bridge, not a new quantizer: for `a=max(abs(raw))<=32768` and
+`m=RNE(127*2^24/a)`, the endpoint before final RNE is within
+`127 +/- 0.0009765625`. Therefore every rounded result is in [-127,127]; neither
+the REQUANT8 int8 clamp nor AFFINE int16 clamp activates. Zero columns retain
+multiplier zero and effective-unit fallback 1. The returned codes and scales
+are unchanged. Runtime checks the bound before casting to int8.
+
+Tests exhaust all 32,768 nonzero maxima, both signs and interior values,
+unsigned probability 32768, zero columns, full shapes and packet tails. Whole
+model layer/logit/KV and 60-token generation checks remain exact. Batching is
+used only when it reduces descriptor count; larger row vectors retain REQUANT8.
+Extra AFFINE multiplier/bias transfer planes are real traffic and must be timed.
+The representative host qualification drops SFPU dispatches from 1,060,844 to
+113,420 (89.3% fewer), **not a measured system-speedup claim**.
+
 Unit tests establish scaling algebra, exact M3 affine/LN behavior, range
 selection and zero-tail equivalence. Real-checkpoint cached/full-prefill and
 independent float comparisons pass as recorded in `M4_VERIFICATION.md`, including
