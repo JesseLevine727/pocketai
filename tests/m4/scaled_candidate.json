@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "status": "FROZEN_CANDIDATE_BEFORE_HELD_OUT_EVALUATION_NOT_YET_QUALIFIED",
+  "date": "2026-09-05",
+  "version": "m4-scaled-v2-development",
+  "alpha": 0.5,
+  "selection": "First alpha=0.5 development candidate passes all precommitted limits across the complete 2048-prediction development set. No alpha sweep or held-out tuning. Source hashes freeze the range, smoothing, epsilon, rounding and attention policies.",
+  "source_sha256": {
+    "ref/gpt2_scaled.py": "dc6deea8c8baa2c7b7913ad09ea867e295bd16d41b77312d2e79eab2f317fd21",
+    "ref/gpt2_quantized.py": "e1694d25860c85eb99c97f3ca85734626641ac1c515272cff7cb30b887f49dd7",
+    "ref/sfpu_ref.py": "1156d7ef30657200a384a93627fad1eec9b6b9c76d7b377a995535b8dc946d23",
+    "ref/gpt2_float.py": "9a9258ff1ecf8d3b3542381ca534fb964c6596267495e540ce46beefceb1548d",
+    "tests/m4/evaluate_scaled.py": "bb9995b346e547978c741f015e1f41fd3342a5f8147b7715d20112c675b83a66",
+    "tests/m4/quality_policy.json": "97ba47854881a10646be03aee30a194e0b14a3efb1632c558b7b44f6ed6f97f0"
+  },
+  "asset_sha256": {
+    "build/m4_model/model.safetensors": "248dfc3911869ec493c76e65bf2fcf7f615828b0254c12b473182f0f81d3a707",
+    "build/m4_model/model_manifest.json": "01b56d06d25a66e3e431961906bab5bf1dcb5eb968b3d54f272478ea8a0a2fdf",
+    "build/m4_calibration.json": "901dfac4851870c7a97d1a296bbfa0d9a431867b320977fa857ae6a73445f007",
+    "build/m4_quality_data/manifest.json": "0a7cb11721a4748cd5f2c9acd0327200a37a345819bae00d31d5a391146d08b9"
+  },
+  "selection_evidence_sha256": {
+    "build/m4_v2_alpha05_dev8.json": "cfed644722d9fb5f30612dcc966d07863dd11f0bb6504e74fe0bbead16d75a8b",
+    "build/m4_v2_cache.json": "640ec6157874cf0a5e297bf2fdc9968b1866acabc1a0967703f9e7e57d3697d3"
+  },
+  "host_environment": {"numpy": "2.4.3", "torch": "2.11.0+cu130", "execution_device": "cpu", "cpu_threads": 4},
+  "physical_status": "No M4 model pack or hardware integration accepted; board requalification and actual-memory runtime remain required."
+}

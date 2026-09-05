@@ -161,7 +161,34 @@ OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.prepare_quality_data
 OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.calibrate_channels
 ```
 
-### Next numerical work
+### Scaled candidate v2 — development and cache evidence
+
+[`M4_NUMERICS.md`](M4_NUMERICS.md) defines the explicit residual/logit exponents,
+training-only channel balancing, LayerNorm epsilon compensation and score
+centering. No M3 source, ABI or operator budget changed. Required A9 metadata
+work is disclosed and must be timed; these equations are not yet physically
+qualified compositions.
+
+The alpha=0.5 candidate completed all eight validation windows (2,048
+predictions): float perplexity **48.89257**, quantized **49.47771**, ratio
+**1.011968**; top-1 agreement **89.6973%**, top-5 inclusion **100%**, mean
+forward KL **0.0215716 nats**. No unintended clipping occurred. Deliberate
+far-negative score clamps preserve exact zero probability beyond M3's LUT
+cutoff and are separately counted. First-block centered logit/layer errors
+and all counters are retained in `build/m4_v2_alpha05_dev8.json`.
+
+`tests/m4/check_scaled_cache.py` tests 17 actual development tokens using
+single-token, 7+5+5, and 16+1 chunkings: all logits and all twelve K/V caches
+match full prefill **exactly**. Reset and five malformed/overlength input
+checks pass. This is not yet the full 1024-position physical boundary test.
+Ten M4 unit tests and all 24 M3 host regression tests pass.
+
+Candidate sources, alpha, model/calibration/data identities and selection
+evidence are frozen in `tests/m4/scaled_candidate.json` **before held-out
+evaluation**. No alpha sweep was required. Development success does not itself
+pass G2, and no M4 FPGA inference/performance is being claimed.
+
+### Numerical rationale retained from v1 diagnosis
 
 Explore a versioned **model-level** scale policy that preserves large residuals
 in int16 storage with explicit power-of-two scale metadata, and balances
