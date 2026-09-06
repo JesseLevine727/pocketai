@@ -170,3 +170,27 @@ bus state into a claim that mapped memory can be released.
 
 This component does not by itself establish Linux ownership, translation,
 multi-client arbitration, autonomous operator scheduling or physical timing.
+
+## Translated memory bridge contract v1
+
+`pa_m5_memory_bridge` composes those primitives into one serialized virtual
+memory request interface. It latches a client's virtual address/count/direction,
+walks the protected PTE table through the private AXI engine when needed, and
+issues data access only after successful translation. Client write/read payload
+and completion retain the buffered-engine handshake and cancellation contract.
+PTE reads and data bursts cannot overlap or exchange response destinations.
+
+Abort before a translation starts may cancel it without a bus access. Once a
+translation is started, a requested PTE walk is completed/drained internally,
+even if abort is asserted; only then is the translated operation discarded.
+This avoids abandoning the translator with an unreturned PTE response. A data
+operation already submitted to the AXI engine follows that engine's abort/drain
+rules. New virtual requests remain blocked while abort is held. Bridge busy
+includes both child engines; poison cannot be hidden by an idle parent state.
+Bridge `quiesced` means abort is held and parent/children are all idle, not that
+unrelated clients elsewhere in the overlay have stopped.
+
+Flush blocks virtual request admission and is forwarded to the translator only
+when the complete bridge is idle. The caller holds it until bridge flush-ready.
+Protected configuration changes still require the system-wide disabled/drained
+ownership boundary; this bridge does not make firmware a mapping administrator.

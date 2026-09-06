@@ -58,6 +58,37 @@ reset model must not be cited as permission to reset/free a live board mapping.
 | `build/m5_axi_burst.3NlUS7/build.log` | `369827b37c290e1df7a73b820a6fb89e9661eff82a58a2556218b05d5241f71a` |
 | `build/m5_axi_burst.3NlUS7/test.log` | `6f59bc9f38fd46b940cc6ad81fcf22eebc4d1f9ec43b234fbe60a0ca63e80d10` |
 
+## 2026-09-06: translated AXI composition
+
+`bash sim/run_m5_memory_bridge.sh` passes 225 cases with 12 actual PTE reads,
+112 data-read bursts and 103 write bursts in an independent noncontiguous-page
+memory model. Evidence: `build/m5_memory_bridge.FiaG7R/`, terminal exit 0.
+The first run stopped at a testbench watchdog shorter than a legal stalled
+256-beat write; the bound was corrected to include the specified maximum burst
+and stalls. No RTL change was needed for that failure; the failed run remains
+separate from accepted evidence.
+
+Coverage includes byte-strobed write/readback, cached and uncached translation,
+read-only/invalid/reserved PTE denial, PTE/data errors, no raw-physical escape,
+arena/page boundaries, disabled mappings, remapping/flush, abort before a walk,
+abort during missing PTE/data/B responses, buffered write drain without client
+service, delayed flush and child poison propagation. The slave checks that no
+physical transaction leaves its independently bounded owned-page/table model,
+and that bridge quiescence never overlaps outstanding slave state. Subsequent
+operations succeed after ordinary drained aborts and after a separately modeled
+coordinated master/slave reset for a poisoned case.
+
+| File | SHA-256 |
+|---|---|
+| `rtl/m5/pa_m5_memory_bridge.sv` | `9f44830684ee682f02a6397415cf9fecf651101af84ef114e47c78055dbc5ba8` |
+| `tests/m5/pa_m5_memory_bridge_tb.sv` | `38f6de212fc2d3ed64621b2252d8de63f6ea009864b8951a7d44388d41a10bfe` |
+| `sim/run_m5_memory_bridge.sh` | `719baf311fa36f09c37ab26eae7a024c4735264ae9977be792ddb4ac933bc39c` |
+| `build/m5_memory_bridge.FiaG7R/build.log` | `256c151557d3ac2fec1b98e9cfc0adb900cea2169a906b9ca78ff657f7f087ee` |
+| `build/m5_memory_bridge.FiaG7R/test.log` | `745a6bf4836aead3c52afa80a41ec728ce977ead77be1591a97d87a53b6e0a9f` |
+
+This is still local component integration, not Ibex/accelerator integration or
+physical Linux ownership/timing/autonomous inference acceptance.
+
 ## Outstanding mandatory gates
 
 All of `M5_PLAN.md` G1–G8 remain open. In particular, local component simulation
