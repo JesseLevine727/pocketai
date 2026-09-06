@@ -275,3 +275,38 @@ translator and AXI bridge, and exclude pending requests—not merely an idle AXI
 master between requests. Mapping flush occurs at that disabled/quiescent system
 boundary. The platform integration must implement/test this combined condition
 before a kernel helper may use it as authority to release pages.
+
+## M5 cluster integration boundary v1
+
+The M5-specific cluster keeps the accepted core, RAM, bus and accelerator
+implementations but inserts the qualified routers/memory system between the
+four Ibex ports and local/DDR paths. Its protected mapping configuration and
+memory-abort inputs are separate top-level provisioning signals, never local
+bus registers. The eventual A9-only supervisor owns those signals. A fifth
+virtual-memory client and the existing accelerator streams are exposed to the
+autonomous bulk engine; A9 runtime copying is not an implementation of it.
+
+Core-only reset/stop blocks new router admission but leaves routers, adapters,
+memory engines and local MMIO response logic alive to retire accepted accesses.
+Unlike the historical cluster, core-only reset does not clear console/mailbox
+state. Firmware initialization and a later drained supervisor reset sequence
+must explicitly handle that state. Mapping quiescence requires abort held,
+all core paths and memory engines idle, no pending memory-client request, and
+the bulk client's own busy indication clear. It is a memory-lifetime boundary,
+not a claim that a partially fed accelerator has been reset or is reusable.
+Full system reset is still restricted to a coordinated interconnect reset;
+none of these modules can cancel an outstanding PS AXI transaction by reset.
+
+The integrated firmware test uses a complete, zero-padded 64-KiB RAM image
+loaded/verified while both harts are reset, then exercises both actual harts
+over noncontiguous mapped DDR, unaligned accesses and permission faults. Abort
+drain and remapped core-only restart also pass. This development test is not
+full GPT-2 firmware or final autonomous model acceptance.
+
+Actual-core testing exposed two latent memory-latency errors: the staged LSU
+selected second-word byte enables too early, and speculative branch decisions
+could advance before the ID target-calculation state. M5 uses the minimal,
+hash-checked work-root derivations documented in `M5_LSU_REVIEW.md`. Original
+M1–M4 dependency trees are unchanged; the two derived M5 source identities must
+be present in every M5 simulation and physical implementation. The new timing
+and physical regression obligations apply to both corrections.

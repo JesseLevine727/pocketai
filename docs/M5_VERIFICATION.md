@@ -173,6 +173,79 @@ bridge tests from fresh directories `build/m5_translation.WBQRn5/`,
 with result logs byte-identical to the corresponding accepted logs above.
 All four fresh build logs contain no RTL or C++ warning/error diagnostic.
 
+## 2026-09-06: actual dual-Ibex memory integration and core corrections
+
+The real cores now execute firmware through the M5 routers, local bus, memory
+arbiter, translator and buffered AXI master. Commands and accepted directories:
+
+| Command | Evidence | Terminal result |
+|---|---|---|
+| `bash sim/run_m5_cluster_memory.sh` | `build/m5_cluster_memory.NrkNB2/` | 2 successful dual-hart boots, 1 aborted boot, exit 0 |
+| `bash sim/run_m5_compliance.sh` | `build/m5_compliance.VUHOaN/` | 84 passes, exactly 4 known xfails, exit 0 |
+| `bash sim/run_m5_ibex_patch.sh` | `build/m5_ibex_patch.Qjd4Qa/` | normal/idempotent derivation, 3 unsafe-input refusals, unchanged frozen dependencies, exit 0 |
+
+Exact source, firmware, derived RTL and log hashes are recorded in
+[`m5_core_memory_evidence.json`](m5_core_memory_evidence.json). The integrated
+firmware uses 1,412 bytes of text, 128 bytes of results and no BSS, with separate
+4-KiB hart stacks; the complete 64-KiB zero-padded image is loaded and read back
+through AXI-Lite before release. This small test's fit does not establish the
+future model runtime's fit.
+
+Both actual harts fill and independently check full writable pages, exercise
+byte/halfword strobes and signed/unsigned loads, and execute a function from a
+read-only DDR page. Each hart checks RO-store, invalid-PTE-load and arena-range
+load traps. Word/halfword offsets 1..3 include page crossings and untouched-byte
+checks; a direct DDR-store/taken-branch sequence covers delayed memory response.
+The independent physical-page model rejects escaped/unauthorized accesses and
+checks final contents, not just firmware's success word.
+
+The abort test stops both cores during an issued write, withholds B for 32
+cycles, verifies that buffered W drains without core assistance and that
+quiescence remains false, then releases B and drains. A new mapping is flushed
+in the disabled/quiescent state; both cores pass a fresh firmware run without
+resetting the memory system. Accounting across all three starts is 11 PTE reads,
+4,576 data-read bursts and 4,249 writes, over 1,051,894 simulation clocks.
+These are diagnostic counts, not board throughput estimates.
+
+Two inherited core bugs were reproduced at actual instruction boundaries and
+fixed **only in exported M5 build copies**: prematurely selecting the second
+word's byte mask, and allowing a speculative branch decision to outrun the
+target-calculation state behind pending memory. See `M5_LSU_REVIEW.md` for the
+failed evidence, competing explanations, boundary probes and exact derivation.
+The final sources contain no temporary debug probes. Original dependency
+checkouts still match the historical pinned patches. M5's new derived identities
+require independent timing and physical qualification.
+
+Other harness/build findings were resolved without weakening the RTL gate:
+
+- Verilator needs command-line initialization before HDL plusarg use, and an
+  explicit falling reset edge for initially gated core registers. The simulator
+  now supplies both; the early failing builds remain separate.
+- Verilator's process-level dependency analysis reported false combinational
+  feedback through the upstream controller's large combinational block.
+  M5 simulation configuration isolates assignments to `controller_run_o`,
+  `halt_if`, `retain_id` and `flush_id`; this partitions simulation scheduling,
+  not hardware, and **does not suppress UNOPTFLAT**. The sole RTL lint exception
+  remains the existing unused upstream FPGA-register-file parameter.
+- The final full-cluster build has no RTL, firmware or C++ warning/error.
+  FuseSoC emits its known backend-deprecation notice. The independent ISA build
+  additionally reports an upstream Verilator FST-library `varDir` enum-switch
+  maybe-uninitialized warning. Reviewed: all defined directions are covered,
+  FST tracing remains disabled during these runs, and no tool source was changed
+  or warning suppressed. This does not affect the non-tracing cluster build.
+- An initial ISA harness used `WORK`, but the pinned test makefiles require
+  `work_dir`. It refreshed the disposable `riscv-compliance/work/rv32imc`
+  outputs, then failed its own missing-private-output check. Those working
+  outputs are not retained as M1 provenance or accepted M5 evidence. Historical
+  closure reports/binaries and source pins were not altered. The final runner
+  uses a fresh private `work_dir`, no clean step and no instruction trace files
+  in legacy directories; all five suites then pass against original references.
+
+This closes an actual-core memory **development subgate**, not all of G2/G4.
+Autonomous accelerator transfer/control, complete model firmware, physical
+owned-memory lifecycle, full-overlay timing and final model/context/performance
+acceptance remain outstanding. No M5 kernel helper has been loaded.
+
 ## Outstanding mandatory gates
 
 All of `M5_PLAN.md` G1–G8 remain open. In particular, local component simulation

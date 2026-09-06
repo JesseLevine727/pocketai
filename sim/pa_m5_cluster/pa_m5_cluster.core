@@ -1,0 +1,23 @@
+CAPI=2:
+name: "pocketai:pa:pa_m5_cluster:0.1"
+description: "Actual two-Ibex M5 memory-path integration and restart simulation"
+filesets:
+  simulation:
+    depend:
+      - pocketai:pa:pa_m5_rtl
+      - pocketai:pa:pa_m5_lint
+    files:
+      - pa_m5_cluster.cc: {file_type: cppSource}
+targets:
+  sim:
+    default_tool: verilator
+    filesets: [simulation]
+    toplevel: pa_m5_cluster_top
+    tools:
+      verilator:
+        mode: cc
+        verilator_options:
+          - '-Wall'
+          - '--assert'
+          - '--unroll-count 72'
+          - '-CFLAGS "-std=c++17 -Wall -Wextra -Werror"'

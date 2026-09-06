@@ -1,0 +1,10 @@
+CAPI=2:
+name: "pocketai:pa:pa_m5_lint:0.1"
+description: "Narrow immutable-upstream lint exception shared by M5 targets"
+filesets:
+  waiver:
+    files:
+      - pa_m5_verilator_waiver.vlt: {file_type: vlt}
+targets:
+  default:
+    filesets: [waiver]

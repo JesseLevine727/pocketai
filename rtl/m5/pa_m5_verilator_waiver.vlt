@@ -1,0 +1,13 @@
+// Same reviewed upstream-only exception as M1; no M5 warning is waived.
+`verilator_config
+lint_off -rule UNUSEDPARAM -file "*/rtl/ibex_register_file_fpga.sv"
+         -match "*Parameter is not used: 'DummyInstructions'*"
+
+// Simulation-only scheduling partition; not a warning suppression or RTL edit.
+// In the frozen upstream controller's large always_comb, controller_run_o is
+// only a function of ctrl_fsm_cs. Split that assignment so unrelated next-state
+// logic does not manufacture a combinational feedback edge in Verilator.
+isolate_assignments -module "ibex_controller" -var "controller_run_o"
+isolate_assignments -module "ibex_controller" -var "halt_if"
+isolate_assignments -module "ibex_controller" -var "retain_id"
+isolate_assignments -module "ibex_controller" -var "flush_id"

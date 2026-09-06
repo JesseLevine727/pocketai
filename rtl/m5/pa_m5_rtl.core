@@ -1,0 +1,44 @@
+CAPI=2:
+name: "pocketai:pa:pa_m5_rtl:0.1"
+description: "M5 isolated autonomous-memory cluster; frozen legacy configurations unchanged"
+filesets:
+  lsu_patch:
+    file_type: user
+    files:
+      - lsu_patch/apply.sh: {copyto: m5_prepare_lsu.sh}
+      - lsu_patch/staged_misaligned.patch: {copyto: m5_staged_misaligned.patch}
+      - lsu_patch/branch_stall.patch: {copyto: m5_branch_stall.patch}
+  lint_rules:
+    depend: [pocketai:pa:pa_m5_lint]
+  rtl:
+    depend:
+      - pocketai:pa:pa_cluster_rtl
+    files:
+      - pa_m5_page_translate.sv
+      - pa_m5_axi_burst.sv
+      - pa_m5_memory_bridge.sv
+      - pa_m5_memory_arbiter.sv
+      - pa_m5_obi_router.sv
+      - pa_m5_obi_ddr.sv
+      - pa_m5_memory_system.sv
+      - pa_m5_cluster_top.sv
+    file_type: systemVerilogSource
+scripts:
+  prepare_lsu:
+    cmd: [bash, m5_prepare_lsu.sh]
+targets:
+  default: &rtl_target
+    filesets: [lsu_patch, rtl]
+    hooks:
+      pre_build: [prepare_lsu]
+  lint:
+    <<: *rtl_target
+    default_tool: verilator
+    filesets: [lint_rules, lsu_patch, rtl]
+    toplevel: pa_m5_cluster_top
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--unroll-count 72"

@@ -1,0 +1,11 @@
+--- a/ibex_load_store_unit.sv
++++ b/ibex_load_store_unit.sv
+@@ -480,5 +480,7 @@
+           ctrl_update         = 1'b1;
+           addr_update         = 1'b1;
+-          handle_misaligned_d = split_misaligned_access;
++          // M5: this staging cycle has not issued or granted the first word.
++          // Keep its byte mask selected until WAIT_GNT_MIS accepts that word.
++          handle_misaligned_d = 1'b0;
+           ls_fsm_ns           = split_misaligned_access ? WAIT_GNT_MIS : WAIT_GNT;
+         end

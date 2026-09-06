@@ -1,0 +1,17 @@
+--- a/ibex_id_stage.sv
++++ b/ibex_id_stage.sv
+@@ -777,10 +777,11 @@
+     always_ff @(posedge clk_i or negedge rst_ni) begin
+       if (!rst_ni) begin
+         branch_set_raw_q <= 1'b0;
+-    // bug here (see the 07082022 report). should qualify this with instr_executing
+-    // (same as id_fsm_q). let's wait for now and fix later QQQ
+       end else begin
+-        branch_set_raw_q <= branch_set_raw_d;
++        // M5: advance the decision only when the ID FSM can enter the target
++        // calculation cycle. A speculative comparison behind an outstanding
++        // memory access must not redirect using the first-cycle ALU operands.
++        branch_set_raw_q <= branch_set_raw_d & instr_executing;
+       end
+     end
+ 

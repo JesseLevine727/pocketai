@@ -1,0 +1,99 @@
+{
+  "schema": "pocketai.m5.core-memory-development.v1",
+  "status": "local-components-pass-not-m5-closure",
+  "date_utc": "2026-09-06",
+  "commands": [
+    "bash sim/run_m5_cluster_memory.sh",
+    "bash sim/run_m5_compliance.sh",
+    "bash sim/run_m5_ibex_patch.sh"
+  ],
+  "core_result": {
+    "successful_dual_hart_boots": 2,
+    "aborted_boots": 1,
+    "simulation_cycles": 1051894,
+    "pte_reads": 11,
+    "data_read_bursts": 4576,
+    "write_bursts": 4249,
+    "permission_traps_per_hart_per_boot": 3,
+    "offset_cases_per_boot": {
+      "hart0": 12,
+      "hart1": 6
+    },
+    "taken_branch_after_ddr_store_per_hart_per_boot": 1
+  },
+  "isa_result": {
+    "rv32imc": [
+      25,
+      0
+    ],
+    "rv32im": [
+      8,
+      0
+    ],
+    "rv32i": [
+      44,
+      4
+    ],
+    "rv32Zicsr": [
+      6,
+      0
+    ],
+    "rv32Zifencei": [
+      1,
+      0
+    ]
+  },
+  "isa_count_order": [
+    "pass",
+    "expected_failure"
+  ],
+  "expected_failures": [
+    "rv32i/I-EBREAK-01",
+    "rv32i/I-ECALL-01",
+    "rv32i/I-MISALIGN_JMP-01",
+    "rv32i/I-MISALIGN_LDST-01"
+  ],
+  "derived_rtl": {
+    "ibex_load_store_unit.sv": {
+      "original": "e85e87c1eb3c77c5c78db67793383cd23480afdfedd79b39fedc3eff2cc6945d",
+      "compiled": "7fe4d5c261420f9862783978c9d9370a65dae6f360b5780f7afca19b090a8791"
+    },
+    "ibex_id_stage.sv": {
+      "original": "eb14d2cd21b6dae9432cd1e40ab7d512828de44f32c0a1fff86e725ed1cb8fe6",
+      "compiled": "1e9d382752cf9f13477f279ddc3f73a2b3d7bbd8e5cf8e4a7a9d755f6162c5f1"
+    }
+  },
+  "sha256": {
+    "rtl/m5/pa_m5_memory_system.sv": "ad235f2ad95ba0de0352e170f3e5f4e7111beda52284ac6a315cbe344bc125e9",
+    "rtl/m5/pa_m5_cluster_top.sv": "bcdc4aaf5aff56557fac680a353807279ea7b0564d833c8db3ea6c1c99a9ee7c",
+    "rtl/m5/pa_m5_rtl.core": "b4a96f33e667ffaae94f0d5090fe61461a4ee0a00b200ce1dc3293ec4945250c",
+    "rtl/m5/pa_m5_lint.core": "8dbb6cee6692c0d98a0dd229308cb9426839cfd59a13e221837f32ffa15c4aba",
+    "rtl/m5/pa_m5_verilator_waiver.vlt": "158140135d1263a72fcd428854f5836974a18f9b0fc0d6a66dfe1bab5704efc6",
+    "rtl/m5/lsu_patch/apply.sh": "aad2cbdb790f29ae347ec82dfe50f84041e79cfd51dc0ce2bc03c4476f19f625",
+    "rtl/m5/lsu_patch/branch_stall.patch": "737dc54bd1513ebeb9bf2d1ef368a0e3a6b8bf0c25e52b8bdca126b4177c6104",
+    "rtl/m5/lsu_patch/staged_misaligned.patch": "0f9fcd5e9e35431ffa122910a156233ca35a02fff5e9785f21e87d9a77502c3a",
+    "firmware/m5/memory_test.c": "cfe6aff469989d88c6f45886f6e351e568f3ffa52b5d3d179e380a3513c47544",
+    "firmware/m5/memory_test.ld": "f8a580792214f41ffe30b12a225dbf55d85a774b0fb039ab09fa0cb354a45898",
+    "firmware/m5/memory_test_abi.h": "d587cecc79d12a91c380c24a35d34e2661bf1997275b2f54e7dc93ef090c5a4b",
+    "firmware/m5/memory_test_start.S": "52765bdb2a6e093068b9258f3bce9c0681c85a200c0c6a04b5641f776dc3fd4b",
+    "sim/pa_m5_cluster/pa_m5_cluster.cc": "7afd30921a451a41aaf11f9d4f9481d23b8ca0266e8ba3419b53601cd30fed0e",
+    "sim/pa_m5_cluster/pa_m5_cluster.core": "0924ca0d653f4067d317c87a6b6c652d5df67b1cba728c5c38fd9c6bb6a82ca7",
+    "sim/run_m5_cluster_memory.sh": "374af316c178e4c3708c329dbca68e2956d6ec19889ac144885cab36e021b802",
+    "sim/run_m5_compliance.sh": "f9174c73134582f4d60a1d0583aba80cb94f7d170aa0e4f146180bc439a70814",
+    "sim/run_m5_ibex_patch.sh": "37e3b2c3da7d75a7b8a90ffe7cf161a8dd4f22bb0df57b1d0760a8189c0b990a",
+    "build/m5_cluster_memory.NrkNB2/memory.bin": "63033c2c148975a194b796842d21f47ab26ac2ab79b9c491025c9122dfa70b73",
+    "build/m5_cluster_memory.NrkNB2/memory.elf": "7876ecfce54059819f530916879c3e638c6d3447804945bc51143c9e39d20f36",
+    "build/m5_cluster_memory.NrkNB2/build.log": "713d92f245b4b333ca756859498ff534248a6b429ab5e072368ad0f00a4e5532",
+    "build/m5_cluster_memory.NrkNB2/test.log": "55d89c8417aaed337b01468356ecb6ac3ef566a579af30f95ba9bc05ab533405",
+    "build/m5_compliance.VUHOaN/build.log": "6ac9f910bac1c6f4fec60aea45da251fe140254d535945963073bb192fd37245",
+    "build/m5_compliance.VUHOaN/result.log": "66c53d8c3ceabcd553b8030fbba36ee5e564509158b5a33c87dc2d4d1cda9d25",
+    "build/m5_compliance.VUHOaN/derivation.log": "7de913b0b37be36235fb50f6c6f5d275ffaa657b1208fa619cd48d59d718fa0b",
+    "build/m5_ibex_patch.Qjd4Qa/result.log": "ada31a8a04a4b1c94cfaded8262e05d14d7ad0e8e5739c1de3848697689c7d4f",
+    "build/m5_ibex_patch.Qjd4Qa/deps.log": "85d79b06e5cad6012005014bd986391558e287080a9bab14afda03c92674d4e3"
+  },
+  "limitations": [
+    "No physical M5 overlay/timing/owned Linux DMA memory acceptance",
+    "No autonomous accelerator mover or full GPT-2 firmware acceptance",
+    "No performance inference from simulation cycles"
+  ]
+}
