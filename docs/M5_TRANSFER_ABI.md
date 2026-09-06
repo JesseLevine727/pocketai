@@ -1,7 +1,8 @@
 # M5 autonomous accelerator transfer ABI v1
 
-Status: contract frozen before implementation; standalone mover simulation
-passes. Real-operator/queue/platform integration is not yet accepted.
+Status: contract frozen before implementation; standalone mover and MMIO
+publication simulations pass. Their real-operator/platform integration is not
+yet accepted.
 The numerical packet formats remain those of M3. This document specifies the
 new mover, not a replacement GEMM/SFPU algorithm or an A9 tensor worker.
 

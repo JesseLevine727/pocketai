@@ -286,6 +286,37 @@ scenario. The mover's deadline and drain requirements were not weakened.
 | `build/m5_stream_transfer.Oov4MB/build.log` | `9ae6819775080083f4a4cb413809e31b8046629acb46419ab23b684dfa445bdc` |
 | `build/m5_stream_transfer.Oov4MB/test.log` | `af1598422980a04c853674a3d141fd4390d8521b1316d87b55e1c9273b2d9d7b` |
 
+## 2026-09-06: transfer MMIO publication and completion credit
+
+`bash sim/run_m5_transfer_control.sh` passes 8,187 MMIO accesses, 200 atomic
+command publications/completions and 429 rejected accesses, including 160
+staging-byte-enable cases. Evidence: `build/m5_transfer_control.kgBaF5/`, terminal
+exit 0, with no RTL/C++ warning or error. The single-credit ABI and hart-1
+ownership policy were recorded in `M5_TRANSFER_ABI.md` before this controller.
+
+Tests cover every staging field and byte-enable mask, changes to staging while
+a command is owned, full-credit rejection, completion backpressure, exact tag/
+fault/word-count observability, ACK without completion, partial/multi-action
+doorbells, unknown/unaligned/read-only MMIO errors, IRQ enable/reserved bits,
+level IRQ acknowledgement, and independent rejection versus completion/fatal
+IRQ sources. Accepted/completed/rejected counters are independently checked
+throughout 200 credit-reuse cycles; holding DONE cannot duplicate completion
+events. External abort blocks START; neither rejection-clear nor ACK can release
+the control's sticky abort or the mover's fatal stopped state.
+
+The mover side is a **register-level handshake model** here. This qualifies the
+publication boundary, not end-to-end numerical execution or hart ownership in
+running firmware. Connect and qualify the real mover, memory arbiter, M3
+operators, route lock, interrupts and supervisor before claiming all G2 gates.
+
+| File | SHA-256 |
+|---|---|
+| `rtl/m5/pa_m5_transfer_control.sv` | `158faf881bbb27b91b349531e1270658c522c9badf38c93d7956f868557f6b7c` |
+| `tests/m5/transfer_control.cc` | `d7dfdd801961cb5ebd0d49117bb3f5853344c56ed61f2e0534bc11ab144df0c4` |
+| `sim/run_m5_transfer_control.sh` | `dbb1f9ef0a17815447ddfb4a1b6df03d7340cf4d19445b4c38443d4ce85bb8f8` |
+| `build/m5_transfer_control.kgBaF5/build.log` | `6bb1de46f836c03752a7626c71ef617dc138084b5ae8a8dc5a122d0986c183be` |
+| `build/m5_transfer_control.kgBaF5/test.log` | `3a93d2bad25669ea01fb6e72ac3d4a28d5e1b925eda1cb03cd67b0cf10290ee0` |
+
 ## Outstanding mandatory gates
 
 All of `M5_PLAN.md` G1–G8 remain open. In particular, local component simulation
