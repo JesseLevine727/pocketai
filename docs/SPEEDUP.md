@@ -1,4 +1,4 @@
-# M4 performance — validated resident measurements
+# M4 performance — validated resident and process-start measurements
 
 The physical FPGA offload path is **slower than the matching native A9 CPU
 baseline** for this full GPT-2 workload. A 13-token prompt plus 20 generated
@@ -7,10 +7,9 @@ versus 0.17624 delivered tokens/s**, including prefill. FPGA latency is 3.816x
 higher. This is a measured result, not a failed correctness check: all timed
 outputs pass their independent exact checks. A speedup was not an M4 gate.
 
-The complete resident report is terminal and audited. Physical CPU full-context
-qualification also passes; FPGA full-context and supplemental process-cold
-qualification remain pending, so these results
-do not yet close M4. M3's 5.793 kernel GMAC/s and 0.085 synthetic-chain
+The complete resident report is terminal and audited. Physical CPU/FPGA
+full-context and supplemental process-cold qualification also pass. M4 closure
+is recorded in `M4_VERIFICATION.md`. M3's 5.793 kernel GMAC/s and 0.085 synthetic-chain
 end-to-end GMAC/s have different workloads/boundaries; neither predicts GPT-2
 performance. Diagnostic correctness times include validation and are not used
 as benchmarks here.
@@ -230,7 +229,15 @@ process swap, with the same 48,365,568-byte cache and no CPU CMA allocation.
 These include diagnostic-validation lifetimes, not an isolated benchmark peak
 or long-context throughput result. Evidence is `build/m4_runtime_cpu_boundary.json`,
 SHA-256 `1cd038f0608517adaa2932e959900ca3359af3373d5d6e9311f0dc73a1a2f0c9`.
-Physical FPGA full-context memory results remain pending.
+The separate **physical FPGA 1024-context correctness run** also passes: peak
+RSS **261,840 KiB (255.703 MiB)**, final PSS snapshot **254,587 KiB**, one thread
+and zero process swap. It uses the same cache plus 110,592 CMA bytes. Final
+full-vocabulary logits and every layer's KV match the independent reference;
+overflow rejection leaves cache/length unchanged and DMA cleanup completes.
+Evidence is `build/m4_runtime_fpga_boundary.json`, SHA-256
+`1f9a858cec49de78e1b934c18e6c227ace74a773f885f0fb0be2639cee0c8423`.
+Its diagnostic elapsed time includes validation; it is not a long-context
+performance measurement or a substitute for the repeated resident benchmark.
 
 Initialization component observations inside the benchmark process:
 
@@ -244,7 +251,7 @@ Initialization component observations inside the benchmark process:
 These are n=1 components, not cold distributions or complete process-start
 latencies. Model download and offline packing happen before deployment and
 are excluded, not claimed free. The scan warms OS page cache. A separate
-process-start observation is described below and remains pending.
+process-start observation is reported below.
 
 ## Evidence identity
 
@@ -275,7 +282,7 @@ policy/runtime identities, audits the complete raw sample inventory, and emits
 statistics directly from those observations. Use a fresh output path:
 
 ```bash
-OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.summarize_m4_performance --input build/m4_benchmark_board.json --output build/m4_performance_analysis.json
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.summarize_m4_performance --input build/m4_benchmark_board.json --output build/m4_performance_analysis.recheck.json
 ```
 
 It reports both the ratio of CPU/FPGA median latencies and paired trial ratios;
@@ -300,7 +307,7 @@ be hidden or attributed to model weights alone.
 The main runner's initialization-component timers begin inside Python; they
 are not complete interpreter-launch-to-first-token measurements. The separate
 `tests/m4/cold_start_policy.json` freezes one descriptive fresh-process
-observation per backend, after the active benchmark/context sequence finishes.
+observation per backend, after the benchmark/context sequence finishes.
 It includes interpreter/module/library startup, integrity/loading, FPGA setup
 where applicable, the same complete story prefill, greedy selection and local
 pipe delivery. Validation occurs afterward and remains mandatory.
@@ -319,8 +326,32 @@ physical context-result files have completed successfully before launching a
 child, uses bounded observation/graceful abort, and never force-kills a
 potential DMA owner. Its four host protocol/lifecycle tests pass.
 
-After the existing board sequence has terminated, copy the standalone helper
-and frozen policy into a fresh owned probe directory, preserving the active
+Both physical fresh-process observations are **terminal PASS**, including exact
+first-token, full-logit and all-KV validation after timed delivery, successful
+DMA cleanup and child exit code zero. The same 13-token story prompt delivers
+token ID 257. CPU ran first, then FPGA, exactly as frozen before timing.
+
+| Backend | Launch → first token, s (n=1) | Whole child process incl. checks/cleanup, s | Peak RSS, KiB | Final PSS snapshot, KiB |
+|---|---:|---:|---:|---:|
+| Native A9 CPU | 55.673811 | 55.992047 | 152,720 | 144,836 |
+| FPGA offload | 99.185217 | 100.405617 | 199,764 | 191,896 |
+
+Both model-process snapshots show one thread and zero swap. Each allocates
+48,365,568 cache bytes; only FPGA allocates 110,592 CMA bytes. These short-prompt
+startup peaks do not replace the full-context memory measurements above.
+Full-process completion is deliberately a different clock from first-token
+delivery. No n=1 CPU/FPGA startup speedup ratio or latency distribution is claimed.
+
+The probe ran from `/home/xilinx/pocketai_m4_startup.yMtIVx`, without modifying
+the accepted data/runtime bundle. `build/m4_process_cold.json` SHA-256 is
+`b784fe3174406237203e35eb11f6e8676ccc89ddb91d6d3799cb2ad1c12f4e91`;
+its terminal board log is `build/m4_process_cold_board.log`, SHA-256
+`7b09cff746e04d87d86a3e000838f821c7daa78e307039e9d88e545ad73101a8`.
+The final evidence audit verifies the frozen policy, helper/current runtime,
+model/overlay identities, sampling, result checks, memory and clean child exits.
+
+For a new reproduction, after the board sequence has terminated, copy the standalone helper
+and frozen policy into a fresh owned probe directory, preserving the accepted
 bundle and old outputs. Under the normal login-shell/PYNQ environment, run:
 
 ```bash

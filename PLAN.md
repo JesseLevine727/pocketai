@@ -208,7 +208,7 @@ KV management, full-model throughput, token-rate claim, or remote push in M3.
 
 ### M4 — Hybrid GPT-2 124M offload  [~1.5 wk]
 
-**Status (2026-09-05): IN PROGRESS — host model-quality PASS; physical runtime qualification underway.**
+**Status (2026-09-06 UTC): CLOSED — all M4 physical, quality, performance and evidence gates PASS.**
 The comprehensive acceptance contract is [`docs/M4_PLAN.md`](docs/M4_PLAN.md).
 It adds explicit floating-model quality gates, full-model/cache/tensor checks,
 bounded board memory and repeated fair CPU comparisons to the sketch below.
@@ -222,9 +222,11 @@ cache/range checks and native A9 operator tests. The bounded A9 offload runtime
 is implemented: physical CPU/FPGA 3×20 generation, all tensor/logit/KV cases
 and M1/M2/M3/M1 compatibility pass. Repeated resident performance is now exact
 and audited: FPGA takes 433.008 s versus CPU 113.483 s for prefill plus 20 tokens
-(0.04619 vs 0.17624 tokens/s), a 3.816x FPGA slowdown. Physical CPU 1024-context
-checks pass with zero process swap. FPGA full-context and supplemental
-process-cold acceptance remain open. See `docs/M4_VERIFICATION.md`,
+(0.04619 vs 0.17624 tokens/s), a 3.816x FPGA slowdown. Physical CPU and FPGA
+1024-context/cache/overflow checks pass with zero process swap. Peak RSS is
+219,244/261,840 KiB respectively. Supplemental process-cold observations also
+pass; all eleven machine checks and the manual G0–G7 closure review pass.
+The closure commit is local only; M5/M6 remain unstarted. See `docs/M4_VERIFICATION.md`,
 `docs/M4_RUNTIME.md` and the full results/frozen sampling in `docs/SPEEDUP.md`.
 
 Deliverables:

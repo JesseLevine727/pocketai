@@ -1,12 +1,14 @@
-# M4 verification — IN PROGRESS / NOT QUALIFIED
+# M4 verification — CLOSED / PHYSICALLY QUALIFIED
 
 M3 is closed/pushed at `68da8f8`. M4 implementation began 2026-09-05 after goal
 initialization. No RTL, accepted overlay or M1–M3 numerical contract has changed.
-The board is now running the exact accepted M3 overlay for M4 runtime tests.
-M5/M6 remain unstarted. Full acceptance is in
+M4 closes on 2026-09-06 UTC using the exact accepted M3 qual3 overlay. Both
+physical backends pass complete-model generation and the 1024-position boundary;
+all eleven machine-evidence checks and the manual requirement review below pass.
+M5/M6 remain unstarted; the closure commit is local only. Full acceptance is in
 [`M4_PLAN.md`](M4_PLAN.md).
 
-## Current gates
+## Final gates
 
 - G0 plan/status: recorded.
 - G1: checkpoint/tokenizer pinned; independent floating-model equations pass
@@ -16,24 +18,32 @@ M5/M6 remain unstarted. Full acceptance is in
   context-length group and aggregate passes the precommitted limits. The failed
   direct fixed-Q8 and long-context v2 failures remain preserved below. The
   explicit v3 range correction also passes 1024-token stress without clipping.
-  Physical qualification of the versioned compositions is required in G4/G5.
+  Physical qualification of the versioned compositions also passes in G4/G5.
 - G3: bounded A9 scheduler, native CPU and FPGA packet backends implemented.
   Host exact model/cache tests and physical CPU/FPGA 3×20 generation pass.
   Physical CPU full-context/cache/overflow now passes with peak RSS 219,244 KiB
-  and zero process swap. FPGA full-context execution/peak-memory remains.
+  and zero process swap. FPGA full-context also passes: peak RSS 261,840 KiB,
+  final PSS 254,587 KiB, one thread and zero process swap.
 - G4/G5: complete FPGA acceptance passes four cases x99 tensor/logit boundaries
   and all three 20-token generation/logit/KV sequences. The initial single-token
   case additionally passes 1,569 actual-operand native operator cross-checks.
   DMA timeout/recovery, busy routes, clean local/ISA and physical M1/M2/M3/M1
   regressions pass. G4's progressive tensor/regression checks pass; physical
-  FPGA 1024-position qualification still keeps G3/G5 open (CPU now passes).
+  CPU and FPGA 1024-position/logit/KV and overflow rejection both pass.
 - G6: sampling policy frozen in `546d6f0` before timing. The complete resident
   benchmark passes all 794 raw observations and the independent inventory/
   source/profile audit. FPGA full-generation median is 433.008 s versus
   113.483 s CPU for prefill plus 20 tokens (0.04619 vs 0.17624 tokens/s).
   Full statistics, measured bridge improvements and slowdowns are recorded in
-  `SPEEDUP.md`. Supplemental fresh-process observation is still pending.
-- G7 remains open. Partial runtime results do not close M4.
+  `SPEEDUP.md`. Supplemental fresh-process observations pass at 55.674 s CPU
+  and 99.185 s FPGA to first token (n=1 each, not disk-cold statistics).
+- G7: all eleven final machine checks PASS, manual scope/requirements review
+  PASS, closure documents reconciled and included in the scoped local closure
+  commit. No required work is deferred to M5.
+
+The candidate-development sections below retain chronological decisions and
+then-current qualification boundaries. Failed v1/v2 evidence and frozen
+candidate status fields remain unchanged; they do not override this final status.
 
 ## Identity, data and reproduction
 
@@ -270,9 +280,9 @@ post-GELU balancing clips**, counting both schedules, in block 0. These are
 out-of-calibration **balancing** ranges, not residual clipping or cache failure.
 `build/m4_v2_context_boundary.json` is correctly **FAIL_UNINTENDED_CLIPPING**.
 The 8,192-prediction held-out result remains valid; it does not qualify this
-long-context stress. Next: add an explicit range-safe balanced-input exponent
-and carry its units into GEMM scale metadata. Preserve v2, thresholds, failed
-evidence and weight calibration; independently requalify any revised candidate.
+long-context stress. The next development action was an explicit range-safe
+balanced-input exponent carried into GEMM scale metadata. V2, thresholds,
+failed evidence and weight calibration were preserved while v3 was requalified.
 
 ### Adaptive v3 — reference/model-quality gates PASS
 
@@ -317,8 +327,9 @@ OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m tests.m4.check_v3_preservatio
 compared after serialization/reload. Payload is **205,271,824 bytes (195.7625
 MiB)**; no float64-expanded weights are required on A9. Full-context int16 KV
 storage is another 36 MiB. These are allocation budgets, not measured physical
-peak memory. [`M4_RUNTIME.md`](M4_RUNTIME.md) records layout, hashes and remaining
-runtime work. Seventeen M4 unit tests and all 24 M3 host regressions pass.
+peak memory. [`M4_RUNTIME.md`](M4_RUNTIME.md) records layout, hashes and the
+subsequently qualified runtime. At this stage, seventeen M4 unit tests and all
+24 M3 host regressions passed.
 Native GEMM passes 20 independent host and physical A9 cases; native SFPU
 passes 140 adversarial cases plus all 3,472 accepted M3 packets on both host
 and A9. Host undefined-behavior sanitizer replay also passes the 3,472 packets.
@@ -409,13 +420,24 @@ file is verified before execution. Model pack and M3 bit/HWH remain pinned.
   before reset/full-context processing. Peak RSS **219,244 KiB**, final PSS
   **212,339 KiB**, one thread, process swap **zero**. Cache allocation remains
   48,365,568 bytes; the CPU backend allocates no CMA buffers.
+- `build/m4_runtime_fpga_boundary.json`: **physical FPGA full-context PASS**,
+  the same 64×16 schedule, exact final full-vocabulary logits and all twelve
+  layers' K/V, followed by overflow rejection without cache/length mutation.
+  Its initial single-token 99-tensor/logit/KV case passes too. Peak RSS
+  **261,840 KiB (255.703 MiB)**, final PSS **254,587 KiB**, one thread, process
+  swap **zero**. Cache is 48,365,568 bytes and CMA is 110,592 bytes. Successful
+  DMA cleanup and terminal SSH exit code zero were verified before acceptance.
 
 Physical CPU full-context evidence uses the unchanged benchmark/context bundle
 `e711e00ecac9cb7756b116fe8b41517224b2286afad8d13e9b13ad61c3a91cfa`
 at `/home/xilinx/pocketai_m4_bench.lkETvP`, after the benchmark finished. It is
 terminal and source/identity-audited; no partial report was accepted. The
-sequenced FPGA full-context run has started and passes its initial single-token
-tensor/logit/KV case, but its 1024-position result is still pending.
+sequenced FPGA full-context run also terminated successfully at 02:19 UTC on
+2026-09-06. The complete benchmark/CPU/FPGA sequence is retained in
+`build/m4_benchmark_and_boundary_board.log`. The CPU and FPGA context runs
+each execute 96,879,128,064 GEMM MACs; FPGA records 1,233,308 GEMM packets and
+2,439,154 SFPU packets. These diagnostic counts include the initial single-token
+case; they are not the short-prompt performance workload.
 
 Diagnostic elapsed times include validation and **are not performance**.
 No 1024-context memory claim is inferred from the short-prompt RSS above.
@@ -476,7 +498,7 @@ SSH process was terminated, completion checked, and prompt-only log preserved
 as `build/m4_m1_m2_m3_m1_board.log`. The successful rerun above has a distinct
 log and interactive PTY. No credential is stored in either log.
 
-### Closure audit, not premature closure
+### Evidence-audit history and final result
 
 `scripts/audit_m4.py` verifies immutable identities, current-source versus
 physical evidence, every mandatory generation/tensor/context result, memory,
@@ -495,7 +517,7 @@ audit schema assertion incorrectly expected integer zero instead of the frozen
 empty clipping dictionary; that audit-only assertion was corrected/tested.
 The underlying quality evidence and thresholds never changed. Even a complete
 machine audit still requires G7 documentation/limitations review and a scoped
-closure commit. The goal remains active; no M4 closure or extra push is claimed.
+closure commit. That intermediate preflight did not close M4 or authorize a push.
 
 The closure review additionally tightened deployment provenance: the initial
 stager pinned the pack/overlay but did not itself rehash every actual original
@@ -518,15 +540,13 @@ raw and derived evidence. `SPEEDUP.md` reports latency/throughput distributions,
 every full-chain trial, operation/byte counts, memory, initialization components
 and controlled batching improvements. FPGA is 3.816x slower for complete
 generation; the unchanged acceptance contract requires honest measurement,
-not an assumed speedup. The physical CPU context check now passes; the FPGA
-context check remains in progress.
+not an assumed speedup. Both physical context checks subsequently passed.
 
 The preserved `build/m4_evidence_preflight_v7.json` reports eight PASS and
 three PENDING before CPU full-context completion. The subsequent
-`build/m4_evidence_preflight_v8.json` now reports **nine PASS and two PENDING**,
-with no failures. Remaining machine checks are physical FPGA full context and
-the supplemental fresh-process observation. G7 documentation/closure review
-remains separate.
+`build/m4_evidence_preflight_v8.json` reports **nine PASS and two PENDING**,
+with no failures. V9 then records ten PASS and only process-cold pending after
+physical FPGA full-context completion. These historical preflights are preserved.
 
 A final timing-boundary review distinguished initialization components measured
 inside Python from a complete fresh-interpreter first-token observation.
@@ -537,8 +557,114 @@ process/module/library startup and waits for a parent delivery acknowledgement
 before any reference checking. It refuses to begin before the main benchmark
 and both physical context runs pass, and uses graceful-only abort for a possible
 DMA-owning child. Four local protocol/timeout/precondition tests pass; physical
-startup observations remain pending. This supplements the original warm
+startup observations subsequently pass. This supplements the original warm
 benchmark; its sampling, data, timings and policy are unchanged.
+
+The standalone helper and frozen policy were copied to fresh owned directory
+`/home/xilinx/pocketai_m4_startup.yMtIVx`, after the entire context sequence
+exited. Both child processes verified the unchanged `e711e00e…` stage and
+delivered token ID 257 for the story prompt, then passed full-logit/all-KV
+checks and cleanup with exit code zero. `build/m4_process_cold.json` retains
+the complete observations and source/memory records. First-token times are
+55.673811 s CPU and 99.185217 s FPGA; full child completion including validation
+and cleanup is 55.992047/100.405617 s. Both model processes have one thread and
+zero swap. Peak RSS is 152,720/199,764 KiB; final PSS snapshots 144,836/191,896
+KiB. See `SPEEDUP.md` for the explicitly different resident/process-cold
+boundaries and n=1 limitations.
+
+The final non-partial audit, `build/m4_evidence_final.json`, reports
+**11 PASS, 0 PENDING, 0 FAIL** with status
+`MANDATORY_MACHINE_EVIDENCE_PASS_REQUIRES_G7_REVIEW`. All current executable
+M4/reference/test sources remain byte-identical to commit `259058f`; subsequent
+changes through this closure are documentation only. A fresh closure replay of
+all **44 M4 tests** passes in `build/m4_closure_host_tests.log`. Existing M3
+24-test, clean RTL/ISA, numeric and physical evidence remains intact.
+
+## G7 manual requirement-by-requirement closure review
+
+This review does not treat a generic green status as proof of the full goal.
+The source implementations, frozen policies/asset bytes, raw result records,
+test coverage and complete timing inventory were checked against `M4_PLAN.md`.
+
+| Requirement | Authoritative coverage and finding |
+|---|---|
+| G0 scope, ownership and preservation | Plan initialized before implementation; diff from `68da8f8` contains only M4 software/tests/docs plus README/PLAN. No RTL, constraints, build scripts, M1–M3 references/ABIs or accepted artifacts changed. SSH only, no stored credentials/global tuning, no agents, no further push, `NA/` untouched. |
+| G1 model identity and complete float equations | Actual ten checkpoint/config/tokenizer/license/source assets rehashed by deployment preflight; 124,439,808 parameters. Independent `FloatGPT2` equations use all 12 layers/heads, learned positions, pre-LN, causal /8 attention, tanh GELU, residuals, final LN and original tied embedding transpose. Separate Transformers oracle passes 3×20, cached/full, final legal position and eight tokenizer cases. |
+| G1 layouts, prompts and exact reference independence | Original Conv1D/QKV/bias orientation and 50,257 vocabulary tail checked in reference/pack/native tests. Frozen three prompts, lowest-ID ties and explicit fixed-20/EOS policy predate hardware tests. Fixture exporter imports frozen `AdaptiveGPT2`, not board `Runtime`; 396 actual tensor files and every generation logit/KV hash are reverified. |
+| G2 quality, scales and data separation | Train-only calibration and disjoint seeded development/test windows are pinned; quality policy predates evaluation/integration. Each 256/512 group and the 8,192-token aggregate pass every PPL/top1/top5/KL limit; layer/logit errors and arithmetic/range counters are retained. No unintended clipping, nonfinite or unrepresentable nonzero scale. V1 and v2 stress failures preserved; v3 functional revision and already-known v2 held-out results disclosed, no threshold/data/weight tuning. |
+| G2 numerical invariants | W8A8 payloads, int16 storage, exact int32 K=3072 reductions, unsigned probability 32768, M3 RNE/saturation order and error budgets unchanged. Residual/logit units, LN epsilon/gain decomposition, causal V scales, score centering and v3 range-safe balancing are explicit in `M4_NUMERICS.md` and exact tests. Floating-generation differences are recorded, not hidden. |
+| G3 full A9 runtime and memory | Independent runtime executes complete prefill/cached decode, all heads and all vocabulary outputs with A9 scheduling/metadata and bounded 16-token blocks. Readonly 195.7625-MiB pack, preallocated 46.125-MiB cache and 110,592-byte reusable DMA allocation; tied weights share checkpoint provenance but have two declared quantized views. Both physical 1024-context processes pass measured memory/swap gates. |
+| G3 cache and lifecycle | Reference full/cached checks cover all 60 generated steps and alternate chunkings; runtime tensors/caches match independently exported values. Both physical runtimes reset/reuse across prompts and pass 1024/overflow no-mutation checks. Driver test covers both busy routes, rejected descriptors, actual missing-producer timeout, poisoned-buffer retention, bounded recovery and K=3072/N=13 after recovery. Runners close DMA in `finally`; all final board handles exit zero. |
+| G4 progressive correctness and compatibility | Initial FPGA forward has 1,569 actual-operand native cross-checks; four cases each compare 99 delivered tensor/logit boundaries covering full MLP/attention/layers/model, plus KV. Native GEMM/SFPU adversarial and immutable M3 corpus checks, 44 M4/24 M3 host tests, clean RTL/lifecycle/315 chains and 84 ISA passes with exactly four documented expected failures pass. No goldens replaced. |
+| G4 physical provenance | Exact M3 qual3 bit/HWH hashes below; no new build inferred. Accepted independent qual3/qual5 full-overlay results remain WNS +0.483/+0.400 ns, TNS 0, hold +0.018/+0.016 ns, DSP 0 at 95 MHz, with routing/constraints/DRC/methodology/warning review in `M3_VERIFICATION.md`. Unchanged sources and physical M1→M2→M3→M1 replay satisfy the unchanged-overlay branch. |
+| G5 physical acceptance | Source/pack/fixture/overlay identities checked for actual CPU and FPGA reports. Both pass all three original prompts ×20 exact greedy tokens, per-step full logits/KV and four full tensor cases; both pass 1024 context, reset and overflow. Separate frozen float-quality gate passes. No reduced head/vocabulary/context substitutes. |
+| G6 fair real performance | Frozen policy predates timing; all 794 raw observations retained/audited. Same-board native integer A9 comparison, 3 warmups/20 fixed trials, predefined 3 full chains, correct median/p95/range/deviation/rates, required work/delivery timed and validation excluded. Disjoint profiles, bytes/memory, overlapping counters, controlled bridge improvement, full-model slowdown and fresh-process observations are documented in `SPEEDUP.md`. No FP32/fastest-CPU, disk-cold, 1024-throughput or M5 speedup claim. |
+| G7 delivery and limits | Final machine audit plus this manual review, hashes, commands and limitations complete; README/PLAN/numerics/runtime/performance statuses reconciled. This record is included in the scoped local M4 closure commit. M1–M3 evidence and `NA/` preserved, no new remote push, M5/M6 unstarted. |
+
+Accepted hardware and runtime identities (no new M4 hardware implementation):
+
+| Artifact | SHA-256 |
+|---|---|
+| `build/m3_qual3/m3_pynq.bit` | `78fc22f0e9263759ed2ac6417345ce8c6ef7815438febd9c6a4332532790be5b` |
+| `build/m3_qual3/m3_pynq.hwh` | `20a2f3caa860b3dd644b9f4b5e7fa9bb8e7a70dc6a51dbd280e7e9347a3eafd6` |
+| `zynq/m4_offload.py` | `060fec77f5ebcd4c6cb449ace936e09a8d27b1b2b9c83a4c019b7eae56c2b780` |
+| `zynq/m4_driver.py` | `b672d3e2375bcade3e915b7a5a7a5efce229887d0b47dd51a052d4986d1cafb8` |
+| ARM `m4_cpu_gemm.so` | `abafcf85cf65e6ab9335151943800976b6567481c6257e83ecc34138f93aa425` |
+| ARM `m4_cpu_sfpu.so` | `e573fa8d09cc079cf191893b18f355b1b55cdd23eb6c87b389c56dd7acf55fa3` |
+
+### Final reproduction entry points
+
+Preserve the accepted reports above. In a prepared host workspace, staging
+creates a fresh directory and verifies actual asset bytes before copying:
+
+```bash
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.stage_m4_runtime --gemm-library build/m4_arm_libs/m4_cpu_gemm.so --sfpu-library build/m4_arm_libs/m4_cpu_sfpu.so
+```
+
+Copy that returned directory to a fresh owned board directory over SSH. Run
+under the documented interactive-sudo login-shell/PYNQ environment, sequentially
+with no competing FPGA owner. The following is the command sequence inside that
+fresh stage; the Python path is the accepted PYNQ environment. Existing output
+paths are rejected rather than overwritten.
+
+```bash
+cd /path/to/fresh-board-stage
+export OPENBLAS_NUM_THREADS=1
+/usr/local/share/pynq-venv/bin/python3 -m zynq.m4_control_checks --bitstream m3_pynq.bit --output driver_controls.json
+/usr/local/share/pynq-venv/bin/python3 -m zynq.m4_run --stage . --backend fpga --case single --check-operators --output runtime_fpga_single.json
+/usr/local/share/pynq-venv/bin/python3 -m zynq.m4_run --stage . --backend cpu --case all --generate --output runtime_cpu_generation.json
+/usr/local/share/pynq-venv/bin/python3 -m zynq.m4_run --stage . --backend fpga --case all --generate --output runtime_fpga_generation.json
+/usr/local/share/pynq-venv/bin/python3 -m zynq.m4_benchmark --stage . --phase all --output benchmark_all.json
+/usr/local/share/pynq-venv/bin/python3 -m zynq.m4_run --stage . --backend cpu --case single --boundary --output runtime_cpu_boundary.json
+/usr/local/share/pynq-venv/bin/python3 -m zynq.m4_run --stage . --backend fpga --case single --boundary --output runtime_fpga_boundary.json
+```
+
+Use a shell that stops on failure and verify each terminal JSON/exit, not just
+a progress print. The separate frozen startup-probe command and later-bundle
+provenance distinction are in `SPEEDUP.md` and `M4_RUNTIME.md`. Immutable M3
+compatibility corpus/overlay reproduction remains in `M3_VERIFICATION.md`;
+use fresh output directories, never its accepted result paths. Hardware build
+reproduction is not required for unchanged overlays and was not rerun in M4.
+
+Final read-only local evidence audit, with a new output path for any replay:
+
+```bash
+OPENBLAS_NUM_THREADS=4 build/m4_venv/bin/python -m scripts.audit_m4 --output build/m4_evidence_audit.NEW.json
+```
+
+### Closure limitations
+
+M4 is batch-one **A9-controlled hybrid inference**, not autonomous Ibex inference.
+Metadata/range/epsilon work and final token selection stay on A9 and are timed;
+the fabric remains integer and DSP-free. Quality is qualified on the pinned
+finite held-out subset, not all text or universal FP32 token identity. Full-
+context correctness/fit is proved, not full-context performance. Warm results
+cover the frozen short story workload, with three full-chain observations;
+startup has one observation per backend and uncontrolled OS page cache. Text
+tokenization/detokenization, network/UI, downloads and offline packing are
+outside the stated runtime boundaries. Actual FPGA performance is slower than
+the disclosed native quantized CPU baseline. These are disclosed limitations,
+not deferred mandatory M4 gates, and no M5/M6 work has been started.
 
 ## Evidence hashes
 
@@ -591,7 +717,15 @@ benchmark; its sampling, data, timings and policy are unchanged.
 | `build/m4_evidence_preflight_v7.json` | `9d3ccd8380969d05b32fdab8cdb4ef10d401e354707f0b21f8f4954b56df9f0e` |
 | `build/m4_runtime_cpu_boundary.json` | `1cd038f0608517adaa2932e959900ca3359af3373d5d6e9311f0dc73a1a2f0c9` |
 | `build/m4_evidence_preflight_v8.json` | `ac15d4a4279534268318f2ab510040af34b6ed0e357919eeb7843f0fc761baf4` |
+| `build/m4_runtime_fpga_boundary.json` | `1f9a858cec49de78e1b934c18e6c227ace74a773f885f0fb0be2639cee0c8423` |
+| `build/m4_benchmark_and_boundary_board.log` | `4ad96dd63d6722ca5f5ca2c43a20a6ccbb9c95a7c379e55109cec9e36c9c3cf2` |
+| `build/m4_evidence_preflight_v9.json` | `10dc68d4243ed330eb0f9fa09e96c1f955dd0e48ebd080bac2c03d6188e29328` |
+| `build/m4_process_cold.json` | `b784fe3174406237203e35eb11f6e8676ccc89ddb91d6d3799cb2ad1c12f4e91` |
+| `build/m4_process_cold_board.log` | `7b09cff746e04d87d86a3e000838f821c7daa78e307039e9d88e545ad73101a8` |
+| `build/m4_closure_host_tests.log` | `6968ad7181a701767c686111eb364a9bb567c5e37060a3855da27a24f0103ee4` |
+| `build/m4_evidence_final.json` | `268a8b8ba2565a34d7a5b89209a298a2e8c3fe9dd6daa8af27fc3cfa3cab5e05` |
 
-All M4 closure gates remain mandatory. Full-model throughput above is measured;
-it is a slowdown, not a speedup. Pending physical context/startup evidence and
-G7 review still prevent M4 closure.
+All original M4 gates pass with the preserved scope. Full-model throughput is
+measured and is a slowdown, not a speedup. M4 is closed by the scoped local
+milestone commit containing this record; additional remote pushes require a
+new request. M5/M6 remain unstarted.

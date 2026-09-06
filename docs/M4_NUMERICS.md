@@ -110,7 +110,7 @@ All packed weight/metadata arrays also remain identical. V2 held-out results wer
 already known; this is a transparent functional correction based on development
 stress, not a new blind benchmark or calibration/threshold change.
 
-## Acceptance status and remaining physical checks
+## Acceptance status and physical qualification
 
 ### Runtime batching without a numerical change
 
@@ -136,6 +136,9 @@ selection and zero-tail equivalence. Real-checkpoint cached/full-prefill and
 independent float comparisons pass as recorded in `M4_VERIFICATION.md`, including
 8,192 held-out predictions and all 60 generated cache/recomputation steps. The
 source/calibration policy was frozen before held-out testing; thresholds were
-not tuned. The compact model-pack serialization is verified. Every affected
-composition still requires physical-board equivalence on the accepted overlay;
-host equations alone do not prove delivered hardware behavior or performance.
+not tuned. The compact model-pack serialization is verified. Physical-board
+equivalence now passes on the exact accepted overlay: actual-operand checks,
+four complete tensor cases, three 20-token generation/logit/KV sequences and
+the full 1024-position/cache/overflow test. Host quality remains a separate
+gate from delivered integer self-consistency. Full evidence is in
+`M4_VERIFICATION.md`; actual measured performance and slowdowns are in `SPEEDUP.md`.

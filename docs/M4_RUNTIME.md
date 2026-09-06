@@ -1,4 +1,4 @@
-# M4 runtime — physical qualification in progress
+# M4 runtime — physically qualified hybrid inference
 
 ## Frozen handoff
 
@@ -50,7 +50,7 @@ Precomputed tiled weights are immutable ordinary DDR; required copies, A9
 metadata, DMA/cache maintenance and result assembly belong inside delivery
 timing. Initialization/packing and cold page-in costs must be reported separately.
 
-## Remaining integration
+## Qualified integration
 
 `zynq/m4_offload.py` now independently schedules
 the frozen model through the M3 GEMM/SFPU interface, preserving common
@@ -63,8 +63,8 @@ comparisons across 13-token prefill plus four cached tokens, all logits/KV,
 and all 60 frozen generated tokens. The physical CPU runtime now passes all
 four tensor cases and all three 20-token generations. The FPGA passes the same
 four cases and all 60 generated-token/logit/KV checks. Driver controls and
-physical M1/M2/M3/M1 compatibility pass. Physical CPU full-context now passes;
-the FPGA full-context check remains.
+physical M1/M2/M3/M1 compatibility pass. Physical CPU and FPGA full-context,
+overflow rejection and bounded-memory checks both pass.
 
 The runtime preallocates K/V, stable per-token K8 and K scale metadata, totaling
 **48,365,568 bytes (46.125 MiB)** at capacity 1024. Int16 K/V alone is the
@@ -110,8 +110,8 @@ The replacement batches dynamically scaled columns through equivalent M3
 AFFINE packets, as proved in `M4_NUMERICS.md`. It passes 24 host unit tests,
 all 196 full-model tensor boundaries, logits/KV and 60 frozen generated tokens.
 This avoids spending most A9 time dispatching thousands of tiny column calls.
-Short-context physical model qualification of this replacement passes; physical
-CPU full-context now also passes, with FPGA full-context still required. The
+Short-context and full-1024-context physical model qualification of this
+replacement pass on both CPU and FPGA. The
 controlled bridge timings in `SPEEDUP.md` establish a local batching improvement,
 not an inference speedup inferred from dispatch-count reduction alone.
 
@@ -142,9 +142,20 @@ all K/V at 1024 positions, then overflow rejected without mutation. Peak RSS
 219,244 KiB (214.105 MiB), final PSS 212,339 KiB, one thread and zero process
 swap. The full 48,365,568-byte cache is allocated; CPU uses zero CMA buffers.
 This diagnostic run includes validation and is not a long-context benchmark.
-The following FPGA run passes its initial single-token tensor/logit/KV case;
-its final full-context result is still pending. Do not launch the startup probe
-or another FPGA owner until the complete existing sequence finishes.
+The following FPGA run is also terminal **PASS** in
+`build/m4_runtime_fpga_boundary.json`: initial single-token 99-tensor/logit/KV
+check, all 1024 positions in 64 blocks of 16, exact final full-vocabulary logits
+and every layer's KV, and overflow rejection without mutation. Peak RSS is
+261,840 KiB (255.703 MiB), final PSS 254,587 KiB, one thread and zero process
+swap. CMA remains 110,592 bytes; DMA cleanup and the entire sequenced SSH job
+exit successfully. The final combined log is
+`build/m4_benchmark_and_boundary_board.log` (hash in `M4_VERIFICATION.md`).
+
+Only after that complete sequence exited, the supplemental startup helper ran
+from fresh directory `/home/xilinx/pocketai_m4_startup.yMtIVx`, reusing the
+unchanged accepted bundle. Both fresh child processes pass first-token/full-
+logit/KV validation and cleanup. See `SPEEDUP.md` for the process-cold boundary,
+single-observation timing and memory; it is not disk-cold timing.
 
 The native host libraries required by the runtime/benchmark unit tests can be
 built before `unittest` discovery:
@@ -184,9 +195,10 @@ board or expand its weights: inference still loads only the accepted compact
 pack. A newly tested host bundle, `build/m4_runtime_stage.ryasqcbb`, passes all
 676 staged-file hashes and has manifest
 `730b67083e2898e485c895519823ea34b1b792ef6b5994ee253e9d4941afc8ac`.
-It has **not** replaced the active board bundle. Runtime, driver, model arrays,
-native libraries, fixtures and overlay are unchanged, so the ongoing physical
-measurements are not restarted or relabelled as using this later staging helper.
+It has **not** replaced the accepted board bundle. Runtime, driver, model arrays,
+native libraries, fixtures and overlay are unchanged. The completed physical
+measurements retain their original identities and are not relabelled as using
+this later staging helper.
 
 ### Native CPU kernel preparation
 
@@ -223,5 +235,6 @@ DMA, route interlocks, completion/errors/timeouts, cache synchronization, buffer
 lifetime and recovery. Pack export alone does not prove board inference or
 memory fit. Initial short-context physical measurements and their precise
 scope are now recorded in `M4_VERIFICATION.md`. Resident fair repeated
-performance and physical CPU full-context checks pass; FPGA full-context
-peak-memory qualification and supplemental process-start observations remain.
+performance, both physical full-context/peak-memory checks and supplemental
+process-start observations pass. All M4 closure gates are audited in
+`M4_VERIFICATION.md`; no autonomous M5 inference or new hardware result is claimed.

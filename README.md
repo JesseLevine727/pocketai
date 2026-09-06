@@ -5,15 +5,16 @@ accelerator + SFPU, targeting GPT-2 124M (W8A8 GEMM with int16 activation storag
 inference. Fabric-resident on a PYNQ Z1 (Zynq-7020), with a Sky130 ASIC
 port; the PPA report (fabric vs. silicon) is the ship-gate.
 
-M1, M2 and M3 are closed at 95 MHz on physical PYNQ-Z1 hardware. M3 adds
+M1–M4 are closed on physical PYNQ-Z1 hardware using 95-MHz fabric. M3 adds
 GPT-2-correct integer LayerNorm, masked softmax, GELU and scale/vector support,
 plus wide-result K=3072 GEMM. Two clean builds and exact-overlay board tests
 pass. M4 host model quality and physical three-prompt generation/tensor checks
 pass on CPU and FPGA. The validated resident benchmark delivers 0.04619 tokens/s
 on FPGA versus 0.17624 on matching A9 CPU, including prefill and 20 generated
-tokens; see [M4 performance](docs/SPEEDUP.md). Physical CPU 1024-context checks
-also pass; FPGA full-context and supplemental startup qualification are in
-progress. M5 autonomous control is not started.
+tokens; see [M4 performance](docs/SPEEDUP.md). Physical CPU and FPGA both pass
+1024-context/cache/overflow checks with zero process swap. Supplemental
+process-start observations and all closure gates pass; see
+[M4 closure evidence](docs/M4_VERIFICATION.md). M5/M6 are not started.
 See [M3 closure evidence](docs/M3_VERIFICATION.md), [performance](docs/M3_PERFORMANCE.md),
 `PLAN.md`, `docs/M1_VERIFICATION.md`, and `docs/M2_VERIFICATION.md`.
 
@@ -137,9 +138,9 @@ hashes before programming over SSH, and runs M1/M2/M3/M1 acceptance. The
 [closure record](docs/M3_VERIFICATION.md) contains both accepted build hashes,
 complete numerical/protocol/ISA evidence and physical results.
 
-## M4 progress
+## M4 closure
 
-The [M4 goal](docs/M4_PLAN.md) is active. The real checkpoint/tokenizer are
+The [M4 goal](docs/M4_PLAN.md) is closed. The real checkpoint/tokenizer are
 pinned and an independent floating reference passes three 20-token generations,
 cache equivalence and context-boundary checks against Transformers. The scaled
 W8A8 candidate now passes frozen held-out quality: **1.63% perplexity increase,
@@ -151,11 +152,17 @@ without changing the reported quality or generation results. Native A9 GEMM
 and SFPU kernels pass independent checks. The bounded model runtime is implemented:
 physical A9 CPU and FPGA both pass all 60 generation/logit/KV steps and four
 complete tensor cases. DMA recovery and unchanged-overlay M1/M2/M3/M1
-regressions pass. Physical 1024-context and performance gates remain open.
+regressions pass. Both physical backends pass the full 1024-context test and
+overflow rejection without mutation. Peak full-context RSS is 214.105 MiB CPU
+and 255.703 MiB FPGA; both model processes show zero swap.
 [Evidence](docs/M4_VERIFICATION.md) preserves the rejected fixed-Q8 candidate and
-separates host quality from remaining physical integration/performance gates.
-The [same-board performance policy](docs/SPEEDUP.md) is frozen before timing;
-no full-model hardware performance is claimed yet.
+separates floating-model quality from exact physical equivalence. All eleven
+machine-evidence checks and the manual G0–G7 review pass.
+The [same-board measurements](docs/SPEEDUP.md) report a **3.816x FPGA slowdown**
+for prefill plus 20 tokens, despite a measured local batching improvement.
+These are resident token-ID-in/token-ID-out timings, not a text/network service.
+Separate process-cold first-token observations are 55.674 s CPU and 99.185 s
+FPGA (n=1 each; not disk-cold or a latency distribution).
 M5/M6 remain unstarted.
 
 ## Repo hygiene
