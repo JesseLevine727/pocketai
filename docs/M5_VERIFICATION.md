@@ -371,9 +371,50 @@ This gate proves real operator transport/control and component lifecycle, not
 full GPT-2 firmware, a protected physical supervisor, owned Linux DMA pages,
 timing closure, physical correctness or physical performance.
 
+## 2026-09-06: portable full-model and actual-Ibex numerical foundation
+
+`bash sim/run_m5_numerics.sh` passes the complete portable C numerical/model
+suite in `build/m5_numerics.Vh13uK/`, terminal exit 0. It opens the independently
+serialized 248-array arena, rejects 24 header/descriptor corruptions, and checks
+integer and software-binary64 metadata against independent Python calculations.
+The accepted run covers 14,850 integer RNE cases, 50,007 binary64-to-integer RNE
+cases (including signed zero), 20,005 bit-exact square roots, 42,769 dynamic
+quantization cases, 198,481 affine-scale values, 10,004 storage-range cases and
+200 LayerNorm metadata cases.
+
+The same run executes the portable C model loop with the accepted M4 CPU operator
+implementations standing in for the asynchronous hardware backend. Four frozen
+full-model inputs (30 input tokens total) match **all 396 independently exported
+intermediate tensors**, 4,670,788 represented values, final 50,257-way logits
+and complete K/V hashes exactly. All three frozen generation cases match all 60
+greedy tokens, per-step full-logit hashes and per-step cache hashes. The public
+generation API separately matches a three-token smoke run. Maximum observed
+workspace use is 1,909,188 bytes, below the fixed 4-MiB runtime region.
+
+This test exposed and corrected a real portable-runtime defect: negating a zero
+attention score produces IEEE negative zero, which the original conversion
+helper incorrectly treated as a negative out-of-domain input. Both signed zeros
+now convert identically to integer zero, with explicit host and RV32 coverage.
+
+`bash sim/run_m5_ibex_numerics.sh` then compiles the same numerical source with
+the system RV32IMC soft-float libgcc and executes it on both actual Ibex RTL
+cores. Accepted evidence is `build/m5_ibex_numerics.Y6riyS/`, terminal exit 0.
+Hart 0 passes 6,904 cases and hart 1 passes 6,881 cases with zero error bits;
+the measured firmware intervals are 49,917,481 and 102,394,216 cycles. The
+firmware contains 15,392 text bytes, a fixed 128-byte result ABI and 19,968 BSS
+bytes. No F/D instruction or libm is used.
+
+Exact source and evidence hashes are recorded in
+[`m5_runtime_foundation_evidence.json`](m5_runtime_foundation_evidence.json).
+This gate proves portable complete-model fidelity and the actual-core soft-f64
+metadata implementation. It does not yet prove that full-model jobs use the
+physical GEMM/SFPU/transfer path, safe Linux-owned model pages, timing closure,
+or board performance.
+
 ## Outstanding mandatory gates
 
-All of `M5_PLAN.md` G1–G8 remain open. In particular, local component simulation
-is not a timing report or a substitute for the final autonomous empty-cache
-1024-position physical test. Kernel-helper loading still requires explicit
-approval; no helper has been loaded and no boot setting changed.
+The lean closure policy in `M5_PLAN.md` supersedes the original marathon test
+matrix. Hardware-backed full-model firmware, the protected host supervisor,
+one final timing build, concise physical correctness/performance and final
+auditing remain open. Kernel-helper loading still requires explicit approval;
+no helper has been loaded and no boot setting changed.

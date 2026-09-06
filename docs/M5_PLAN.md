@@ -3,7 +3,10 @@
 Status: **IN PROGRESS / NOT QUALIFIED**, initialized 2026-09-06 UTC.
 Baseline: pushed M4 closure `114bcc58bba8a32e9b683c639072f2b690582d2f`.
 The user explicitly selected **>=1 token/s as a stretch target**, not a hard
-closure gate. M4 is complete; M5 has no physical inference acceptance yet.
+closure gate. On 2026-09-06 the user also selected a **lean side-project
+closure**: retain real autonomy, exactness, safety, timing and useful physical
+performance evidence, but remove duplicate and marathon acceptance runs. M4 is
+complete; M5 has no physical inference acceptance yet.
 
 ## Outcome and non-negotiable scope
 
@@ -50,10 +53,10 @@ is permitted, mandatory for qualification, and excluded from performance timing.
 | G0 | Scope, ownership and qualification/invalidation policy recorded | Plan recorded; ABI and performance policy still to freeze before their implementation/timing |
 | G1 | Safe DDR/firmware/working-memory architecture, inventory and ABI | Translation/AXI/static-arena contracts and exact model serialization/fit pass locally; physical ownership/runtime ABI still open; no board changes |
 | G2 | Autonomous DDR/transfer/control RTL with lifecycle qualification | Actual dual-Ibex memory, real GEMM/SFPU transfers, route lock, completion IRQs and component cancellation/restart pass locally; protected host supervisor and complete platform lifecycle still open |
-| G3 | Complete bounded bare-metal model runtime, faithful numerics | Not implemented |
-| G4 | Progressive host/RISC-V/model and affected compatibility tests | M5-derived core ISA regression passes with exactly four existing xfails; runtime/model and full compatibility gates remain open |
-| G5 | Two clean timing-qualified full M5 overlay builds | Not built |
-| G6 | Physical autonomous model acceptance and final full context | Not run |
+| G3 | Complete bounded bare-metal model runtime, faithful numerics | Portable full-model C loop and actual-Ibex numerical foundation pass; hardware backend/firmware entry remain open |
+| G4 | Lean progressive host/RISC-V/model and affected compatibility tests | Four frozen full-model cases, 396 intermediate tensors and 60 generation steps pass exactly on host; actual firmware and targeted final regressions remain open |
+| G5 | One clean timing-qualified full M5 overlay build | Not built |
+| G6 | Concise physical autonomous model acceptance | Not run |
 | G7 | Frozen-boundary real performance and matching comparisons | Not measured; >=1 token/s stretch only |
 | G8 | Every-requirement audit, evidence documentation and local closure | Pending |
 
@@ -134,32 +137,38 @@ Exercise alternate prefill chunkings, cached versus recomputed decode, reset
 and reuse, masks/positions, maximum K, vocabulary tails, scale underflow/range
 and unsigned probability. Check both hart execution and synchronization.
 
-Run affected M1–M4 local/native/ISA regressions with exactly the existing four
-documented ISA expected failures. Hardware changes require regression of old
-configurations; immutable historical evidence remains historical, not a claim
-that old binaries contain new RTL. Do not mutate M4's closure auditor or source
-pins merely to relabel M5 as unchanged M4.
+Run targeted affected M1–M4 local/native/ISA regressions with exactly the
+existing four documented ISA expected failures. Do not repeat expensive,
+unaffected milestone campaigns. Hardware changes require one regression of the
+old configuration; immutable historical evidence remains historical, not a
+claim that old binaries contain new RTL. Do not mutate M4's closure auditor or
+source pins merely to relabel M5 as unchanged M4.
 
 ## G5 — physical implementation
 
-Two independent clean full-overlay builds on the final M5 hardware sources:
+One clean full-overlay build on the final M5 hardware sources:
 
 - 95 MHz, setup WNS >= +0.250 ns, TNS=0 and positive hold slack.
 - DSP=0; fully routed, no unconstrained endpoints.
 - Final DRC/methodology errors and critical warnings zero; every remaining
   warning reviewed against its actual cone/condition.
-- Pin build scripts, source snapshots, tools, reports and bit/HWH hashes.
+- Pin build scripts, source snapshots, tools, reports and bit/HWH hashes. Check
+  scripted reproducibility and rebuild only if a later hardware change
+  invalidates the accepted artifact.
 
 Do not claim reuse of M3 timing for changed M5 hardware. Firmware-only changes
 need not repeat place-and-route when hardware identity remains unchanged.
 
 ## G6 — physical correctness and autonomy
 
-On the final hardware/firmware/model identities, require all original three
-prompts to produce exactly 20 new tokens with the original EOS policy. Every
-token, full-logit value/hash and all-layer KV must match the independent M4
-quantized reference; include complete tensor/layer/head/vocabulary checks.
-Keep frozen floating-model quality separate from integer self-consistency.
+On the final hardware/firmware/model identities, run all three original prompts:
+one representative prompt produces at least five exact new tokens and the other
+two produce at least one exact new token each, with the original EOS policy.
+Every observed token and each final full-logit/KV hash must match the independent
+M4 quantized reference. One representative run also exports selected
+intermediate layer/head/tensor checkpoints. Keep frozen floating-model quality
+separate from integer self-consistency. Longer 20-token outputs are useful only
+when their elapsed time remains practical; they are not a closure gate.
 
 Prove the ownership claim: inspect the actual host runner and firmware, record
 control/transfer counters and demonstrate progress/completion without any A9
@@ -167,11 +176,12 @@ in-run tensor or operator service. Host output polling may be stopped while
 firmware continues into bounded output storage. Diagnose deadlock/backpressure
 without disguising host cooperation as autonomy.
 
-Test reset/reuse, actual control/transfer errors and successful recovery. On
-the final new autonomous backend, run **one complete empty-cache 1024-position
-test**, compare final full logits and all KV, then reject overflow without
-cache/length mutation. Record physical peak memory and ownership cleanup.
-Require terminal reports and successful cleanup/exit, not just progress prints.
+Test reset/reuse, one representative actual control/transfer error and
+successful recovery. Check the 1024-position limit, overflow rejection and
+cache-length non-mutation with bounded host/firmware tests; the previously
+mandatory empty-cache 1024-position physical marathon is removed. Record
+physical peak memory and ownership cleanup. Require terminal reports and
+successful cleanup/exit, not just progress prints.
 
 ## Test cost and evidence invalidation
 
@@ -180,10 +190,10 @@ Require terminal reports and successful cleanup/exit, not just progress prints.
 | Address translation, bounds, buffers/queue wrap, IRQ, failure/reset | Fast synthetic directed/random local tests | Rerun after relevant memory/control changes; targeted physical checks on final hardware |
 | Real checkpoint operators/tensors and short exact generation | Run after relevant numerical/runtime changes | Full frozen prompt/tensor acceptance on final hardware/firmware |
 | Near-limit cache continuation | Use independently verified cache checkpoints to reach boundary cases quickly | Supplemental coverage only; cannot replace constructing full cache from empty |
-| New autonomous full 1024 positions | Do not run after every edit | One final run; repeat only if later changes affect model/cache/memory/ownership correctness |
+| New autonomous full 1024 positions | Not required for lean closure | Optional future endurance evidence; bounded limit/rejection tests are mandatory |
 | Old M4 CPU + FPGA 1024 marathons | Reuse accepted results and frozen reference evidence | No automatic rerun; only if a relevant component changes and the old evidence is used to qualify that change |
-| Full FPGA implementations | Use simulation and initial implementation feedback first | Two clean final qualified hardware builds; reroute only for hardware/implementation changes |
-| Statistical performance | Freeze boundary/order/repeats before timing | Repeat affected workloads if final code/hardware/boundary changes; never trim failed/slow samples |
+| Full FPGA implementations | Use simulation and initial implementation feedback first | One clean final qualified hardware build; reroute only for hardware/implementation changes |
+| Statistical performance | Freeze a small boundary/order/sample count before timing | One warmup plus at least three decode samples and one complete representative run; keep every sample |
 
 Record why any expensive qualification is invalidated before launching its
 replacement. A live slow process is a wait, not a reason to restart. Preserve
@@ -193,10 +203,10 @@ relabeled as the final empty-cache full-context proof.
 ## G7 — honest performance
 
 Create a versioned machine-readable policy before physical performance timing.
-Target three warmups and twenty fixed prefill/first-token and cached-decode
-trials, with a justified predetermined smaller full-generation sample if
-needed. Specify prompt/context, reset/residency, ordering, token delivery,
-profiling and cold-start sampling before observing results.
+Use one warmup plus at least three fixed cached-decode samples and one complete
+representative generation run. Specify prompt/context, reset/residency,
+ordering, token delivery, profiling and cold-start sampling before observing
+results. Do not launch hour-scale campaigns solely to increase sample count.
 
 Measure physical TTFT, prefill, cached decode, complete generation, tokens/s,
 median/p95/range/variability, bytes and memory. Include required work within

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "status": "M5_RUNTIME_FOUNDATION_PASS_NOT_PHYSICAL_CLOSURE",
+  "host": {
+    "command": "bash sim/run_m5_numerics.sh",
+    "evidence": "build/m5_numerics.Vh13uK",
+    "terminal_exit": 0,
+    "fixture_cases": 4,
+    "input_tokens": 30,
+    "trace_tensors": 396,
+    "trace_values": 4670788,
+    "generation_cases": 3,
+    "generation_tokens": 60,
+    "maximum_workspace_bytes": 1909188,
+    "log_sha256": "3770caa4a60bc338744b81dce87bbe70a8d428b93a6ba5a91c8004f06f9f2d7c"
+  },
+  "actual_ibex": {
+    "command": "bash sim/run_m5_ibex_numerics.sh",
+    "evidence": "build/m5_ibex_numerics.Y6riyS",
+    "terminal_exit": 0,
+    "hart0_cases": 6904,
+    "hart1_cases": 6881,
+    "errors": 0,
+    "combined_cycles": 102640441,
+    "test_log_sha256": "e7f19cb635bc4f1889aebf2528bd0023ded7eb47e612149fa67d78e3671c6bde",
+    "elf_sha256": "17ae7d208fee295be8430767bbe9cc2869468ab4c162101aa221191e2027dfc0"
+  },
+  "sources": {
+    "runtime/m5/pa_m5_numerics.c": "4b924da9404a7962d89cd1635cb9a925d8cdcad23413a78acef2003b1c3b52ac",
+    "runtime/m5/pa_m5_numerics.h": "8fdf68b2fc1b31344f25f216f470f5845444691401ff7ec00ed9057e28e4461a",
+    "runtime/m5/pa_m5_model.c": "fa5d72e5fad93cf97b6e13d00d1b0d67dcf7a0da9808be70c336717f958b86b4",
+    "runtime/m5/pa_m5_model.h": "97837d12e7e47ddd14f27fe9494e3f910cfb89e2cf5e7f8ea57f03de699a9297",
+    "runtime/m5/pa_m5_ops.c": "963fef221133c20b1604e2e1e1aede8ec616bad0193ce91cdb1d796a3e71f3de",
+    "runtime/m5/pa_m5_ops.h": "5851219b68ae843f9c906c2fd426a4313df265b41129df47cda94bc46dfa2a55",
+    "runtime/m5/pa_m5_runtime.c": "f312f54343c00af0d6c5b548a90459943210c4a703843602c49eec61f7278925",
+    "runtime/m5/pa_m5_runtime.h": "0810e59ab21a9b203d4624a011d50a1b271be8a6329348448e262a09ef2a4807",
+    "tests/m5/model_ops_host.c": "0bd5646ecfa7593b1fc1965fdc54425ea16cd01d751ebcb5f387743678696655",
+    "tests/m5/test_numerics.py": "c4236d7691cdd15646da1964a6dc968b6f79abc4840865950d04bc45672a11e2",
+    "firmware/m5/numerics_test.c": "12c397c1331a8eac56ebaaf5a93d2666b8e98edcb7aa704e4505be7e816750c1"
+  }
+}
