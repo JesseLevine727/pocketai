@@ -1,0 +1,24 @@
+CAPI=2:
+name: "pocketai:pa:pa_m5_accelerators:0.1"
+description: "Actual dual-Ibex autonomous GEMM/SFPU transfer and IRQ simulation"
+filesets:
+  simulation:
+    depend:
+      - pocketai:pa:pa_m5_rtl
+      - pocketai:pa:pa_m5_lint
+    files:
+      - pa_m5_accelerators.cc: {file_type: cppSource}
+targets:
+  sim:
+    default_tool: verilator
+    filesets: [simulation]
+    toplevel: pa_m5_cluster_top
+    tools:
+      verilator:
+        mode: cc
+        verilator_options:
+          - '-Wall'
+          - '--assert'
+          - '--unroll-count 72'
+          - "\"-GEnableTransfer=1'b1\""
+          - '-CFLAGS "-std=c++17 -Wall -Wextra -Werror"'

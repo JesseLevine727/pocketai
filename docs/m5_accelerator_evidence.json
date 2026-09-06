@@ -1,0 +1,70 @@
+{
+  "schema": "pocketai.m5.accelerator-integration-development.v1",
+  "status": "real-operators-and-lifecycle-pass-not-m5-closure",
+  "date_utc": "2026-09-06",
+  "commands": [
+    "bash sim/run_m5_cluster_accelerators.sh",
+    "bash sim/run_m5_mmio_cancel.sh",
+    "bash sim/run_m5_cluster_memory.sh"
+  ],
+  "accepted_evidence": {
+    "accelerators": "build/m5_cluster_accelerators.yKAk3l",
+    "mmio_cancel": "build/m5_mmio_cancel.nu6iJn",
+    "memory_regression": "build/m5_cluster_memory.dHa6HY"
+  },
+  "accelerator_result": {
+    "successful_boots": 2,
+    "aborted_boots": 1,
+    "jobs_per_boot": 9,
+    "independently_checked_words_per_boot": 9633,
+    "component_lifecycle_cases": 14,
+    "simulation_cycles": 31208155,
+    "pte_reads": 418,
+    "data_read_bursts": 20272,
+    "write_bursts": 132655,
+    "hart0_mailbox_irqs_per_boot": 9,
+    "hart1_mailbox_irqs_per_boot": 9,
+    "hart1_dma_irqs_per_boot": 9,
+    "hart1_gemm_irqs_per_boot": 5,
+    "hart1_sfpu_irqs_per_boot": 4,
+    "unexpected_irqs": 0
+  },
+  "mmio_cancel_result": {
+    "cycles": 10000,
+    "requests": 7569,
+    "cancellation_overlap_responses": 1932,
+    "engine_responses": 5637
+  },
+  "firmware_size": {
+    "text_bytes": 2786,
+    "data_bytes": 128,
+    "bss_bytes": 0
+  },
+  "sha256": {
+    "rtl/m5/pa_m5_cluster_top.sv": "29bd91ee2b967404df2298ecae5ad358104cbc685a39a008df235457db6db78c",
+    "rtl/m5/pa_m5_accelerator_system.sv": "477f57b38802016f567dd06ab32e210af436d7412f8f9e4f7540c64a3d5df435",
+    "rtl/m5/pa_m5_mmio_cancel.sv": "aa9562385361507b613a6d7cad568722af129dd00c5c0092b807a89d829f84a7",
+    "rtl/m5/pa_m5_stream_transfer.sv": "e86fe7dd89bd170534128df5ddaa10f0b3442f7e2d122679cc38382206330224",
+    "rtl/m5/pa_m5_transfer_control.sv": "158faf881bbb27b91b349531e1270658c522c9badf38c93d7956f868557f6b7c",
+    "rtl/m5/pa_m5_rtl.core": "f168758f92895d09b30179317c78779744b600948805af1a978489e1b23940c9",
+    "firmware/m5/accelerator_test.c": "c3e112c37be573457062a708fa8632dfc4287330b7e994404cc3f83ff1726a3e",
+    "firmware/m5/memory_test_start.S": "52765bdb2a6e093068b9258f3bce9c0681c85a200c0c6a04b5641f776dc3fd4b",
+    "firmware/m5/memory_test.ld": "f8a580792214f41ffe30b12a225dbf55d85a774b0fb039ab09fa0cb354a45898",
+    "sim/pa_m5_cluster/pa_m5_accelerators.cc": "c7a0b461fd359cef4af8d60ad75c7e348e9e464ba8190fe93770adaec512a998",
+    "sim/pa_m5_cluster/pa_m5_accelerators.core": "3a1c901fc6dfe636d45a54fb39be240c4381ab4987422827d8f5a1b6d855de8a",
+    "sim/run_m5_cluster_accelerators.sh": "1ed7cf7387a93213524b8d71ed711a2785b09ed910c26de59f2d1a70975500b5",
+    "sim/run_m5_mmio_cancel.sh": "45257d5c93cf845de128bd74f4571ec2d65312ed1cd5e1f996a0ed5cb3578fde",
+    "tests/m5/mmio_cancel.cc": "5e1cf8aa3fb70550756dde15e143aff5f24bb8f237538ad8e59ca6662690d88b",
+    "build/m5_cluster_accelerators.yKAk3l/accelerators.bin": "5709283ba798926973e1995cb656e4ed6143aca53b41bd906ee3376599f45aec",
+    "build/m5_cluster_accelerators.yKAk3l/accelerators.elf": "4112600b494a48d3383fb8ad42e2716576506fa77edb657528ff1e535415d468",
+    "build/m5_cluster_accelerators.yKAk3l/build.log": "2b507cccc8717f89844b21bc8afb59dd1c0a5d177ec2b3f8d62ddb8f50e42550",
+    "build/m5_cluster_accelerators.yKAk3l/test.log": "674647941ac7d83d5ec1954eaacd3c839fa22749dd93ec19afa1bc8e207254ac",
+    "build/m5_mmio_cancel.nu6iJn/build.log": "c7971a4b99540eb19dac0581307f80217ed3bcb9bf2e2ecd7b6e58e7b500f53e",
+    "build/m5_mmio_cancel.nu6iJn/test.log": "23919c2bc309834094932ea2717c0e97d63bb8bcb5a756a19b5077531e4ce694"
+  },
+  "limitations": [
+    "No complete GPT-2 firmware or model checkpoint acceptance",
+    "No physical M5 overlay, safe Linux memory helper or protected supervisor acceptance",
+    "No timing closure or physical performance inference from simulation cycles"
+  ]
+}

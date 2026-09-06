@@ -21,6 +21,10 @@ filesets:
       - pa_m5_obi_router.sv
       - pa_m5_obi_ddr.sv
       - pa_m5_memory_system.sv
+      - pa_m5_stream_transfer.sv
+      - pa_m5_transfer_control.sv
+      - pa_m5_mmio_cancel.sv
+      - pa_m5_accelerator_system.sv
       - pa_m5_cluster_top.sv
     file_type: systemVerilogSource
 scripts:

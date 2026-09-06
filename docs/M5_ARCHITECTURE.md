@@ -283,8 +283,10 @@ implementations but inserts the qualified routers/memory system between the
 four Ibex ports and local/DDR paths. Its protected mapping configuration and
 memory-abort inputs are separate top-level provisioning signals, never local
 bus registers. The eventual A9-only supervisor owns those signals. A fifth
-virtual-memory client and the existing accelerator streams are exposed to the
-autonomous bulk engine; A9 runtime copying is not an implementation of it.
+virtual-memory client and accelerator streams connect to the autonomous packet
+engine in `EnableTransfer=1`. The default development configuration retains the
+external ports; autonomous mode disconnects all external payload/bulk handshakes.
+A9 runtime copying is not an implementation of autonomous inference.
 
 Core-only reset/stop blocks new router admission but leaves routers, adapters,
 memory engines and local MMIO response logic alive to retire accepted accesses.
@@ -297,11 +299,36 @@ not a claim that a partially fed accelerator has been reset or is reusable.
 Full system reset is still restricted to a coordinated interconnect reset;
 none of these modules can cancel an outstanding PS AXI transaction by reset.
 
+In autonomous mode, the integrated M5 transfer controller occupies `0x15000`.
+Its mover feeds the original wide GEMM/SFPU through the original stream route.
+The route interlock includes DMA ownership through completion acknowledgement.
+Hart 0 receives only its mailbox interrupt; hart 1 receives mailbox, GEMM, SFPU
+and transfer interrupts. The [transfer ABI](M5_TRANSFER_ABI.md) defines the
+one-credit publication model and cancellation boundary.
+
+External abort, a mover fatal error or the transfer ABORT command latches a
+whole-cluster cancellation. This holds the harts and accelerator state reset
+but leaves accepted memory requests and MMIO responders alive. New M5 response
+shells preserve the one-cycle accelerator MMIO response across cancellation,
+returning bus error instead of losing a response when the operator resets.
+After physical memory drain **and separate host AXI-Lite retirement**, a cluster
+IO reset clears cancellation. Scratchpad contents persist. This composition is
+locally qualified; the final protected A9 supervisor must still enforce the
+ownership and reset sequence in hardware and the kernel/host interface.
+
 The integrated firmware test uses a complete, zero-padded 64-KiB RAM image
 loaded/verified while both harts are reset, then exercises both actual harts
 over noncontiguous mapped DDR, unaligned accesses and permission faults. Abort
 drain and remapped core-only restart also pass. This development test is not
 full GPT-2 firmware or final autonomous model acceptance.
+
+The separate `accelerator_test.c` test runs actual hart-driven transfers, with
+hart 0 preparing/checking operands and hart 1 as sole operator/transfer owner.
+It checks wide GEMM through K=3072 and multi-plane SFPU packets, actual completion
+IRQs, competing core DDR traffic, route ownership, and abort/remap/restart without
+in-run host MMIO. Host-driven fault injection is a distinct component-test phase,
+not evidence of autonomous model scheduling. See `M5_VERIFICATION.md` for results,
+limitations and exact evidence identities.
 
 Actual-core testing exposed two latent memory-latency errors: the staged LSU
 selected second-word byte enables too early, and speculative branch decisions

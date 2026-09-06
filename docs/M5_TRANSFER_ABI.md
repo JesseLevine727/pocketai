@@ -1,8 +1,8 @@
 # M5 autonomous accelerator transfer ABI v1
 
-Status: contract frozen before implementation; standalone mover and MMIO
-publication simulations pass. Their real-operator/platform integration is not
-yet accepted.
+Status: contract frozen before implementation; standalone mover/MMIO and actual
+dual-Ibex real-operator transfer simulations pass. Complete protected platform
+supervisor, physical implementation and model-runtime acceptance remain open.
 The numerical packet formats remain those of M3. This document specifies the
 new mover, not a replacement GEMM/SFPU algorithm or an A9 tensor worker.
 
@@ -141,6 +141,35 @@ global-abort request; neither ACK nor CLEAR_REJECTION clears STOPPED/fatal state
 Recovery remains a supervisor-controlled drained reset. IRQ enable and staging
 may be changed while busy, but do not modify the owned packet. STATUS ready is
 false throughout normal completion backpressure or abort.
+
+## M5 integration/reset boundary
+
+The autonomous configuration removes the external payload and bulk-client paths:
+only the packet mover can drive accelerator streams and memory client 4. The
+legacy-development configuration retains those ports. M5 adds no A9 packet worker.
+The SFPU route interlock includes mover ownership, including pending completion;
+firmware must ACK the mover and clear accelerator completion before switching.
+Hart 0 receives only its mailbox IRQ; hart 1 receives mailbox and all engine IRQs.
+
+External abort, mover fatal fault and the transfer-control ABORT doorbell are
+ORed into a sticky cancellation latch. Cancellation immediately stops new core
+admission, resets the accelerator packet/compute state and aborts the translated
+memory system. It **does not reset** the mover, memory paths, local bus or MMIO
+response shells. The latter independently retain their one-cycle response valid:
+an accelerator access whose response overlaps cancellation returns an explicit
+bus error, even if the underlying accelerator has just been reset. Requests
+during cancellation also return errors without reaching the accelerator. This
+avoids losing an accepted local MMIO response during a stream fault/reset.
+No numerical or legacy accelerator source changes are needed.
+
+Only after the complete memory system reports drained ownership, cores are held
+reset, and the provisioning AXI-Lite host has retired all accepted transactions
+may the enclosing supervisor reset cluster IO and clear cancellation. Missing
+physical AXI responses remain busy indefinitely. A deadline is not evidence of
+drain. The final supervisor must enforce host ownership and track its transactions;
+memory quiescence alone is not an AXI-Lite-host quiescence claim. Scratchpad data
+survives an IO reset, permitting a preloaded image to boot after the drained reset.
+This is the integration contract, not acceptance of a completed board supervisor.
 
 The MMIO responder must remain live across core-only reset so accepted local
 accesses can retire. Packet-engine reset is permitted only after memory drain;

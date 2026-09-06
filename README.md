@@ -175,7 +175,10 @@ The full M4 numerical/model contract and 1024-position context are retained;
 DDR backs the cache, rather than an int8/200-token scratchpad eviction ring.
 **>=1 token/s is a stretch target**, not a closure gate. The test policy uses
 fast focused development checks and one final autonomous full-context run,
-reusing unchanged M4 evidence. No M5 hardware/model pass is claimed yet.
+reusing unchanged M4 evidence. Local simulations now pass actual dual-Ibex
+GEMM/SFPU transfers, completion IRQs and abort/restart checks; see the
+[development evidence](docs/M5_VERIFICATION.md). No physical M5 or complete
+model-runtime pass is claimed yet.
 
 ## Repo hygiene
 

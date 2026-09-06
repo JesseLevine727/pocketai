@@ -317,6 +317,60 @@ operators, route lock, interrupts and supervisor before claiming all G2 gates.
 | `build/m5_transfer_control.kgBaF5/build.log` | `6bb1de46f836c03752a7626c71ef617dc138084b5ae8a8dc5a122d0986c183be` |
 | `build/m5_transfer_control.kgBaF5/test.log` | `3a93d2bad25669ea01fb6e72ac3d4a28d5e1b925eda1cb03cd67b0cf10290ee0` |
 
+## 2026-09-06: real operators, dual-Ibex scheduling and cancellation
+
+The production `EnableTransfer=1` composition connects the qualified packet
+mover to the original M3 wide GEMM and SFPU and makes it the only bulk-memory
+client and stream owner. The external development payload/bulk ports are tied
+off. Hart 0 receives only mailbox IRQs; hart 1 receives mailbox, GEMM, SFPU and
+transfer IRQs. A route change is rejected while the mover owns its completion.
+
+`bash sim/run_m5_cluster_accelerators.sh` builds actual RV32IMC firmware and the
+complete two-Ibex/translated-memory/real-operator system with strict compiler and
+Verilator warnings. The accepted fresh run is
+`build/m5_cluster_accelerators.yKAk3l/`:
+
+- two successful boots separated by an issued packet-write abort, full drain,
+  noncontiguous physical-page remap, complete firmware reload and restart;
+- hart 0 prepares and independently checks 9 jobs/9,633 result words while
+  issuing competing translated DDR traffic; hart 1 is the sole descriptor,
+  route and transfer owner;
+- five signed-int8 wide GEMMs cover K=1,3,7,768,3072, partial bytes, M=1/3/16
+  and N=13, with explicit padded output lanes;
+- SFPU ADD, three-plane AFFINE, REQUANTIZE8 and unsigned-probability SOFTMAX
+  cover 3,072-word planes and the 32,768 probability endpoint;
+- each boot observes exactly nine mailbox IRQs on each hart, nine DMA completion
+  IRQs, five GEMM IRQs and four SFPU IRQs on hart 1, with no unexpected IRQs;
+- no AXI-Lite request is permitted while firmware runs, and continuously driven
+  external development interfaces never handshake in autonomous mode;
+- a separate host-driven lifecycle phase covers accelerator-MMIO cancellation
+  overlap, local descriptor rejection/no memory effects, source permission
+  failure, late destination protection/partial-result invalidation, deadline
+  with a missing B response, external abort with a missing R response and the
+  transfer ABORT doorbell: 14 cases pass.
+
+The run retires 418 page-table reads, 20,272 data-read bursts and 132,655 write
+bursts in 31,208,155 simulated cycles. These counts include test preparation,
+checking and fault injection and are **not** a performance result. Firmware is
+2,786 text bytes plus the fixed 128-byte result ABI, with no BSS.
+
+`bash sim/run_m5_mmio_cancel.sh` independently checks the response shell over
+10,000 randomized cycles: 7,569 accepted requests, 1,932 cancellation-overlap
+responses and 5,637 engine responses. Every accepted request still produces
+one response; cancelled accesses return explicit error and never reach the
+reset engine. Accepted evidence is `build/m5_mmio_cancel.nu6iJn/`.
+
+The unchanged development-mode cluster was rebuilt from the same current M5 RTL
+with `bash sim/run_m5_cluster_memory.sh`; `build/m5_cluster_memory.dHa6HY/`
+repeats both successful dual-hart boots and the issued-write abort/remap test.
+This proves the optional integration did not replace the previously qualified
+core-memory path. It does not replace later legacy M1-M4 regression.
+
+Exact source and evidence hashes are in `docs/m5_accelerator_evidence.json`.
+This gate proves real operator transport/control and component lifecycle, not
+full GPT-2 firmware, a protected physical supervisor, owned Linux DMA pages,
+timing closure, physical correctness or physical performance.
+
 ## Outstanding mandatory gates
 
 All of `M5_PLAN.md` G1–G8 remain open. In particular, local component simulation

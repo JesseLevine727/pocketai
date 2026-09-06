@@ -49,7 +49,7 @@ is permitted, mandatory for qualification, and excluded from performance timing.
 |---|---|---|
 | G0 | Scope, ownership and qualification/invalidation policy recorded | Plan recorded; ABI and performance policy still to freeze before their implementation/timing |
 | G1 | Safe DDR/firmware/working-memory architecture, inventory and ABI | Translation/AXI/static-arena contracts and exact model serialization/fit pass locally; physical ownership/runtime ABI still open; no board changes |
-| G2 | Autonomous DDR/transfer/control RTL with lifecycle qualification | Actual dual-Ibex memory and standalone packet-mover/MMIO publication tests pass; real-operator, route/IRQ and platform lifecycle integration still open |
+| G2 | Autonomous DDR/transfer/control RTL with lifecycle qualification | Actual dual-Ibex memory, real GEMM/SFPU transfers, route lock, completion IRQs and component cancellation/restart pass locally; protected host supervisor and complete platform lifecycle still open |
 | G3 | Complete bounded bare-metal model runtime, faithful numerics | Not implemented |
 | G4 | Progressive host/RISC-V/model and affected compatibility tests | M5-derived core ISA regression passes with exactly four existing xfails; runtime/model and full compatibility gates remain open |
 | G5 | Two clean timing-qualified full M5 overlay builds | Not built |

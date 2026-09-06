@@ -5,7 +5,8 @@
 
 module pa_m5_cluster_top #(
   parameter bit EnableGemm = 1'b1,
-  parameter bit EnableSfpu = 1'b1
+  parameter bit EnableSfpu = 1'b1,
+  parameter bit EnableTransfer = 1'b0
 ) (
   input IO_CLK,
   input IO_RST_N,
@@ -30,8 +31,8 @@ module pa_m5_cluster_top #(
   output logic        rvalid_o,
   input  logic        rready_i,
 
-  // M2 GEMM payload streams. Packets and numerical semantics are defined in
-  // docs/NUMERICS.md. The PYNQ wrapper connects these to AXI DMA.
+  // Development-only payload ports. EnableTransfer disconnects them completely;
+  // production packets come from the internal translated-memory mover.
   input  logic [31:0] gemm_s_axis_data_i,
   input  logic [ 3:0] gemm_s_axis_keep_i,
   input  logic        gemm_s_axis_last_i,
@@ -57,6 +58,7 @@ module pa_m5_cluster_top #(
   output logic memory_busy_o,
   output logic memory_quiesced_o,
   output logic memory_poisoned_o,
+  output logic transfer_cancel_o,
   input logic bulk_busy_i,
   input logic bulk_req_valid_i,
   output logic bulk_req_ready_o,
@@ -115,18 +117,19 @@ module pa_m5_cluster_top #(
   logic clk_sys, rst_sys_n, rst_core_n;
   assign clk_sys   = IO_CLK;
   assign rst_sys_n = IO_RST_N;
-  assign rst_core_n = IO_RST_N & CORE_RST_N;
+  assign rst_core_n = IO_RST_N & CORE_RST_N & !(EnableTransfer && transfer_cancel_o);
 
   // --- Round-robin shared bus host/device wiring ---
   localparam int AxI = 0;
 
   // Constant indices work for both the legacy four-device and extended
   // five-device arrays without widening a legacy packed enum selector.
-  localparam int Ram = 0, Uart = 1, Mbox = 2, Gemm = 3, Sfpu = 4;
+  localparam int Ram = 0, Uart = 1, Mbox = 2, Gemm = 3, Sfpu = 4, Transfer = 5;
 
-  localparam int unsigned NrDevices = EnableSfpu ? 5 : EnableGemm ? 4 : 3;
+  localparam int unsigned NrDevices = EnableTransfer ? 6 : EnableSfpu ? 5 : EnableGemm ? 4 : 3;
   localparam int unsigned NrHosts   = 5;
   initial assert (!EnableSfpu || EnableGemm);
+  initial assert (!EnableTransfer || (EnableGemm && EnableSfpu));
 
   logic         host_req    [NrHosts];
   logic         host_gnt    [NrHosts];
@@ -166,6 +169,11 @@ module pa_m5_cluster_top #(
     assign cfg_device_addr_mask[Sfpu] = ~32'h3FF;
   end
 
+  if (EnableTransfer) begin : g_transfer_decode
+    assign cfg_device_addr_base[Transfer] = 32'h00015000;
+    assign cfg_device_addr_mask[Transfer] = ~32'h3FF;
+  end
+
   pa_shared_bus #(
     .NrDevices   (NrDevices),
     .NrHosts     (NrHosts  ),
@@ -200,11 +208,14 @@ module pa_m5_cluster_top #(
 
   // Mailbox level IRQs (see `pa_mailbox`): irq0 -> hart 0, irq1 -> hart 1
   logic mbox_irq0, mbox_irq1, gemm_irq, sfpu_irq;
-  logic stream_route, gemm_busy;
-  logic gemm_input_ready, sfpu_input_ready;
-  logic [31:0] gemm_output_data, sfpu_output_data;
-  logic [3:0] gemm_output_keep, sfpu_output_keep;
-  logic gemm_output_valid, gemm_output_last, sfpu_output_valid, sfpu_output_last;
+  logic transfer_irq, memory_abort;
+  logic bulk_busy, bulk_req_valid, bulk_req_ready, bulk_req_write;
+  logic [31:0] bulk_req_addr, bulk_in_data, bulk_out_data;
+  logic [8:0] bulk_req_words;
+  logic [3:0] bulk_in_strb, bulk_done_fault;
+  logic bulk_in_valid, bulk_in_ready, bulk_out_valid, bulk_out_ready, bulk_out_last;
+  logic bulk_done_valid, bulk_done_ready;
+  assign memory_abort = EnableTransfer ? transfer_cancel_o : memory_abort_i;
 
   // --- Core 0 (hart 0), external IRQ = mbox1_to_0 pending ---
   pa_ibex_wrapper #(
@@ -228,7 +239,7 @@ module pa_m5_cluster_top #(
     .data_wdata_o          (core_wdata[1]),
     .data_rdata_i          (core_rdata[1]),
     .data_err_i            (core_err[1]),
-    .irq_external_i        (mbox_irq0 | gemm_irq | sfpu_irq),
+    .irq_external_i        (mbox_irq0 | (!EnableTransfer && (gemm_irq | sfpu_irq))),
     .irq_software_i        (1'b0),
     .irq_timer_i           (1'b0),
     .alert_major_internal_o(),
@@ -257,7 +268,7 @@ module pa_m5_cluster_top #(
     .data_wdata_o          (core_wdata[3]),
     .data_rdata_i          (core_rdata[3]),
     .data_err_i            (core_err[3]),
-    .irq_external_i        (mbox_irq1 | gemm_irq | sfpu_irq),
+    .irq_external_i        (mbox_irq1 | gemm_irq | sfpu_irq | transfer_irq),
     .irq_software_i        (1'b0),
     .irq_timer_i           (1'b0),
     .alert_major_internal_o(),
@@ -293,7 +304,7 @@ module pa_m5_cluster_top #(
     assign local_err[h] = host_err[h+1];
   end
   pa_m5_memory_system u_memory (
-    .clk_i(clk_sys), .rst_ni(rst_sys_n), .stop_i(!CORE_RST_N), .abort_i(memory_abort_i),
+    .clk_i(clk_sys), .rst_ni(rst_sys_n), .stop_i(!CORE_RST_N), .abort_i(memory_abort),
     .cfg_enable_i, .cfg_table_base_i, .cfg_arena_bytes_i, .cfg_flush_i, .flush_ready_o,
     .busy_o(memory_busy_o), .quiesced_o(memory_quiesced_o), .poisoned_o(memory_poisoned_o),
     .core_req_i(core_req), .core_gnt_o(core_gnt), .core_addr_i(core_addr), .core_we_i(core_we),
@@ -302,10 +313,10 @@ module pa_m5_cluster_top #(
     .local_req_o(local_req), .local_gnt_i(local_gnt), .local_addr_o(local_addr),
     .local_we_o(local_we), .local_be_o(local_be), .local_wdata_o(local_wdata),
     .local_rvalid_i(local_rvalid), .local_rdata_i(local_rdata), .local_err_i(local_err),
-    .bulk_busy_i, .bulk_req_valid_i, .bulk_req_ready_o, .bulk_req_addr_i, .bulk_req_words_i,
-    .bulk_req_write_i, .bulk_in_valid_i, .bulk_in_ready_o, .bulk_in_data_i, .bulk_in_strb_i,
-    .bulk_out_valid_o, .bulk_out_ready_i, .bulk_out_data_o, .bulk_out_last_o,
-    .bulk_done_valid_o, .bulk_done_ready_i, .bulk_done_fault_o,
+    .bulk_busy_i(bulk_busy), .bulk_req_valid_i(bulk_req_valid), .bulk_req_ready_o(bulk_req_ready), .bulk_req_addr_i(bulk_req_addr), .bulk_req_words_i(bulk_req_words),
+    .bulk_req_write_i(bulk_req_write), .bulk_in_valid_i(bulk_in_valid), .bulk_in_ready_o(bulk_in_ready), .bulk_in_data_i(bulk_in_data), .bulk_in_strb_i(bulk_in_strb),
+    .bulk_out_valid_o(bulk_out_valid), .bulk_out_ready_i(bulk_out_ready), .bulk_out_data_o(bulk_out_data), .bulk_out_last_o(bulk_out_last),
+    .bulk_done_valid_o(bulk_done_valid), .bulk_done_ready_i(bulk_done_ready), .bulk_done_fault_o(bulk_done_fault),
     .m_awaddr_o, .m_awlen_o, .m_awsize_o, .m_awburst_o, .m_awcache_o, .m_awprot_o,
     .m_awid_o, .m_awvalid_o, .m_awready_i, .m_wdata_o, .m_wstrb_o, .m_wlast_o,
     .m_wvalid_o, .m_wready_i, .m_bresp_i, .m_bid_i, .m_bvalid_i, .m_bready_o,
@@ -360,72 +371,145 @@ module pa_m5_cluster_top #(
     .irq1_o   (mbox_irq1)
   );
 
-  // --- Optional M2 double-buffered GEMM accelerator ---
-  if (EnableGemm) begin : g_gemm
-    pa_gemm #(.EnableWide(EnableSfpu)) u_gemm (
-      .clk_i             (clk_sys),
-      .rst_ni            (rst_sys_n),
-      .req_i             (device_req[Gemm]),
-      .we_i              (device_we[Gemm]),
-      .be_i              (device_be[Gemm]),
-      .addr_i            (device_addr[Gemm]),
-      .wdata_i           (device_wdata[Gemm]),
-      .rvalid_o          (device_rvalid[Gemm]),
-      .rdata_o           (device_rdata[Gemm]),
-      .err_o             (device_err[Gemm]),
-      .s_axis_data_i     (gemm_s_axis_data_i),
-      .s_axis_keep_i     (gemm_s_axis_keep_i),
-      .s_axis_last_i     (gemm_s_axis_last_i),
-      .s_axis_valid_i    (gemm_s_axis_valid_i && !stream_route),
-      .s_axis_ready_o    (gemm_input_ready),
-      .m_axis_data_o     (gemm_output_data),
-      .m_axis_keep_o     (gemm_output_keep),
-      .m_axis_last_o     (gemm_output_last),
-      .m_axis_valid_o    (gemm_output_valid),
-      .m_axis_ready_i    (gemm_m_axis_ready_i && !stream_route),
-      .irq_o             (gemm_irq),
-      .busy_o            (gemm_busy)
+  if (EnableTransfer) begin : g_autonomous
+    logic req [3], we [3], rvalid [3], err [3];
+    logic [3:0] be [3];
+    logic [31:0] addr [3], wdata [3], rdata [3];
+    for (genvar i = 0; i < 3; i++) begin : g_mmio
+      assign req[i] = device_req[Gemm+i];
+      assign we[i] = device_we[Gemm+i];
+      assign be[i] = device_be[Gemm+i];
+      assign addr[i] = device_addr[Gemm+i];
+      assign wdata[i] = device_wdata[Gemm+i];
+      assign device_rvalid[Gemm+i] = rvalid[i];
+      assign device_rdata[Gemm+i] = rdata[i];
+      assign device_err[Gemm+i] = err[i];
+    end
+    pa_m5_accelerator_system u_accelerators (
+      .clk_i(clk_sys), .rst_ni(rst_sys_n), .abort_i(memory_abort_i),
+      .cancel_o(transfer_cancel_o), .req_i(req), .we_i(we), .be_i(be), .addr_i(addr),
+      .wdata_i(wdata), .rvalid_o(rvalid), .rdata_o(rdata), .err_o(err),
+      .irq_o(transfer_irq), .busy_o(bulk_busy), .stopped_o(),
+      .mem_req_valid_o(bulk_req_valid), .mem_req_ready_i(bulk_req_ready),
+      .mem_req_addr_o(bulk_req_addr), .mem_req_words_o(bulk_req_words),
+      .mem_req_write_o(bulk_req_write), .mem_in_valid_o(bulk_in_valid),
+      .mem_in_ready_i(bulk_in_ready), .mem_in_data_o(bulk_in_data), .mem_in_strb_o(bulk_in_strb),
+      .mem_out_valid_i(bulk_out_valid), .mem_out_ready_o(bulk_out_ready),
+      .mem_out_data_i(bulk_out_data), .mem_out_last_i(bulk_out_last),
+      .mem_done_valid_i(bulk_done_valid), .mem_done_ready_o(bulk_done_ready),
+      .mem_done_fault_i(bulk_done_fault)
     );
-  end else begin : g_no_gemm
-    assign gemm_input_ready = 1'b0;
-    assign gemm_output_data = 32'h0;
-    assign gemm_output_keep = 4'h0;
-    assign gemm_output_last = 1'b0;
-    assign gemm_output_valid = 1'b0;
-    assign gemm_irq = 1'b0;
-    assign gemm_busy = 1'b0;
-  end
+    assign gemm_irq = 0;
+    assign sfpu_irq = 0;
+    assign bulk_req_ready_o = '0;
+    assign bulk_in_ready_o = '0;
+    assign bulk_out_valid_o = '0;
+    assign bulk_out_data_o = '0;
+    assign bulk_out_last_o = '0;
+    assign bulk_done_valid_o = '0;
+    assign bulk_done_fault_o = '0;
+    assign gemm_s_axis_ready_o = 0;
+    assign gemm_m_axis_data_o = 0;
+    assign gemm_m_axis_keep_o = 0;
+    assign gemm_m_axis_last_o = 0;
+    assign gemm_m_axis_valid_o = 0;
+    // Development-only external paths are absent from this configuration.
+    logic unused_external;
+    assign unused_external = ^{bulk_busy_i, bulk_req_valid_i, bulk_req_addr_i, bulk_req_words_i, bulk_req_write_i, bulk_in_valid_i, bulk_in_data_i, bulk_in_strb_i, bulk_out_ready_i, bulk_done_ready_i, gemm_s_axis_data_i, gemm_s_axis_keep_i, gemm_s_axis_last_i, gemm_s_axis_valid_i, gemm_m_axis_ready_i};
+  end else begin : g_legacy_accelerators
+    assign transfer_irq = 0;
+    assign transfer_cancel_o = 0;
+    assign bulk_busy = bulk_busy_i;
+    assign bulk_req_valid = bulk_req_valid_i;
+    assign bulk_req_ready_o = bulk_req_ready;
+    assign bulk_req_addr = bulk_req_addr_i;
+    assign bulk_req_words = bulk_req_words_i;
+    assign bulk_req_write = bulk_req_write_i;
+    assign bulk_in_valid = bulk_in_valid_i;
+    assign bulk_in_ready_o = bulk_in_ready;
+    assign bulk_in_data = bulk_in_data_i;
+    assign bulk_in_strb = bulk_in_strb_i;
+    assign bulk_out_valid_o = bulk_out_valid;
+    assign bulk_out_ready = bulk_out_ready_i;
+    assign bulk_out_data_o = bulk_out_data;
+    assign bulk_out_last_o = bulk_out_last;
+    assign bulk_done_valid_o = bulk_done_valid;
+    assign bulk_done_ready = bulk_done_ready_i;
+    assign bulk_done_fault_o = bulk_done_fault;
+    logic stream_route, gemm_busy;
+    logic gemm_input_ready, sfpu_input_ready;
+    logic [31:0] gemm_output_data, sfpu_output_data;
+    logic [3:0] gemm_output_keep, sfpu_output_keep;
+    logic gemm_output_valid, gemm_output_last, sfpu_output_valid, sfpu_output_last;
 
-  if (EnableSfpu) begin : g_sfpu
-    pa_sfpu u_sfpu (
-      .clk_i(clk_sys), .rst_ni(rst_sys_n),
-      .req_i(device_req[Sfpu]), .we_i(device_we[Sfpu]), .be_i(device_be[Sfpu]),
-      .addr_i(device_addr[Sfpu]), .wdata_i(device_wdata[Sfpu]),
-      .rvalid_o(device_rvalid[Sfpu]), .rdata_o(device_rdata[Sfpu]), .err_o(device_err[Sfpu]),
-      .s_axis_data_i(gemm_s_axis_data_i), .s_axis_keep_i(gemm_s_axis_keep_i),
-      .s_axis_last_i(gemm_s_axis_last_i), .s_axis_valid_i(gemm_s_axis_valid_i && stream_route),
-      .s_axis_ready_o(sfpu_input_ready), .m_axis_data_o(sfpu_output_data),
-      .m_axis_keep_o(sfpu_output_keep), .m_axis_last_o(sfpu_output_last),
-      .m_axis_valid_o(sfpu_output_valid), .m_axis_ready_i(gemm_m_axis_ready_i && stream_route),
-      .gemm_busy_i(gemm_busy), .stream_route_o(stream_route), .busy_o(), .irq_o(sfpu_irq)
-    );
-  end else begin : g_no_sfpu
-    assign stream_route = 1'b0;
-    assign sfpu_input_ready = 1'b0;
-    assign sfpu_output_data = 32'h0;
-    assign sfpu_output_keep = 4'h0;
-    assign sfpu_output_last = 1'b0;
-    assign sfpu_output_valid = 1'b0;
-    assign sfpu_irq = 1'b0;
-    // gemm_busy is used only by the optional SFPU route interlock.
-    logic unused_gemm_busy;
-    assign unused_gemm_busy = gemm_busy;
+    // --- Optional M2 double-buffered GEMM accelerator ---
+    if (EnableGemm) begin : g_gemm
+      pa_gemm #(.EnableWide(EnableSfpu)) u_gemm (
+        .clk_i             (clk_sys),
+        .rst_ni            (rst_sys_n),
+        .req_i             (device_req[Gemm]),
+        .we_i              (device_we[Gemm]),
+        .be_i              (device_be[Gemm]),
+        .addr_i            (device_addr[Gemm]),
+        .wdata_i           (device_wdata[Gemm]),
+        .rvalid_o          (device_rvalid[Gemm]),
+        .rdata_o           (device_rdata[Gemm]),
+        .err_o             (device_err[Gemm]),
+        .s_axis_data_i     (gemm_s_axis_data_i),
+        .s_axis_keep_i     (gemm_s_axis_keep_i),
+        .s_axis_last_i     (gemm_s_axis_last_i),
+        .s_axis_valid_i    (gemm_s_axis_valid_i && !stream_route),
+        .s_axis_ready_o    (gemm_input_ready),
+        .m_axis_data_o     (gemm_output_data),
+        .m_axis_keep_o     (gemm_output_keep),
+        .m_axis_last_o     (gemm_output_last),
+        .m_axis_valid_o    (gemm_output_valid),
+        .m_axis_ready_i    (gemm_m_axis_ready_i && !stream_route),
+        .irq_o             (gemm_irq),
+        .busy_o            (gemm_busy)
+      );
+    end else begin : g_no_gemm
+      assign gemm_input_ready = 1'b0;
+      assign gemm_output_data = 32'h0;
+      assign gemm_output_keep = 4'h0;
+      assign gemm_output_last = 1'b0;
+      assign gemm_output_valid = 1'b0;
+      assign gemm_irq = 1'b0;
+      assign gemm_busy = 1'b0;
+    end
+
+    if (EnableSfpu) begin : g_sfpu
+      pa_sfpu u_sfpu (
+        .clk_i(clk_sys), .rst_ni(rst_sys_n),
+        .req_i(device_req[Sfpu]), .we_i(device_we[Sfpu]), .be_i(device_be[Sfpu]),
+        .addr_i(device_addr[Sfpu]), .wdata_i(device_wdata[Sfpu]),
+        .rvalid_o(device_rvalid[Sfpu]), .rdata_o(device_rdata[Sfpu]), .err_o(device_err[Sfpu]),
+        .s_axis_data_i(gemm_s_axis_data_i), .s_axis_keep_i(gemm_s_axis_keep_i),
+        .s_axis_last_i(gemm_s_axis_last_i), .s_axis_valid_i(gemm_s_axis_valid_i && stream_route),
+        .s_axis_ready_o(sfpu_input_ready), .m_axis_data_o(sfpu_output_data),
+        .m_axis_keep_o(sfpu_output_keep), .m_axis_last_o(sfpu_output_last),
+        .m_axis_valid_o(sfpu_output_valid), .m_axis_ready_i(gemm_m_axis_ready_i && stream_route),
+        .gemm_busy_i(gemm_busy), .stream_route_o(stream_route), .busy_o(), .irq_o(sfpu_irq)
+      );
+    end else begin : g_no_sfpu
+      assign stream_route = 1'b0;
+      assign sfpu_input_ready = 1'b0;
+      assign sfpu_output_data = 32'h0;
+      assign sfpu_output_keep = 4'h0;
+      assign sfpu_output_last = 1'b0;
+      assign sfpu_output_valid = 1'b0;
+      assign sfpu_irq = 1'b0;
+      // gemm_busy is used only by the optional SFPU route interlock.
+      logic unused_gemm_busy;
+      assign unused_gemm_busy = gemm_busy;
+    end
+    assign gemm_s_axis_ready_o = stream_route ? sfpu_input_ready : gemm_input_ready;
+    assign gemm_m_axis_data_o = stream_route ? sfpu_output_data : gemm_output_data;
+    assign gemm_m_axis_keep_o = stream_route ? sfpu_output_keep : gemm_output_keep;
+    assign gemm_m_axis_last_o = stream_route ? sfpu_output_last : gemm_output_last;
+    assign gemm_m_axis_valid_o = stream_route ? sfpu_output_valid : gemm_output_valid;
+
   end
-  assign gemm_s_axis_ready_o = stream_route ? sfpu_input_ready : gemm_input_ready;
-  assign gemm_m_axis_data_o = stream_route ? sfpu_output_data : gemm_output_data;
-  assign gemm_m_axis_keep_o = stream_route ? sfpu_output_keep : gemm_output_keep;
-  assign gemm_m_axis_last_o = stream_route ? sfpu_output_last : gemm_output_last;
-  assign gemm_m_axis_valid_o = stream_route ? sfpu_output_valid : gemm_output_valid;
 
   // --- AXI4-Lite slave port -> bus host ---
   pa_axi_lite_bridge u_axi (
