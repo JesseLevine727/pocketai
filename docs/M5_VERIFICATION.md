@@ -89,6 +89,42 @@ coordinated master/slave reset for a poisoned case.
 This is still local component integration, not Ibex/accelerator integration or
 physical Linux ownership/timing/autonomous inference acceptance.
 
+## 2026-09-06: frozen model serialization and arena fit
+
+`bash sim/run_m5_arena.sh` passes nine host layout/ABI/rejection tests, then
+exports and separately reopens/rechecks all 248 accepted M4 arrays. Exactly
+205,271,824 raw payload bytes match, with no changed precision or metadata.
+Export and independent recheck reports are byte-identical. Evidence is
+`build/m5_arena.1Org4t/`, terminal exit 0.
+
+| Allocation class | Bytes |
+|---|---:|
+| Read-only binary header, aligned model and padding | 205,340,672 |
+| Complete K/V/K8/K-unit caches | 48,365,568 |
+| Reserved runtime work | 4,194,304 |
+| Reserved qualification trace storage | 8,388,608 |
+| Total mapped payload regions | 266,289,152 (253.953125 MiB) |
+| Unmapped guards and unused tail | 2,146,304 (2.046875 MiB) |
+| Device-virtual arena | 268,435,456 |
+
+This proves a static layout fits; kernel mapping metadata/page table, host
+provisioning memory and board OS overhead are outside the device-virtual arena
+and still need physical accounting. The runtime's actual work/trace liveness
+must stay within the reserved regions. No board allocation or runtime fit is
+inferred solely from this table.
+
+| File | SHA-256 |
+|---|---|
+| `ref/m5_arena.py` | `12f520207cf58df085bd054caee7953d301d9a0d1dd9ed45f1c0067753b46b4d` |
+| `scripts/export_m5_model.py` | `9c151899a20fe0bd84f9a4b49b0bba78a6eb43c7f99d73b5ddf2aba155e37e10` |
+| `tests/m5/test_arena.py` | `809451872660788e56f6291db5ffc9303bb6c8fc43f7c19f035dbf1d32d74492` |
+| `sim/run_m5_arena.sh` | `155e9ce3276b59b0c3452c4bc61bf3bd5385a12491338a12b69ec0d695487d79` |
+| `build/m5_arena.1Org4t/unit.log` | `371141081a92101751ec918e6fbb243c09a47f50043850ad8c8e266d06a2e687` |
+| `build/m5_arena.1Org4t/export.log` | `09b9e23d33f52b9a6191dc1ec8b882f65bbae5412183764e0eee0887cc01f0ff` |
+| `build/m5_arena.1Org4t/recheck.log` | `09b9e23d33f52b9a6191dc1ec8b882f65bbae5412183764e0eee0887cc01f0ff` |
+| `build/m5_arena.1Org4t/model/model.bin` | `4a8743dce2f9dd9b32087ef30e45131ec2e02488789c6a949e36ee2959ad5a78` |
+| `build/m5_arena.1Org4t/model/layout.json` | `f782820638969163e0dd975a6fcfc87076bc6cd47dc841f6fb0ae6d2b52729d8` |
+
 ## Outstanding mandatory gates
 
 All of `M5_PLAN.md` G1–G8 remain open. In particular, local component simulation

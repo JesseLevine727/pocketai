@@ -48,7 +48,7 @@ is permitted, mandatory for qualification, and excluded from performance timing.
 | Gate | Required result | Current status |
 |---|---|---|
 | G0 | Scope, ownership and qualification/invalidation policy recorded | Plan recorded; ABI and performance policy still to freeze before their implementation/timing |
-| G1 | Safe DDR/firmware/working-memory architecture, inventory and ABI | Translation/private AXI contract recorded; complete ownership/runtime ABI still open; no board changes |
+| G1 | Safe DDR/firmware/working-memory architecture, inventory and ABI | Translation/AXI/static-arena contracts and exact model serialization/fit pass locally; physical ownership/runtime ABI still open; no board changes |
 | G2 | Autonomous DDR/transfer/control RTL with lifecycle qualification | Translator, buffered AXI and their composed bridge simulations pass; multi-client/core/accelerator/control integration still open |
 | G3 | Complete bounded bare-metal model runtime, faithful numerics | Not implemented |
 | G4 | Progressive host/RISC-V/model and affected compatibility tests | Not qualified |

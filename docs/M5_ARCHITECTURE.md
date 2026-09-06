@@ -194,3 +194,49 @@ Flush blocks virtual request admission and is forwarded to the translator only
 when the complete bridge is idle. The caller holds it until bridge flush-ready.
 Protected configuration changes still require the system-wide disabled/drained
 ownership boundary; this bridge does not make firmware a mapping administrator.
+
+## Static arena/model serialization ABI v1
+
+The original M4 pack remains the immutable source. M5 removes only `.npy` file
+headers and places the same contiguous little-endian array bytes at 64-byte
+aligned offsets. No requantization or weight/scale transformation is performed.
+The exported `model.bin` covers the read-only model region, including its
+65,536-byte header; the rest of the 256-MiB arena is provisioned separately.
+The exporter refuses existing output directories and verifies every source
+array hash, shape, dtype and the frozen M4 manifest/candidate identities.
+
+Header words are little-endian uint32. Words 0..15 are: magic `0x354d4150`
+(`PAM5` bytes), ABI 1, header bytes 65536, arena bytes 268435456, array count
+248, array-entry bytes 32, array table offset 128, region count, region-entry
+bytes 32, region table offset 8192, read-only model end offset, context 1024,
+layers 12, heads 12, width 768, vocabulary 50257. Bytes 64..95 and 96..127
+contain the raw SHA-256 digests of the frozen M4 pack manifest and adaptive-v3
+candidate, respectively. Remaining unassigned header/padding bytes are zero.
+
+Each 32-byte array entry contains eight uint32 values: ordinal ID, arena byte
+offset, payload bytes, dtype code (1 signed int8, 2 signed int16, 3 float64),
+rank, and three dimensions (unused dimensions are zero). All firmware addresses
+are device-virtual base plus offset. IDs are assigned in this fixed order:
+
+1. `embedding`, `position`.
+2. For layers 0..11 in numerical order: `attn.c_attn`, `attn.c_proj`, `mlp.c_fc`,
+   `mlp.c_proj`, each with `tiles`, `scale`, `bias`, `smooth`; then `ln_1` and
+   `ln_2`, each with `gain`, `bias`.
+3. `ln_f.gain`, `ln_f.bias`, then `lm_head.tiles`, `.scale`, `.bias`, `.smooth`.
+
+Each 32-byte region entry contains ID, offset, bytes, PTE permission bits,
+and four reserved-zero words. Regions partition the full arena, are page aligned
+and have fixed IDs/order: model (read-only), guard, K, guard, V, guard, K8,
+guard, K-units, guard, work, guard, trace, guard, unused tail. Guards and unused
+tail have permission zero and **no mapped pages**. K/V are each int16
+`[12,12,1024,64]`, K8 is int8 with that same shape and K-units is float64
+`[12,12,1024]`. Work reserves 4 MiB and trace 8 MiB; these are upper bounds,
+not a claim that an as-yet-unimplemented runtime fits its internal allocations.
+All non-model payload regions are device-read/write. Each guard is 4 KiB.
+
+The human-readable layout manifest records named arrays/regions, source-file
+identities, raw payload digests, exported model digest and exact occupied/
+unmapped sizes. Export acceptance compares all 248 delivered raw array payloads
+against the independently hash-checked M4 pack and checks binary-header/layout
+agreement, page permissions, guards and fit. This proves serialization/fit,
+not a successful board allocation or complete working-memory liveness analysis.
