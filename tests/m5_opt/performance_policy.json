@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "id": "m5-opt-short-v1",
+  "baseline_commit": "d0398d39a0d6252a8c0148be06a2075b8c937049",
+  "clock_hz": 91000000,
+  "reference_manifest_sha256": "7324fb3a88c9b7340e9aa65ea6dd43f77253f0ddf7e7aca9fb100f47f963c537",
+  "fixed_decode": {
+    "prompt": "story",
+    "past": 13,
+    "input_token": 257,
+    "expected_output_token": 582,
+    "reference_generation_step_zero_based": 1,
+    "reset": "Restore the same independently qualified prefill cache before each request; reload/read back firmware and safely return ownership between boots.",
+    "warmup": 1,
+    "measured_samples": 3,
+    "initial_profile_samples": 1,
+    "initial_order": ["profiled_diagnostic", "unprofiled_warmup", "unprofiled_measured_1", "unprofiled_measured_2", "unprofiled_measured_3"],
+    "timeout_seconds": 120,
+    "boundary": "Firmware cached-forward plus greedy selection; host START through safe ownership return and output copy also retained, distinct from model-only timing.",
+    "scope": "Seeded fixed-context decode only; not prefill, cold-start, complete generation or endurance qualification."
+  },
+  "profile": {
+    "timestamps": "64-bit cycle differences",
+    "phases": "Non-overlapping phase intervals plus explicit overhead; GEMM/SFPU service is nested within phases and engine cycles are nested within service.",
+    "instrumentation": "Report enabled/disabled comparison; instrumentation is not presumed free.",
+    "cpu_remainder": "Phase minus backend service includes scalar arithmetic, scalar memory stalls and local loop overhead; do not call it pure compute."
+  },
+  "final_complete_requests": [
+    {"prompt": "story", "new_tokens": 2},
+    {"prompt": "science", "new_tokens": 1},
+    {"prompt": "computing", "new_tokens": 1}
+  ],
+  "final_primary_boundary": "Resident host START through safe RETURN_CPU and copying generated IDs, including prefill and all mandatory runtime work; independent checking excluded.",
+  "statistics": ["all samples", "median", "mean", "minimum", "maximum", "population standard deviation"],
+  "statistics_limit": "Three measured fixed-context observations are descriptive, not a tail-latency or endurance study.",
+  "final_campaign_timeout_seconds": 1200,
+  "quality_candidate_timeout_seconds": 600,
+  "stretch_tokens_per_second": 1,
+  "no_marathon_or_exhaustive_sweep": true
+}

@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "id": "m5-opt-w4a8-perchannel-v1",
+  "status": "FROZEN_BEFORE_CANDIDATE_EVALUATION",
+  "candidate": "Signed symmetric W4 [-7,7], RNE, per-output-channel absmax/7 on the original float weights after the accepted train-only smoothing (alpha=0.5). A8 dynamic activation bridge and all int16 storage/KV and M3 arithmetic unchanged. Embeddings/positions stay int16; only 49 GEMM matrices change.",
+  "packing": "Two signed two's-complement nibbles per byte, even element in low nibble. Host integer GEMM uses unpacked values for quality only, never reported as packed-board performance.",
+  "selection": "One candidate; no group-size, clipping, calibration or alpha sweep. First 64 predictions of each of the first two pre-existing validation windows. This is a small development screen, not untouched held-out qualification or a full perplexity benchmark.",
+  "window_file": "build/m4_quality_data/validation_256.npy",
+  "window_sha256": "172e4f7ba4c36f0be2bcac414ef2a0a1344a191600ee825f31e5bc8e43ca5531",
+  "window_indices": [0, 1],
+  "predictions_per_window": 64,
+  "model_sha256": "248dfc3911869ec493c76e65bf2fcf7f615828b0254c12b473182f0f81d3a707",
+  "calibration_sha256": "901dfac4851870c7a97d1a296bbfa0d9a431867b320977fa857ae6a73445f007",
+  "quality_limits": {
+    "maximum_perplexity_ratio": 1.10,
+    "minimum_top1_agreement": 0.85,
+    "minimum_top5_inclusion": 0.97,
+    "maximum_mean_forward_kl_nats": 0.05,
+    "maximum_unintended_clipping": 0
+  },
+  "comparison": "Evaluate both accepted W8A8 and candidate W4A8 on identical teacher-forced prefixes against independent FloatGPT2. Report all metrics, even when the small W8 subset misses a historical aggregate threshold. No criteria relaxation after results.",
+  "timeout_seconds": 600,
+  "adoption": "A failed screen rejects this candidate. A passing screen is not board adoption: packed decode, changed scale arithmetic, full quality qualification and net system benefit would still be required. W4A4 is deferred if W4A8 fails or current data movement cannot materially improve total latency."
+}

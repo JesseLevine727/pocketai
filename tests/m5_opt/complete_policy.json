@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "id": "m5-opt-complete-short-v1",
+  "clock_hz": 91000000,
+  "parent_policy": "tests/m5_opt/performance_policy.json",
+  "matrix": [
+    {"prompt": "story", "new_tokens": 2, "capture_prefill": true},
+    {"prompt": "science", "new_tokens": 1, "capture_prefill": false},
+    {"prompt": "computing", "new_tokens": 1, "capture_prefill": false}
+  ],
+  "primary_boundary": "Resident START through safe RETURN_CPU and token copy. Includes empty-cache prefill and required metadata, transfers, numerical work and output delivery. Excludes provisioning and independent result checks, both separately retained.",
+  "checks": "Original full-model prompts; exact generated IDs, complete final logits and valid KV, five original selected prefill traces for story, overflow rejection/non-mutation then successful recovery; normal safe cleanup.",
+  "campaign_watchdog_seconds": 1200,
+  "per_request_watchdog_seconds": 600,
+  "scope": "Short physical correctness and resident request performance, not a 1024 endurance or tail-latency claim. Fixed-context warmup plus three measured decode samples are a separate campaign."
+}
