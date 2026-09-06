@@ -48,8 +48,8 @@ is permitted, mandatory for qualification, and excluded from performance timing.
 | Gate | Required result | Current status |
 |---|---|---|
 | G0 | Scope, ownership and qualification/invalidation policy recorded | Plan recorded; ABI and performance policy still to freeze before their implementation/timing |
-| G1 | Safe DDR/firmware/working-memory architecture, inventory and ABI | Inspection in progress; no memory-driver or board-global changes made |
-| G2 | Autonomous DDR/transfer/control RTL with lifecycle qualification | Not implemented |
+| G1 | Safe DDR/firmware/working-memory architecture, inventory and ABI | Translation/private AXI contract recorded; complete ownership/runtime ABI still open; no board changes |
+| G2 | Autonomous DDR/transfer/control RTL with lifecycle qualification | Isolated translator and buffered AXI simulations pass; integration/control still open |
 | G3 | Complete bounded bare-metal model runtime, faithful numerics | Not implemented |
 | G4 | Progressive host/RISC-V/model and affected compatibility tests | Not qualified |
 | G5 | Two clean timing-qualified full M5 overlay builds | Not built |
