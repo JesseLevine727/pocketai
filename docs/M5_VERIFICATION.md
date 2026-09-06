@@ -246,6 +246,46 @@ Autonomous accelerator transfer/control, complete model firmware, physical
 owned-memory lifecycle, full-overlay timing and final model/context/performance
 acceptance remain outstanding. No M5 kernel helper has been loaded.
 
+## 2026-09-06: autonomous packet-mover component
+
+`bash sim/run_m5_stream_transfer.sh` passes **392 cases**, 2,967 memory-client
+commands, 383,344 input words and 205,240 output words over 961,106 simulation
+cycles. Accepted evidence: `build/m5_stream_transfer.Oov4MB/`, terminal exit 0.
+RTL and C++ builds use strict warnings and contain no warning/error diagnostic.
+
+The mover captures up to three source segments and one destination, preserving
+the M3 packet layout without firmware copying static weight tiles into a second
+contiguous packet. Tests check each burst length 1..256, page-end splits,
+deterministic randomized three-segment packets, 65,535-word maximum input/output,
+full-size GEMM and SFPU packet shapes, final legal addresses, and all data,
+strobes, packet TLAST and captured-tag/count fields under independent stalls.
+
+Sixteen malformed descriptors are rejected without memory/stream side effects.
+Memory faults cover initial/later reads and initial/later destination writes;
+stream keep/early-last/missing-last and internal missing/extra/early-completion
+faults request global cancellation. Nine external-abort placements cover
+unoffered/offered commands, both payload directions, both final memory
+completions and a stalled normal completion. Tests withhold completion after
+abort/timeout and require busy to stay asserted. Input stalls and accelerator
+compute/output absence are included in deadline tests. Recovery happens only
+after the modeled memory command drains and a deliberate reset.
+
+This test uses independent **memory-client and accelerator stream models**, not
+the real AXI translator or numerical M3 operators. Their composition, the MMIO
+publication queue, route/IRQ ownership and actual-hart scheduling remain new
+work. No physical bandwidth or model-autonomy result is inferred from it.
+The first test watchdog was too short to reach a missing-last error at the end
+of a stalled 600-word input/300-word output; it was corrected to cover the whole
+scenario. The mover's deadline and drain requirements were not weakened.
+
+| File | SHA-256 |
+|---|---|
+| `rtl/m5/pa_m5_stream_transfer.sv` | `e86fe7dd89bd170534128df5ddaa10f0b3442f7e2d122679cc38382206330224` |
+| `tests/m5/stream_transfer.cc` | `cf455375b0a6fb83d1d6a4ea181252df747e41958568e06b2c6950697a5105f0` |
+| `sim/run_m5_stream_transfer.sh` | `a1023c718ace2448d1e1e5394220d0aea9faaab3202cf52d96ad7b7025db9862` |
+| `build/m5_stream_transfer.Oov4MB/build.log` | `9ae6819775080083f4a4cb413809e31b8046629acb46419ab23b684dfa445bdc` |
+| `build/m5_stream_transfer.Oov4MB/test.log` | `af1598422980a04c853674a3d141fd4390d8521b1316d87b55e1c9273b2d9d7b` |
+
 ## Outstanding mandatory gates
 
 All of `M5_PLAN.md` G1–G8 remain open. In particular, local component simulation
