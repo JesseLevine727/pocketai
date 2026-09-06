@@ -1,8 +1,9 @@
 # M5 bare-metal model/runtime ABI v1
 
-Status: **frozen before runtime implementation; portable complete-model logic
-and numerical foundation pass, hardware-backed firmware entry and physical
-supervisor remain unqualified**.
+Status: **portable complete-model logic and numerical foundation pass;
+hardware-backed firmware and physical supervisor implemented/staged, physical
+execution unqualified**. The trace/timing layout below is recorded before its
+first physical use.
 
 This ABI complements the frozen model arena and transfer ABIs. It does not relax
 the M5 scope or allow an A9 operator worker. The A9 may populate this interface
@@ -63,7 +64,7 @@ must publish actual high-water bytes; exhaustion is an error, never an alias.
 | `00` | magic `0x35545250` (`PRT5`) |
 | `04` | ABI version 1 |
 | `08` | request ID |
-| `0c` | command: 1 RUN, 2 validation-only |
+| `0c` | command: 1 RUN; other values rejected (unused draft validation-only mode omitted for lean closure) |
 | `10` | prompt count, 1..1024 |
 | `14` | generation count, 1..`1024-prompt_count` |
 | `18` | flags: bit 0 capture checkpoints, all other bits zero |
@@ -72,8 +73,8 @@ must publish actual high-water bytes; exhaustion is an error, never an alias.
 | `24` | stable error code |
 | `28` | completed/cache-valid positions |
 | `2c` | generated-token count |
-| `30` | current layer |
-| `34` | current operator ID |
+| `30` | reserved progress field; current implementation leaves zero |
+| `34` | reserved progress field; current implementation leaves zero |
 | `38` | accepted transfer count |
 | `3c` | completed transfer count |
 | `40/44` | fabric cycle start/end |
@@ -95,7 +96,9 @@ are publication points with RISC-V fences; partial tensors are never success.
 Hart 0 owns model control flow, dynamic scale/epsilon metadata, activation/KV
 preparation, cache-valid publication, complete logits and lowest-ID greedy token
 selection. Hart 1 exclusively owns GEMM/SFPU/transfer descriptors, route and
-their IRQ acknowledgements. Hart 0 sends complete immutable jobs through the
+their completion acknowledgements. This lean runtime masks IRQs and polls
+mailbox/transfer status; IRQ behavior is separately qualified by component
+firmware. Hart 0 sends complete immutable jobs through the
 mailbox and never writes accelerator registers. Hart 1 cannot decide model layer,
 operator shape, cache validity, scale policy or tokens; it validates and executes
 the job supplied by hart 0. Both roles are useful and exercised.
@@ -108,13 +111,42 @@ the immutable Python reference before model acceptance. Static f64 arrays are
 metadata, not replacement floating GEMMs.
 
 Startup is: provision owned pages/table/model/control/tokens; load and verify the
-complete zero-padded firmware image under core reset; flush mappings while
-aborted and drained; perform the drained cluster-IO reset; release abort, then
-release harts. Completion/failure is: latch core stop; retire local and host
+complete zero-padded firmware image under core reset on **every boot**; sync
+pages for the device; perform a drained cluster-IO reset with abort lowered;
+release IO with mapping flush asserted and cores still held; complete the flush,
+then release harts. Holding abort through IO release would re-latch the mover's
+sticky stopped state. Completion/failure is: latch core stop; retire local and host
 transactions; assert cancellation and accelerator reset; wait full translated
 memory drain; only then read/validate or remap/free. Reset, deadline or ERROR
 does not fabricate returned ownership. Restart repeats validation and must pass
 without stale cache, mailbox, IRQ, descriptor or token state.
 
-This ABI freezes the software-visible boundary. It does not claim the protected
-supervisor, Linux allocation helper, firmware model loop or board overlay exists.
+## Trace and timing layout
+
+The trace region begins with 64 little-endian uint32 header words. Words 0/1
+are magic `0x35435254` and version 1; words 2/3 are logit offset `0x3000` and
+count 50,257; word 4 is their unsigned power-of-two exponent. Word 5 counts
+completed token-step intervals; words 6/7 give trace-record offset `0x1c000`
+and record count. Word pairs below are low/high halves of uint64 values:
+
+- 8/9 and 10/11: model-loop entry and completion cycles;
+- 12/13/14: transfers, input words and output words modulo 2^32;
+- 15: aggregate engine cycles modulo 2^32;
+- 16/17: aggregate mixed GEMM MACs and SFPU elements, not a pure MAC count;
+- 18/19: first-token publication cycles (after the output fence);
+- 20/21: initial prefill forward-only cycles.
+
+Starting at byte 256 are up to 1,024 uint64 token-step durations. The initial
+step includes prefill and greedy selection; later intervals span consecutive
+token publications, including decode, metadata, transfers and selection.
+These remain separate from the host request boundary and are converted using
+the actual 91-MHz clock. Output transport is deferred until safe RETURN_CPU;
+firmware first-token time is therefore token-ready latency, not interactive
+host TTFT.
+
+Logits at `0x3000` are int16 values, logically `value * 2^exponent / 256`.
+Selected prefill records at `0x1c000` have a 32-byte header: kind, layer, rows,
+columns, exponent bytes, value bytes, two zero reserved words. Row exponents
+(uint32) precede row-major int16 values; each next record is aligned to 64
+bytes. The acceptance runner checks embedding, layer-0 QKV/context/output and
+layer-11 output against independently frozen fixture files.

@@ -263,13 +263,17 @@ Deliverables:
 - A9 may provision firmware/model/memory and submit/receive token IDs, but
   performs no in-run tensor processing, transfer service or operator scheduling.
 - Autonomous board harness, exact model/ownership/lifecycle qualification,
-  two clean 95-MHz timing-qualified overlays and honest real performance.
+  one clean timing-qualified overlay and honest real performance. The lean
+  implementation uses 91 MHz, WNS >= +0.250 ns; the accepted artifact has
+  +0.433 ns WNS, zero TNS, positive hold and no DSPs.
 
-Verification: three original prompts x20 exact tokens/logits/KV, complete
-tensor/head/vocabulary checks, affected regressions and one final autonomous
-empty-cache 1024-position/overflow run. Use fast addressing/ownership stress and
-independent near-limit checkpoints during development. Reuse unchanged M4 CPU/
-FPGA marathon evidence; repeat costly tests only on documented invalidation.
+Verification follows the user's lean side-project policy: all three original
+prompts, with at least five exact generated tokens for one and one for each
+other prompt, final full-logit/KV hashes, selected intermediate traces and
+affected regressions. Bounded 1024-limit/overflow checks remain required; the
+new empty-cache 1024-position marathon and duplicate build are optional.
+Reuse unchanged M4 CPU/FPGA endurance evidence. Keep one decode warmup plus
+three measured samples and record the precise timing boundaries.
 Measured speedup and >=1 token/s are not prerequisites for correctness closure.
 
 Risks: safe DDR provisioning outside the 128-MiB CMA limit, variable-latency

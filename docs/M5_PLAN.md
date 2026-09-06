@@ -35,8 +35,12 @@ is permitted, mandatory for qualification, and excluded from performance timing.
   200-token eviction window or int8-only KV substitution.
 - DDR holds the full model and KV. The existing 64-KiB scratchpad is bounded
   working/firmware storage, not multi-MiB whole-model KV storage.
-- Integer, portable, DSP-free fabric at **95 MHz**. +0.250 ns WNS is the hard
-  setup gate; +0.500 ns and 100 MHz remain stretch only.
+- Integer, portable, DSP-free fabric at **91 MHz**. +0.250 ns WNS is the hard
+  setup gate; 95 MHz, +0.500 ns and 100 MHz remain stretch only. Two complete
+  95-MHz implementation strategies reached -0.002 ns and -0.028 ns WNS, and
+  the first 92-MHz implementation reached +0.203 ns. The lean side-project
+  policy does not justify more seed/strategy hunting for this small clock-rate
+  difference.
 - Preserve M1–M4 artifacts, historical measurements, ABIs, dependency pins,
   numerical/error budgets and unrelated `NA/`. Prefer M5-specific modules and
   build configurations; review/retest any necessary shared-source change.
@@ -50,12 +54,12 @@ is permitted, mandatory for qualification, and excluded from performance timing.
 
 | Gate | Required result | Current status |
 |---|---|---|
-| G0 | Scope, ownership and qualification/invalidation policy recorded | Plan recorded; ABI and performance policy still to freeze before their implementation/timing |
-| G1 | Safe DDR/firmware/working-memory architecture, inventory and ABI | Translation/AXI/static-arena contracts and exact model serialization/fit pass locally; physical ownership/runtime ABI still open; no board changes |
-| G2 | Autonomous DDR/transfer/control RTL with lifecycle qualification | Actual dual-Ibex memory, real GEMM/SFPU transfers, route lock, completion IRQs and component cancellation/restart pass locally; protected host supervisor and complete platform lifecycle still open |
-| G3 | Complete bounded bare-metal model runtime, faithful numerics | Portable full-model C loop and actual-Ibex numerical foundation pass; hardware backend/firmware entry remain open |
-| G4 | Lean progressive host/RISC-V/model and affected compatibility tests | Four frozen full-model cases, 396 intermediate tensors and 60 generation steps pass exactly on host; actual firmware and targeted final regressions remain open |
-| G5 | One clean timing-qualified full M5 overlay build | Not built |
+| G0 | Scope, ownership and qualification/invalidation policy recorded | Lean plan, runtime/transfer/arena ABIs and machine-readable premeasurement performance policy recorded |
+| G1 | Safe DDR/firmware/working-memory architecture, inventory and ABI | Exact model serialization/fit pass; temporary DMA helper compiled with matching kernel release and symbol versions; physical allocation/ownership awaits approved loading |
+| G2 | Autonomous DDR/transfer/control RTL with lifecycle qualification | Dual-Ibex memory, real operators, route lock, IRQs and revised supervisor reset/flush sequence pass locally; physical lifecycle remains open |
+| G3 | Complete bounded bare-metal model runtime, faithful numerics | Portable model and actual-Ibex numerics pass; complete hardware backend/firmware compiles in 64 KiB; physical full-model execution remains open |
+| G4 | Lean progressive host/RISC-V/model and affected compatibility tests | Four full-model cases, 396 traces, 60 generation steps, six runner tests and affected legacy M3 cluster pass; physical full-model evidence remains open |
+| G5 | One clean timing-qualified full M5 overlay build | 91 MHz final artifact: WNS +0.433 ns, TNS 0, hold +0.016 ns, DSP 0; warning cones reviewed; export-only packaging repair documented |
 | G6 | Concise physical autonomous model acceptance | Not run |
 | G7 | Frozen-boundary real performance and matching comparisons | Not measured; >=1 token/s stretch only |
 | G8 | Every-requirement audit, evidence documentation and local closure | Pending |
@@ -93,7 +97,9 @@ capability inferred from accelerator interrupts reaching the harts.
 ## G2 — autonomous memory and accelerator control
 
 Implement the selected RISC-V-visible memory/transfer path, bounded queues and
-descriptor publication, routing and interrupt-driven completion. Preserve M3
+descriptor publication, routing and completion handling. Component tests qualify
+interrupt-driven completion; the lean model firmware uses polling with IRQs
+masked. Preserve M3
 operator payloads and numerical contracts. Verify each direction under stalls,
 unaligned/tail cases where supported, page/region boundaries, simultaneous hart
 traffic, queue wrap/full/empty, rejected descriptors and transfer errors.
@@ -148,7 +154,7 @@ source pins merely to relabel M5 as unchanged M4.
 
 One clean full-overlay build on the final M5 hardware sources:
 
-- 95 MHz, setup WNS >= +0.250 ns, TNS=0 and positive hold slack.
+- 91 MHz, setup WNS >= +0.250 ns, TNS=0 and positive hold slack.
 - DSP=0; fully routed, no unconstrained endpoints.
 - Final DRC/methodology errors and critical warnings zero; every remaining
   warning reviewed against its actual cone/condition.

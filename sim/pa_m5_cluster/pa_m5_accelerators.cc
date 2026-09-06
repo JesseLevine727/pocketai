@@ -157,9 +157,16 @@ class Simulation {
     require(top.awready_o && top.arready_o && !top.awvalid_i && !top.arvalid_i &&
             !top.wvalid_i && !top.bvalid_o && !top.rvalid_o,
             "cluster reset before provisioning AXI-Lite host retired");
-    top.IO_RST_N = 0;
+    // Match the physical helper START sequence: PREPARE has latched the
+    // mover's Stopped state. Lower abort under reset, release IO with FLUSH
+    // and cores held, complete the flush, then allow the caller to run.
+    top.IO_RST_N = 0; top.memory_abort_i = 0;
     for (unsigned i = 0; i < 4; ++i) tick();
-    top.memory_abort_i = 0; top.IO_RST_N = 1; tick();
+    top.cfg_flush_i = 1; top.IO_RST_N = 1; tick();
+    wait_for([&] { return top.flush_ready_o; }, 100, "supervisor START flush");
+    top.cfg_flush_i = 0; tick();
+    require(!top.transfer_cancel_o && !top.memory_poisoned_o && !top.memory_busy_o,
+            "supervisor START retained cancellation or traffic");
   }
   void start() {
     start_engines();

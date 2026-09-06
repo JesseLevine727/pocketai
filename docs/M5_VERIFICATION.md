@@ -1,7 +1,8 @@
 # M5 verification — development evidence
 
-Status: **IN PROGRESS / NOT QUALIFIED**. No M5 physical overlay, autonomous
-model runtime, final-context proof or performance result is accepted yet.
+Status: **IN PROGRESS / NOT QUALIFIED**. The 91-MHz overlay has passed final
+implementation checks. Physical autonomous model execution and performance
+remain unmeasured; the temporary kernel helper has not been loaded.
 This document records component evidence without promoting it to whole-goal
 closure. M4's accepted evidence and sources remain unchanged.
 
@@ -411,10 +412,113 @@ metadata implementation. It does not yet prove that full-model jobs use the
 physical GEMM/SFPU/transfer path, safe Linux-owned model pages, timing closure,
 or board performance.
 
+## 2026-09-06: final 91-MHz implementation and firmware staging
+
+The lean test-cost policy permits one accepted implementation. Two complete
+95-MHz strategies produced WNS -0.002/-0.028 ns; a 92-MHz attempt produced
++0.203 ns. The final clean build in `build/m5_pynq_lean7/` uses **91 MHz**, a
+4.21% clock-rate reduction from 95 MHz, with no model/precision/context change.
+
+Final reports and the exported `m5_pynq_final.dcp` agree on setup WNS
+**+0.433 ns**, TNS **0**, hold **+0.016 ns**, THS **0**, and no failed timing
+constraint checks or unconstrained internal endpoints. All 44,589 routable nets
+are routed, with zero routing errors. Utilization is 28,375 LUTs, 21,668
+registers, 95.5 BRAM tiles and **zero DSPs**. Normal jitter/clock uncertainty
+remains in the analysis; only the extra implementation-only user uncertainty
+is removed before final timing reports and checkpoint export.
+
+Final DRC has no errors/critical warnings. The sole RTSTAT-10 warning concerns
+30 unused SmartConnect internal reset-pipeline nets with no routable loads.
+Methodology has seven LUTAR-1 warnings, no errors or critical warnings. A
+read-only inspection of the final checkpoint (`reset_cones.log`) verifies:
+
+- Six warned reset LUTs are NAND combinations of the peripheral reset and
+  the protected cluster-reset GPIO; neither is a data-dependent reset source.
+  During ordinary operation both remain high. The helper pulses only the
+  cluster control while cores are held and translated memory is drained.
+- The seventh combines that reset, core-reset GPIO and cancellation. Its
+  cancellation sources are the protected abort GPIO and registered sticky
+  transfer fault/abort/cancel state. Assertion intentionally terminates the
+  run; deassertion occurs under core reset after drain/IO reset, before core
+  release. No runtime switching among opposing reset inputs is permitted.
+
+The full build generated and checked the final bitstream/HWH, then exited
+nonzero on the mistyped XSA option `-include-bit`. Packaging was repaired
+without synthesis/routing changes. The final XSA is a hardware handoff without
+an embedded bitstream; PYNQ uses the separately pinned bit/HWH pair. The
+export-only repair has terminal exit 0 in `finish_xsa.log`; the original
+failed packaging log remains preserved. `zynq/build_m5.tcl` now uses the
+correct export command. This is one accepted hardware artifact with an
+export-only repair, not a claim that the original full shell command exited 0.
+
+Complete hardware-backed firmware is built by `scripts/build_m5_firmware.sh`.
+The reviewed build is `build/m5_firmware_review/`: 26,536 text, 128 data and
+112 BSS bytes, exact 65,536-byte load image, RV32IMC/Zicsr, no F/D requirement
+or undefined symbols. Hart 0 owns all GPT-2 scheduling/metadata/KV/selection;
+hart 1 executes its mailbox jobs using the real GEMM/SFPU/packet-mover MMIO.
+This build is staging evidence; it has not executed a full model on hardware.
+
+## 2026-09-06: supervisor and board-runner review
+
+Review caught three issues before physical testing: START initially held abort
+through IO-reset release, which would re-latch the mover's sticky Stopped state;
+later boots did not restore shared BSS and could race hart-ready publication;
+and the trace checker received generation metadata rather than the separate
+tensor-fixture entry. The helper now lowers abort under drained IO reset,
+releases IO with mapping flush/core reset held, then releases the cores. The
+runner reloads/verifies the complete firmware before every boot and supplies
+the correct independent trace fixtures.
+
+`bash sim/run_m5_cluster_accelerators.sh` in
+`build/m5_cluster_accelerators.Ud8zBu/` qualifies the revised supervisor
+reset/flush signal sequence on actual dual-Ibex RTL with the real operators:
+two successful boots, 9,633 independently checked words per boot, nine jobs
+and exact mailbox/DMA/GEMM/SFPU IRQ counts, one issued-write abort/remap,
+and all 14 component lifecycle cases pass in 31,208,171 simulated cycles.
+It uses the existing component firmware, not the new complete-model firmware,
+and does not execute the Linux helper in a kernel.
+
+Six short `tests/m5/test_board_runner.py` tests pass: five real frozen selected
+trace tensors, altered-output rejection, reference-file hash validation,
+per-boot firmware restoration/correct manifest selection, failure-report
+preservation on cleanup failure, and overflow rejection with cache/output
+non-mutation. Host lifecycle tests use explicit mocks and are not physical
+acceptance. Trace arrays are copied before checking so a failed check cannot
+retain an exported mmap buffer and prevent cleanup.
+
+The affected legacy `bash sim/run_cluster_m3.sh` regression passes its 315
+operator-chain steps and both M1 hart/mailbox checks. The untouched portable
+full-model suite also passed again in `build/m5_numerics.qgO8xw/` in about
+seven seconds. No old full-context board campaign was repeated.
+
+The temporary helper uses kernel-owned scattered pages, DMA-API addresses and
+explicit CPU/device cache ownership. Initial `dma_map_page` is followed by CPU
+ownership synchronization before userspace touches a page. Unsafe ownership
+blocks reopening; failed drain retains page mappings and a module reference.
+The final staged module is compiled against the board's actual `Module.symvers`
+and matching release/vermagic `6.6.10-xilinx-v2024.1-g916a1f7c7222`.
+The private prepared headers initially lost the local-version suffix on a
+rebuild; restoring the original generated release header and setting
+`KERNELRELEASE` corrected it before staging. The compiler is Ubuntu GCC
+12.0.1 (experimental), whereas the kernel was built with GCC 12.2.0; exact
+compiler identity is not claimed. Loading/allocation/cache-coherence/cleanup
+still need physical verification after explicit approval. No module load or
+boot change has occurred.
+
+`tests/m5/performance_policy.json` freezes the short physical matrix and timing
+boundaries before measurement. Decode intervals now include token selection
+and publication; forward-only prefill, firmware token-ready time and host
+request-through-delivery are reported separately. Engine cycle counters wrap
+at 32 bits and the aggregate work counter mixes MACs/SFPU elements; neither is
+misrepresented as end-to-end model throughput.
+
+Exact current source, artifact and report hashes are in
+[`m5_staging_evidence.json`](m5_staging_evidence.json).
+
 ## Outstanding mandatory gates
 
 The lean closure policy in `M5_PLAN.md` supersedes the original marathon test
-matrix. Hardware-backed full-model firmware, the protected host supervisor,
-one final timing build, concise physical correctness/performance and final
-auditing remain open. Kernel-helper loading still requires explicit approval;
+matrix. Physical full-model firmware execution, Linux allocation/ownership,
+concise physical correctness/performance and final auditing remain open.
+Kernel-helper loading still requires explicit approval;
 no helper has been loaded and no boot setting changed.

@@ -1,0 +1,25 @@
+CAPI=2:
+name: "pocketai:pa:pa_cluster_m5_board:0.1"
+description: "PocketAI-T M5 autonomous PYNQ-Z1 source export"
+
+filesets:
+  rtl:
+    depend:
+      - lowrisc:prim_xilinx:all
+      - lowrisc:prim_xilinx:prim_xilinx_default_pkg
+      - pocketai:pa:pa_m5_rtl
+    files:
+      - pa_cluster_m5_board.v
+    file_type: verilogSource
+
+targets:
+  default:
+    filesets: [rtl]
+  sources:
+    default_tool: vivado
+    filesets: [rtl]
+    toplevel: pa_cluster_m5_board
+    tools:
+      vivado:
+        part: xc7z020clg400-1
+        pnr: none

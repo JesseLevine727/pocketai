@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "id": "m5-lean-physical-v1",
+  "frozen_before_physical_timing": true,
+  "clock_hz": 91000000,
+  "matrix": [
+    {"prompt": "story", "new_tokens": 5, "capture_prefill": true},
+    {"prompt": "science", "new_tokens": 1, "capture_prefill": false},
+    {"prompt": "computing", "new_tokens": 1, "capture_prefill": false}
+  ],
+  "reference_manifest": "build/m4_runtime_fixtures/manifest.json",
+  "residency": "Overlay, model and mapped pages retained across cases; firmware reloaded and verified before every boot; each case starts with cache-valid length zero.",
+  "eos_policy": "EOS is an ordinary selected token; produce the requested fixed count with lowest-ID greedy ties.",
+  "warmup": "First story cached-decode interval is retained but excluded from the three-sample summary.",
+  "measured_samples": "The next three consecutive story cached-decode intervals. Context grows by one each time; these are not repeated identical-context trials.",
+  "primary_boundary": "Resident host START through safe RETURN_CPU and copying generated token IDs. Includes cache ownership synchronization, firmware initialization, prefill/decode, metadata, packing, transfers, KV, logits, selection and output delivery; excludes independent checks.",
+  "firmware_ttft": "Firmware model-loop entry through publication and fence of the first selected token. This is token-ready time in DDR, not interactive host TTFT.",
+  "decode_boundary": "Previous token publication timestamp through the next token publication and fence, including cached forward and greedy selection.",
+  "prefill_forward": "Forward-only subinterval recorded separately; the complete initial step including selection is firmware TTFT.",
+  "profiling": "Cycle timestamps and aggregate counters in all cases; five selected trace copies during story prefill only. Trace cost remains in the observed prefill/generation timings.",
+  "statistics": ["all raw samples", "median", "p95 with linear interpolation", "minimum", "maximum", "population standard deviation"],
+  "statistics_limit": "Three measured decode samples are descriptive, not a tail-latency or endurance estimate.",
+  "startup": "Record one provisioning observation separately. Do not claim repeated cold-start or disk-cold measurements.",
+  "timeout_seconds_per_case": 600,
+  "comparison": "Historical M4 results only with explicit hardware/workload differences; no paired-speedup claim from unmatched contexts.",
+  "stretch_tokens_per_second": 1.0
+}

@@ -1,9 +1,10 @@
-# M5 architecture — initial memory-translation contract
+# M5 architecture — autonomous memory, operators and firmware
 
-Status: **G1 design in progress, no physical M5 qualification**. The translation
-contract below is version 1, recorded before its RTL. Transfer/control and
-firmware ABIs will be specified before those implementations; this is not a
-claim that the complete autonomous architecture is implemented.
+Status: **implemented/staged; physical model and Linux DMA qualification
+pending**. Translation, transfer/control and runtime ABIs are version 1.
+Component RTL and portable full-model numerics pass; the complete 91-MHz
+overlay closes timing. The helper and complete-model firmware await physical
+acceptance. See `M5_VERIFICATION.md` for the evidence boundaries.
 
 ## Selected memory strategy and approval boundary
 

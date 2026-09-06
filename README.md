@@ -174,11 +174,15 @@ A9 is limited to provisioning and token/status I/O during autonomous operation.
 The full M4 numerical/model contract and 1024-position context are retained;
 DDR backs the cache, rather than an int8/200-token scratchpad eviction ring.
 **>=1 token/s is a stretch target**, not a closure gate. The test policy uses
-fast focused development checks and one final autonomous full-context run,
-reusing unchanged M4 evidence. Local simulations now pass actual dual-Ibex
-GEMM/SFPU transfers, completion IRQs and abort/restart checks; see the
-[development evidence](docs/M5_VERIFICATION.md). No physical M5 or complete
-model-runtime pass is claimed yet.
+fast focused checks and a short physical campaign, reusing unchanged M4
+evidence. The user removed the mandatory new 1024-position marathon and
+duplicate builds. Portable full-model tests match 396 traces and 60 generated
+tokens exactly; dual-Ibex simulations pass operator transfers and lifecycle
+checks. The final 91-MHz overlay has +0.433 ns setup margin. Complete firmware,
+the runner and the temporary DMA helper are staged; physical model correctness
+and performance await kernel-load approval. See the
+[development evidence](docs/M5_VERIFICATION.md) and
+[measurement policy](docs/M5_PERFORMANCE.md).
 
 ## Repo hygiene
 
