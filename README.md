@@ -14,7 +14,8 @@ on FPGA versus 0.17624 on matching A9 CPU, including prefill and 20 generated
 tokens; see [M4 performance](docs/SPEEDUP.md). Physical CPU and FPGA both pass
 1024-context/cache/overflow checks with zero process swap. Supplemental
 process-start observations and all closure gates pass; see
-[M4 closure evidence](docs/M4_VERIFICATION.md). M5/M6 are not started.
+[M4 closure evidence](docs/M4_VERIFICATION.md). M5 autonomous inference is now
+in progress under its [acceptance plan](docs/M5_PLAN.md); M6 is not started.
 See [M3 closure evidence](docs/M3_VERIFICATION.md), [performance](docs/M3_PERFORMANCE.md),
 `PLAN.md`, `docs/M1_VERIFICATION.md`, and `docs/M2_VERIFICATION.md`.
 
@@ -163,7 +164,18 @@ for prefill plus 20 tokens, despite a measured local batching improvement.
 These are resident token-ID-in/token-ID-out timings, not a text/network service.
 Separate process-cold first-token observations are 55.674 s CPU and 99.185 s
 FPGA (n=1 each; not disk-cold or a latency distribution).
-M5/M6 remain unstarted.
+M4's closure evidence remains frozen. M5 has since been authorized separately.
+
+## M5 in progress
+
+The [M5 goal](docs/M5_PLAN.md) moves complete model scheduling, metadata,
+transfers, KV management and greedy generation onto the RISC-V fabric system.
+A9 is limited to provisioning and token/status I/O during autonomous operation.
+The full M4 numerical/model contract and 1024-position context are retained;
+DDR backs the cache, rather than an int8/200-token scratchpad eviction ring.
+**>=1 token/s is a stretch target**, not a closure gate. The test policy uses
+fast focused development checks and one final autonomous full-context run,
+reusing unchanged M4 evidence. No M5 hardware/model pass is claimed yet.
 
 ## Repo hygiene
 

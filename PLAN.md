@@ -248,17 +248,34 @@ full-vocabulary projection and DDR/CMA capacity. Instrument early. RTL bugs
 require a dedicated fix/regression/requalification cycle, not unreviewed edits.
 
 ### M5 — Autonomous decode on the RISC-V cores  [~2 wk]
+
+**Status (2026-09-06 UTC): IN PROGRESS / NOT QUALIFIED.** The user authorized M5
+and explicitly made **>=1 token/s a stretch target**, not a hard closure gate.
+The complete contract and test-cost policy are in [`docs/M5_PLAN.md`](docs/M5_PLAN.md).
+
 Deliverables:
-- Bare-metal runtime on cores: layer loop, descriptor submission, done-interrupt, KV cache management in scratchpad (int8, ~200-token ring).
-- A9 role reduced to: feed prompt tokens, collect output tokens via UART.
-- `m5_autonomous.py`: end-to-end generation with A9 never touching a tensor.
 
-Verification:
-- PASS = autonomous output matches M4 hybrid output token-for-token on 3 prompts; ≥ 1 token/s decode reported (logit: weight-stream bound); 200-token context stable (no cache wrap-around corruption — dedicated stress test).
+- Bare-metal two-hart runtime owns the complete model loop, metadata/scales,
+  descriptors/transfers/IRQs, DDR KV and greedy selection; explicit hart roles.
+- Preserve M4's actual adaptive-v3 GPT-2, W8A8/int16 numerical contract, full
+  heads/vocabulary and **1024-position context**. The former int8/200-token
+  scratchpad-ring sketch is superseded; full model/KV live in safely owned DDR.
+- A9 may provision firmware/model/memory and submit/receive token IDs, but
+  performs no in-run tensor processing, transfer service or operator scheduling.
+- Autonomous board harness, exact model/ownership/lifecycle qualification,
+  two clean 95-MHz timing-qualified overlays and honest real performance.
 
-Risks: KV ring-buffer addressing is the subtlest RTL here; mailbox/interrupt latency stalls cores (add double-buffered descriptors). This is where the project lives or dies — schedule slack here, not in M1.
+Verification: three original prompts x20 exact tokens/logits/KV, complete
+tensor/head/vocabulary checks, affected regressions and one final autonomous
+empty-cache 1024-position/overflow run. Use fast addressing/ownership stress and
+independent near-limit checkpoints during development. Reuse unchanged M4 CPU/
+FPGA marathon evidence; repeat costly tests only on documented invalidation.
+Measured speedup and >=1 token/s are not prerequisites for correctness closure.
 
-Agents: parallel fan-out — (a) KV/BRAM addressing + stress tests, (b) bare-metal runtime C, (c) board harness. Strict file ownership per subagent.
+Risks: safe DDR provisioning outside the 128-MiB CMA limit, variable-latency
+memory, ownership/recovery, faithful metadata arithmetic on RV32IMC, code/buffer
+capacity and timing. Boot/kernel/global board changes need approval before use.
+No unrequested agents, no automatic push, and no M6 work in this goal.
 
 ### M6 — Sky130 port + PPA REPORT (headline deliverable, not a bonus)  [~1.5 wk + MPW wait]
 Deliverables:
