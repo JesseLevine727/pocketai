@@ -1,0 +1,283 @@
+{
+  "schema": 1,
+  "status": "PASS",
+  "clock_hz": 91000000,
+  "platform": "Linux-6.6.10-xilinx-v2024.1-g916a1f7c7222-armv7l-with-glibc2.35",
+  "kernel": "6.6.10-xilinx-v2024.1-g916a1f7c7222",
+  "policy": {
+    "schema": 1,
+    "id": "m5-lean-physical-v1",
+    "frozen_before_physical_timing": true,
+    "clock_hz": 91000000,
+    "matrix": [
+      {
+        "prompt": "story",
+        "new_tokens": 5,
+        "capture_prefill": true
+      },
+      {
+        "prompt": "science",
+        "new_tokens": 1,
+        "capture_prefill": false
+      },
+      {
+        "prompt": "computing",
+        "new_tokens": 1,
+        "capture_prefill": false
+      }
+    ],
+    "reference_manifest": "build/m4_runtime_fixtures/manifest.json",
+    "residency": "Overlay, model and mapped pages retained across cases; firmware reloaded and verified before every boot; each case starts with cache-valid length zero.",
+    "eos_policy": "EOS is an ordinary selected token; produce the requested fixed count with lowest-ID greedy ties.",
+    "warmup": "First story cached-decode interval is retained but excluded from the three-sample summary.",
+    "measured_samples": "The next three consecutive story cached-decode intervals. Context grows by one each time; these are not repeated identical-context trials.",
+    "primary_boundary": "Resident host START through safe RETURN_CPU and copying generated token IDs. Includes cache ownership synchronization, firmware initialization, prefill/decode, metadata, packing, transfers, KV, logits, selection and output delivery; excludes independent checks.",
+    "firmware_ttft": "Firmware model-loop entry through publication and fence of the first selected token. This is token-ready time in DDR, not interactive host TTFT.",
+    "decode_boundary": "Previous token publication timestamp through the next token publication and fence, including cached forward and greedy selection.",
+    "prefill_forward": "Forward-only subinterval recorded separately; the complete initial step including selection is firmware TTFT.",
+    "profiling": "Cycle timestamps and aggregate counters in all cases; five selected trace copies during story prefill only. Trace cost remains in the observed prefill/generation timings.",
+    "statistics": [
+      "all raw samples",
+      "median",
+      "p95 with linear interpolation",
+      "minimum",
+      "maximum",
+      "population standard deviation"
+    ],
+    "statistics_limit": "Three measured decode samples are descriptive, not a tail-latency or endurance estimate.",
+    "startup": "Record one provisioning observation separately. Do not claim repeated cold-start or disk-cold measurements.",
+    "timeout_seconds_per_case": 600,
+    "comparison": "Historical M4 results only with explicit hardware/workload differences; no paired-speedup claim from unmatched contexts.",
+    "stretch_tokens_per_second": 1.0
+  },
+  "sha256": {
+    "bitstream": "b25c6058b00783df611761f0cc1edf15b6c8d666cc86011c03e051c4b24dc813",
+    "firmware_file": "39314468a20eb4b89a72f25dee99abede3aba91d07afd29ae84195a2b4a8ac1c",
+    "model": "4a8743dce2f9dd9b32087ef30e45131ec2e02488789c6a949e36ee2959ad5a78",
+    "layout": "f782820638969163e0dd975a6fcfc87076bc6cd47dc841f6fb0ae6d2b52729d8",
+    "policy": "fe614e2d33764cb0f1a6ae587573e80c94abbc4af391267e65116adf8a3ad36f",
+    "fixtures": "7324fb3a88c9b7340e9aa65ea6dd43f77253f0ddf7e7aca9fb100f47f963c537",
+    "hwh": "6a16da94a5a4a0738834d247b50ec4a27d2582f3678ea1787d097298c34f11c9",
+    "firmware_readback": "39314468a20eb4b89a72f25dee99abede3aba91d07afd29ae84195a2b4a8ac1c"
+  },
+  "runs": [
+    {
+      "id": "story",
+      "prompt_tokens": [
+        7454,
+        2402,
+        257,
+        640,
+        11,
+        287,
+        257,
+        1402,
+        7404,
+        1474,
+        262,
+        12269,
+        11
+      ],
+      "generated_tokens": [
+        257,
+        582,
+        3706,
+        399,
+        2271
+      ],
+      "cache_valid": 17,
+      "logits_sha256": "9ab38ddc2214aa6ff46fc810daf83b198ef7f2be5045739cf1d80376bd448272",
+      "kv_sha256": "db40ef25864625cdfc369dc3ffcacc85a485256b064281c4dd27c68007138637",
+      "firmware_seconds": 493.8545977692308,
+      "ttft_seconds": 335.9955669450549,
+      "prefill_forward_seconds": 335.92302012087913,
+      "decode_seconds": [
+        39.16786224175824,
+        39.308302142857144,
+        39.52093489010989,
+        39.86192798901099
+      ],
+      "firmware_tokens_per_second": 0.010124437481366547,
+      "device_wall_seconds": 494.3852825919166,
+      "request_wall_seconds": 494.9130927459337,
+      "request_through_delivery_seconds": 494.9132382920943,
+      "request_tokens_per_second": 0.010102780877825368,
+      "transfers": 64112,
+      "tensor_bytes_read": 768619260,
+      "tensor_bytes_written": 24339028,
+      "work_high_water": 1909188,
+      "engine_cycles_modulo_2_32": 377514445,
+      "engine_work_mixed_mac_and_sfpu_elements": 1643921333,
+      "traces": [
+        {
+          "name": "embedding",
+          "shape": [
+            13,
+            768
+          ],
+          "sha256": "b6ced48012e98f495c5fa76f3121a2a5a58e04db37a7af0b1f850f8c5a2b37a5"
+        },
+        {
+          "name": "h.0.qkv",
+          "shape": [
+            13,
+            2304
+          ],
+          "sha256": "280c1bf8fed70b1b736b0e3f34d05ca9ac94773b32325dcd8b95d367949f3077"
+        },
+        {
+          "name": "h.0.context",
+          "shape": [
+            13,
+            768
+          ],
+          "sha256": "eb44abab40c9ad5e1764caba3ed6cd3576464530ce74fea3fc76ae3e3f8e0088"
+        },
+        {
+          "name": "h.0.output",
+          "shape": [
+            13,
+            768
+          ],
+          "sha256": "c87ef8b0e434cb548a30eeb5713b655bbe40451603e8f01a884e04f22d6d5bb2"
+        },
+        {
+          "name": "h.11.output",
+          "shape": [
+            13,
+            768
+          ],
+          "sha256": "b8d0824b03b5282ca8d8ccff13412987bcf657ad4897ab2d74475b6812736bc1"
+        }
+      ]
+    },
+    {
+      "id": "science",
+      "prompt_tokens": [
+        464,
+        4007,
+        286,
+        257,
+        5654,
+        6306,
+        318,
+        284
+      ],
+      "generated_tokens": [
+        5004
+      ],
+      "cache_valid": 8,
+      "logits_sha256": "95ca972a7386a4944ee52efe18a072cf82be5661cdee168946861e0e521b232a",
+      "kv_sha256": "150c0a0d0720394171e6d08e20eafbbca03c7e0788098018f6da52b606be5604",
+      "firmware_seconds": 207.75516175824177,
+      "ttft_seconds": 207.7551574175824,
+      "prefill_forward_seconds": 207.68261828571428,
+      "decode_seconds": [],
+      "firmware_tokens_per_second": 0.00481335814492864,
+      "device_wall_seconds": 208.29046243522316,
+      "request_wall_seconds": 208.8180664232932,
+      "request_through_delivery_seconds": 208.81816574605182,
+      "request_tokens_per_second": 0.004788855396882095,
+      "transfers": 18815,
+      "tensor_bytes_read": 189965772,
+      "tensor_bytes_written": 10863812,
+      "work_high_water": 1793988,
+      "engine_cycles_modulo_2_32": 158576503,
+      "engine_work_mixed_mac_and_sfpu_elements": 720648145
+    },
+    {
+      "id": "computing",
+      "prompt_tokens": [
+        32,
+        3644,
+        1430,
+        460,
+        8494,
+        257,
+        1917,
+        416
+      ],
+      "generated_tokens": [
+        22712
+      ],
+      "cache_valid": 8,
+      "logits_sha256": "106ed4ec5f9fd21fdfb9e33dad0e9841d4ff9cdc0f85576ead94f01f8c353be6",
+      "kv_sha256": "e054e86d8e6eb95b1ec3a2464e94f7cca4160083322f5f8db136157790543992",
+      "firmware_seconds": 207.80439420879122,
+      "ttft_seconds": 207.80438986813186,
+      "prefill_forward_seconds": 207.73344212087912,
+      "decode_seconds": [],
+      "firmware_tokens_per_second": 0.004812217777239355,
+      "device_wall_seconds": 208.34309781901538,
+      "request_wall_seconds": 208.86945564905182,
+      "request_through_delivery_seconds": 208.86954040033743,
+      "request_tokens_per_second": 0.004787677504739626,
+      "transfers": 18815,
+      "tensor_bytes_read": 189965772,
+      "tensor_bytes_written": 10863812,
+      "work_high_water": 1793988,
+      "engine_cycles_modulo_2_32": 158576777,
+      "engine_work_mixed_mac_and_sfpu_elements": 720648145
+    }
+  ],
+  "memory_before_kib": {
+    "MemTotal": 503464,
+    "MemFree": 256924,
+    "MemAvailable": 399140,
+    "SwapTotal": 524284,
+    "SwapFree": 461308,
+    "CmaTotal": 131072,
+    "CmaFree": 13284,
+    "process_peak_rss_kib": 55820
+  },
+  "provision_seconds": 21.65061233798042,
+  "allocated_bytes": 266289152,
+  "memory_provisioned_kib": {
+    "MemTotal": 503464,
+    "MemFree": 29784,
+    "MemAvailable": 155248,
+    "SwapTotal": 524284,
+    "SwapFree": 429052,
+    "CmaTotal": 131072,
+    "CmaFree": 14908,
+    "process_peak_rss_kib": 326360
+  },
+  "boundary_rejection": {
+    "case": "prompt_count=1,generation_count=1024",
+    "expected": "prompt_count + generation_count > 1024",
+    "state": 5,
+    "error": 1,
+    "cache_valid": 17,
+    "generated_count": 19,
+    "cache_regions_unchanged": {
+      "k": "0f6412c73e8eb08468224093bb7c01793f5ce5b8011be10f62a534d7b2fb1aa7",
+      "v": "0f6412c73e8eb08468224093bb7c01793f5ce5b8011be10f62a534d7b2fb1aa7",
+      "k8": "d2ee4703cd9698945ca7b9fe1689ea3095597eac1a0afd8dba00cac7894fdc43",
+      "kunits": "a76c77fe203db862b48214c88fbdc1d5560655ccba2f7a2c7166baf6f846e856"
+    },
+    "output_sentinel_unchanged": true,
+    "wall_seconds": 2.353512200061232,
+    "recovery": "subsequent accepted runs"
+  },
+  "dma": {
+    "abi": 1,
+    "arena_bytes": 268435456,
+    "pte_dma": 361234432,
+    "allocated_pages": 65012,
+    "owner": 0,
+    "status": 53,
+    "control": 17,
+    "reserved": 0
+  },
+  "cleanup": "ownership returned and mappings/file closed",
+  "memory_after_kib": {
+    "MemTotal": 503464,
+    "MemFree": 282752,
+    "MemAvailable": 418744,
+    "SwapTotal": 524284,
+    "SwapFree": 427772,
+    "CmaTotal": 131072,
+    "CmaFree": 6480,
+    "process_peak_rss_kib": 326360
+  }
+}

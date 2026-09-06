@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <iterator>
 #include <stdexcept>
@@ -21,7 +22,10 @@ class Simulation {
   uint64_t cycles = 0, table_reads = 0, data_reads = 0, writes = 0;
   bool hold_responses = false;
   bool read_active = false, write_active = false, pending_b = false;
-  std::array<uint32_t, 128> ptes{};
+  unsigned response_delay = std::getenv("PA_M5_AXI_DELAY") ?
+      unsigned(std::strtoul(std::getenv("PA_M5_AXI_DELAY"), nullptr, 0)) : 0;
+  uint64_t response_after = 0;
+  std::vector<uint32_t> ptes = std::vector<uint32_t>(128);
   std::array<uint32_t, 262144> memory{};
 
   Simulation(int argc, char **argv) : context(), top(&context) {
@@ -66,6 +70,36 @@ class Simulation {
     tick(); top.cfg_flush_i = 0; top.cfg_enable_i = 1; tick();
   }
 
+  void runtime_startup(const std::vector<uint8_t> &image, const char *model_path) {
+    // Exact production firmware/header; deliberately truncate workspace so
+    // startup terminates with a precise store fault only after header binding.
+    ptes.assign(65536, 0);
+    top.cfg_arena_bytes_i = 0x10000000;
+    memory.fill(0);
+    for (unsigned i = 0; i < 16; ++i) ptes[i] = (0x10000000 + i * 4096) | 1;
+    for (unsigned i = 0; i < 4; ++i) {
+      ptes[0xf1f9 + i] = (0x10010000 + i * 4096) | 3;
+      ptes[0xf5fa + i] = (0x10014000 + i * 4096) | 3;
+    }
+    std::ifstream model(model_path, std::ios::binary);
+    require(bool(model), "model header missing");
+    model.read(reinterpret_cast<char *>(memory.data()), 65536);
+    require(model.gcount() == 65536, "short model header");
+    const uint32_t control[] = {0x35545250, 1, 1, 1, 1, 1, 0, 100000000};
+    for (unsigned i = 0; i < 8; ++i) put_virtual(0x4f1f9000 + i * 4, control[i]);
+    top.cfg_enable_i = 1;
+    load(image); start();
+    wait_for([&] { return top.software_done_o; }, 5000000, "runtime startup");
+    stop_and_drain();
+    uint32_t state = virtual_word(0x4f1f9020), ready = virtual_word(0x4f1f905c);
+    uint32_t cause = read_ram(0xd008), address = read_ram(0xd00c), pc = read_ram(0xd010);
+    std::printf("M5 STARTUP state=%u ready=%u cause=%u address=%08x pc=%08x cycles=%llu\n",
+                state, ready, cause, address, pc, static_cast<unsigned long long>(cycles));
+    require(state == 3 && ready == 3 && cause == 7 && address == 0x4f201a00,
+            "production startup failed before intentional truncated-workspace store fault");
+    std::puts("M5 PRODUCTION STARTUP PASS");
+  }
+
   void tick() {
     require(cycles < 200000000, "global simulation watchdog");
     drive_memory(); top.IO_CLK = 0; top.eval();
@@ -89,6 +123,7 @@ class Simulation {
       if (ar) {
         require(!read_active && !write_active && !pending_b && !bvalid, "AR overlaps pending access");
         read_active = true; read_address = ar_addr; read_words = ar_words; read_index = 0;
+        response_after = cycles + response_delay;
         if (is_table(ar_addr)) { require(ar_words == 1, "burst PTE read"); ++table_reads; }
         else { check_region(ar_addr, ar_words, false); ++data_reads; }
       }
@@ -96,6 +131,7 @@ class Simulation {
         require(!write_active && !read_active && !pending_b && !bvalid, "AW overlaps pending access");
         check_region(aw_addr, aw_words, true);
         write_active = true; write_address = aw_addr; write_words = aw_words; write_index = 0; ++writes;
+        response_after = cycles + response_delay;
       }
       if (w) {
         require(write_active && wl == (write_index + 1 == write_words), "invalid W beat/last");
@@ -340,7 +376,9 @@ class Simulation {
     for (unsigned i = 0; i < 4; ++i) value |= uint32_t(image[address + i]) << (i * 8);
     return value;
   }
-  static bool is_table(uint32_t address) { return address >= 0x02000000 && address < 0x02000200; }
+  bool is_table(uint32_t address) const {
+    return address >= 0x02000000 && address < 0x02000000 + ptes.size() * 4;
+  }
   void check_region(uint32_t address, unsigned words, bool writing) {
     require(address % 4 == 0 && words >= 1 && words <= 256 &&
               uint64_t(address & 4095u) + words * 4u <= 4096, "invalid AXI burst range");
@@ -357,12 +395,12 @@ class Simulation {
                   top.m_arcache_o == 0 && top.m_arprot_o == 0, "bad AXI AR attributes");
   }
   void drive_memory() {
-    if (!rvalid && read_active && !hold_responses && cycles % 3 != 1) {
+    if (!rvalid && read_active && !hold_responses && cycles >= response_after && cycles % 3 != 1) {
       rvalid = true; rlast = read_index + 1 == read_words;
       rdata = is_table(read_address) ? ptes[(read_address - 0x02000000u) / 4] :
               memory[(read_address - 0x10000000u) / 4 + read_index];
     }
-    if (pending_b && !hold_responses && cycles % 3 == 0) { pending_b = false; bvalid = true; }
+    if (pending_b && !hold_responses && cycles >= response_after && cycles % 3 == 0) { pending_b = false; bvalid = true; }
     top.m_arready_i = !read_active && !write_active && !pending_b && !bvalid && cycles % 3 != 0;
     top.m_awready_i = !read_active && !write_active && !pending_b && !bvalid && cycles % 4 != 0;
     top.m_wready_i = write_active && cycles % 3 != 0;
@@ -373,11 +411,15 @@ class Simulation {
 
 int main(int argc, char **argv) {
   try {
-    require(argc == 2, "usage: Vpa_m5_cluster_top firmware.bin");
+    require(argc == 2 || argc == 3, "usage: Vpa_m5_cluster_top firmware.bin [model.bin for startup test]");
     std::ifstream source(argv[1], std::ios::binary);
     require(bool(source), "firmware image missing");
     std::vector<uint8_t> image((std::istreambuf_iterator<char>(source)), std::istreambuf_iterator<char>());
     Simulation sim(argc, argv);
+    if (argc == 3) {
+      sim.runtime_startup(image, argv[2]);
+      sim.top.final(); return 0;
+    }
     sim.configure(false); sim.load(image); sim.start(); sim.complete("initial");
     sim.configure(true); sim.load(image); sim.start();
     sim.wait_for([&] { return sim.packet_write(); }, 5000000, "mover-owned AXI write");

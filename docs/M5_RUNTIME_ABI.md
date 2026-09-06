@@ -1,9 +1,9 @@
 # M5 bare-metal model/runtime ABI v1
 
-Status: **portable complete-model logic and numerical foundation pass;
-hardware-backed firmware and physical supervisor implemented/staged, physical
-execution unqualified**. The trace/timing layout below is recorded before its
-first physical use.
+Status: **physically qualified under the lean M5 plan**. Portable full-model
+and actual-Ibex numerical foundations pass, as do the final 91-MHz hardware,
+production -O2 firmware, three-prompt exactness campaign and safe supervisor
+lifecycle. The trace/timing layout below was frozen before physical measurement.
 
 This ABI complements the frozen model arena and transfer ABIs. It does not relax
 the M5 scope or allow an A9 operator worker. The A9 may populate this interface
@@ -121,6 +121,16 @@ memory drain; only then read/validate or remap/free. Reset, deadline or ERROR
 does not fabricate returned ownership. Restart repeats validation and must pass
 without stale cache, mailbox, IRQ, descriptor or token state.
 
+The top-level software-DONE bit means termination, not numerical success.
+A CPU trap records state/error/mcause/mtval/mepc in its 64-byte scratchpad
+result record (hart 0 at `0xd000`, hart 1 at `0xd040`) and signals DONE without
+depending on another DDR write. DDR control state may therefore remain RUNNING
+after a trap. The runner requires normal DONE state, zero error and consistent
+full output before declaring success, and reads diagnostics only after safe
+ownership return. Hart 1 normally remains in its service loop when hart 0
+completes; both-hart readiness and completed jobs, not two DONE records, prove
+participation.
+
 ## Trace and timing layout
 
 The trace region begins with 64 little-endian uint32 header words. Words 0/1
@@ -150,3 +160,5 @@ columns, exponent bytes, value bytes, two zero reserved words. Row exponents
 (uint32) precede row-major int16 values; each next record is aligned to 64
 bytes. The acceptance runner checks embedding, layer-0 QKV/context/output and
 layer-11 output against independently frozen fixture files.
+Exponents must be in 0..30. The ARM checker converts them to int32 for NumPy's
+portable C-int `ldexp` loop; int64 exponents are not portable to this board.

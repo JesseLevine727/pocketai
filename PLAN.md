@@ -226,7 +226,7 @@ and audited: FPGA takes 433.008 s versus CPU 113.483 s for prefill plus 20 token
 1024-context/cache/overflow checks pass with zero process swap. Peak RSS is
 219,244/261,840 KiB respectively. Supplemental process-cold observations also
 pass; all eleven machine checks and the manual G0–G7 closure review pass.
-The closure commit is local only; M5/M6 remain unstarted. See `docs/M4_VERIFICATION.md`,
+At M4 closure, M5/M6 were unstarted; the later M5 status is below. See `docs/M4_VERIFICATION.md`,
 `docs/M4_RUNTIME.md` and the full results/frozen sampling in `docs/SPEEDUP.md`.
 
 Deliverables:
@@ -249,8 +249,8 @@ require a dedicated fix/regression/requalification cycle, not unreviewed edits.
 
 ### M5 — Autonomous decode on the RISC-V cores  [~2 wk]
 
-**Status (2026-09-06 UTC): IN PROGRESS / NOT QUALIFIED.** The user authorized M5
-and explicitly made **>=1 token/s a stretch target**, not a hard closure gate.
+**Status (2026-09-06 UTC): CLOSED — lean acceptance PASS.** The user authorized
+lean closure and explicitly made **>=1 token/s a stretch target**, not a hard gate.
 The complete contract and test-cost policy are in [`docs/M5_PLAN.md`](docs/M5_PLAN.md).
 
 Deliverables:
@@ -264,8 +264,10 @@ Deliverables:
   performs no in-run tensor processing, transfer service or operator scheduling.
 - Autonomous board harness, exact model/ownership/lifecycle qualification,
   one clean timing-qualified overlay and honest real performance. The lean
-  implementation uses 91 MHz, WNS >= +0.250 ns; the accepted artifact has
-  +0.433 ns WNS, zero TNS, positive hold and no DSPs.
+  implementation uses 91 MHz, WNS >= +0.250 ns. The staged artifact's +0.433 ns
+  result is historical only: its export omitted both CPU patches. The corrected,
+  source-checked overlay passes at **+0.584 ns WNS, TNS 0, +0.045 ns hold, DSP 0**.
+  The final physical matrix, full-arena allocation and normal cleanup pass.
 
 Verification follows the user's lean side-project policy: all three original
 prompts, with at least five exact generated tokens for one and one for each
@@ -276,9 +278,20 @@ Reuse unchanged M4 CPU/FPGA endurance evidence. Keep one decode warmup plus
 three measured samples and record the precise timing boundaries.
 Measured speedup and >=1 token/s are not prerequisites for correctness closure.
 
+Final results: story 13-input / 5-output request in **494.913 seconds**,
+**0.010103 tok/s** from resident START through safe ownership return and ID
+delivery. Cached decode: one retained warmup plus three measured intervals,
+median **39.521 seconds**, aggregate **0.025276 tok/s**. Science/computing each
+generate one exact token; all three final full-logit/KV hashes and the five
+story traces match the independent frozen reference. Full 1024-capacity memory
+is retained, but no new 1024-position autonomous endurance run is claimed.
+No speedup or >=1 tok/s claim. See [closure](docs/M5_VERIFICATION.md) and
+[performance](docs/M5_PERFORMANCE.md); M6 remains unstarted.
+
 Risks: safe DDR provisioning outside the 128-MiB CMA limit, variable-latency
 memory, ownership/recovery, faithful metadata arithmetic on RV32IMC, code/buffer
-capacity and timing. Boot/kernel/global board changes need approval before use.
+capacity and timing. The user has authorized necessary M5 kernel/board work
+without further routine approval prompts; safe DMA ownership remains mandatory.
 No unrequested agents, no automatic push, and no M6 work in this goal.
 
 ### M6 — Sky130 port + PPA REPORT (headline deliverable, not a bonus)  [~1.5 wk + MPW wait]

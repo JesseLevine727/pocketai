@@ -143,6 +143,7 @@ static int pa_m5_ensure_table_locked(void)
 					 &pa_m5.ptes_dma, GFP_KERNEL);
 	if (!pa_m5.ptes || pa_m5.ptes_dma > U32_MAX ||
 	    pa_m5.ptes_dma + PA_M5_PTE_BYTES - 1 > U32_MAX) {
+		pr_err("pocketai_m5: coherent page-table allocation failed\n");
 		if (pa_m5.ptes)
 			dma_free_coherent(device, PA_M5_PTE_BYTES, pa_m5.ptes,
 					  pa_m5.ptes_dma);
@@ -183,9 +184,13 @@ static int pa_m5_alloc_region_locked(const struct pa_m5_dma_region *region)
 		struct pa_m5_page *entry = &pa_m5.pages[first + done];
 		dma_addr_t dma;
 
+		/* Allow reclaim of the large model's file cache, but never invoke
+		 * the OOM killer to satisfy this optional userspace allocation. */
 		entry->page = alloc_page(GFP_KERNEL | __GFP_ZERO | __GFP_NOWARN |
-					 __GFP_NORETRY);
+					 __GFP_RETRY_MAYFAIL);
 		if (!entry->page) {
+			pr_err("pocketai_m5: page allocation failed offset=%u page=%u already=%u\n",
+			       region->offset, done, pa_m5.allocated_pages);
 			ret = -ENOMEM;
 			goto rollback;
 		}

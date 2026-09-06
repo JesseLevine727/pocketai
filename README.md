@@ -15,7 +15,7 @@ tokens; see [M4 performance](docs/SPEEDUP.md). Physical CPU and FPGA both pass
 1024-context/cache/overflow checks with zero process swap. Supplemental
 process-start observations and all closure gates pass; see
 [M4 closure evidence](docs/M4_VERIFICATION.md). M5 autonomous inference is now
-in progress under its [acceptance plan](docs/M5_PLAN.md); M6 is not started.
+closed under its [lean acceptance plan](docs/M5_PLAN.md); M6 is not started.
 See [M3 closure evidence](docs/M3_VERIFICATION.md), [performance](docs/M3_PERFORMANCE.md),
 `PLAN.md`, `docs/M1_VERIFICATION.md`, and `docs/M2_VERIFICATION.md`.
 
@@ -166,7 +166,7 @@ Separate process-cold first-token observations are 55.674 s CPU and 99.185 s
 FPGA (n=1 each; not disk-cold or a latency distribution).
 M4's closure evidence remains frozen. M5 has since been authorized separately.
 
-## M5 in progress
+## M5 closed — autonomous GPT-2
 
 The [M5 goal](docs/M5_PLAN.md) moves complete model scheduling, metadata,
 transfers, KV management and greedy generation onto the RISC-V fabric system.
@@ -178,11 +178,21 @@ fast focused checks and a short physical campaign, reusing unchanged M4
 evidence. The user removed the mandatory new 1024-position marathon and
 duplicate builds. Portable full-model tests match 396 traces and 60 generated
 tokens exactly; dual-Ibex simulations pass operator transfers and lifecycle
-checks. The final 91-MHz overlay has +0.433 ns setup margin. Complete firmware,
-the runner and the temporary DMA helper are staged; physical model correctness
-and performance await kernel-load approval. See the
-[development evidence](docs/M5_VERIFICATION.md) and
-[measurement policy](docs/M5_PERFORMANCE.md).
+checks. The final physical campaign passes all three original prompts (5/1/1
+new tokens), exact final full-logit/KV hashes and five story prefill traces.
+All 266,289,152 bytes are safely allocated, including full-capacity caches;
+overflow rejection, recovery, cleanup and normal kernel-helper unload pass.
+
+The corrected, source-checked overlay runs at **91 MHz, +0.584 ns setup slack,
++0.045 ns hold, zero DSPs**. The earlier unpatched staged artifact is explicitly
+revoked. Real performance is slow: **0.01010 tok/s** for the resident 13-input /
+5-output story request, including prefill and delivery; **0.02528 tok/s** for
+three measured cached-decode intervals (median **39.52 seconds/token**).
+This is an autonomy/correctness milestone, not a speedup result; the >=1 tok/s
+stretch was not met. No new 1024-position autonomous endurance claim is made.
+See [verification and closure](docs/M5_VERIFICATION.md),
+[performance and limitations](docs/M5_PERFORMANCE.md) and the
+[raw physical report](docs/m5_physical_evidence.json).
 
 ## Repo hygiene
 

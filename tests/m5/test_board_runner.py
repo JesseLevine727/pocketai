@@ -51,9 +51,9 @@ class BoardRunnerTests(unittest.TestCase):
             rows, columns = logical.shape
             maxima = np.max(np.abs(logical), axis=1) * 256
             exponents = np.maximum(0, np.ceil(np.log2(np.maximum(maxima, 1) / 32767))).astype('<u4')
-            values = np.rint(np.ldexp(logical * 256, -exponents.astype(np.int64)[:, None])).astype('<i2')
+            values = np.rint(np.ldexp(logical * 256, -exponents.astype(np.int32)[:, None])).astype('<i2')
             self.assertTrue(np.array_equal(np.ldexp(values.astype(np.float64),
-                                                   exponents.astype(np.int64)[:, None]) / 256, logical))
+                                                   exponents.astype(np.int32)[:, None]) / 256, logical))
             struct.pack_into('<8I', memory, cursor, kind, layer, rows, columns,
                              rows * 4, rows * columns * 2, 0, 0)
             payload = exponents.tobytes() + values.tobytes()
@@ -92,6 +92,27 @@ class BoardRunnerTests(unittest.TestCase):
         finally:
             memory.close()
 
+    def test_trace_exponents_use_portable_c_int(self):
+        memory, case = self.make_trace()
+        original = np.ldexp
+        def arm_loop(values, exponents):
+            self.assertEqual(exponents.dtype, np.dtype('int32'))
+            return original(values, exponents)
+        try:
+            with patch.object(runner.np, 'ldexp', side_effect=arm_loop):
+                self.assertEqual(len(runner.check_traces(memory, FIXTURES, case)), 5)
+        finally:
+            memory.close()
+
+    def test_trace_exponent_range_is_validated(self):
+        memory, case = self.make_trace()
+        struct.pack_into('<I', memory, runner.TRACE_RECORDS + 32, 0xffffffff)
+        try:
+            with self.assertRaisesRegex(RuntimeError, 'exponent out of range'):
+                runner.check_traces(memory, FIXTURES, case)
+        finally:
+            memory.close()
+
     def invoke_main(self, root, close_error=None):
         # The fake arena checks host orchestration only; it is not hardware
         # or Linux DMA qualification. Frozen numerical data above is real.
@@ -115,7 +136,8 @@ class BoardRunnerTests(unittest.TestCase):
                 patch.object(runner, 'load_model'), \
                 patch.object(runner, 'load_firmware', return_value='e' * 64) as firmware, \
                 patch.object(runner, 'run_rejection', return_value={'status': 'PASS'}), \
-                patch.object(runner, 'run_case', return_value={'status': 'PASS'}) as cases:
+                patch.object(runner, 'run_case', return_value={
+                    'status': 'PASS', 'request_tokens_per_second': 0.1}) as cases:
             if close_error:
                 with self.assertRaisesRegex(RuntimeError, 'cleanup failed'):
                     runner.main()

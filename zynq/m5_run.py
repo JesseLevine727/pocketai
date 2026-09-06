@@ -9,6 +9,7 @@ import json
 import mmap
 import os
 import platform
+import resource
 import struct
 import time
 from pathlib import Path
@@ -55,6 +56,16 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def memory_observation() -> dict:
+    keys = ('MemTotal', 'MemFree', 'MemAvailable', 'CmaTotal', 'CmaFree',
+            'SwapTotal', 'SwapFree')
+    result = {key: int(value.split()[0])
+              for line in Path('/proc/meminfo').read_text().splitlines()
+              for key, value in [line.split(':', 1)] if key in keys}
+    result['process_peak_rss_kib'] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    return result
+
+
 class DmaArena:
     def __init__(self, device: Path, layout: dict):
         self.fd = os.open(device, os.O_RDWR | os.O_CLOEXEC)
@@ -77,7 +88,11 @@ class DmaArena:
                 continue
             flags = 1 if region['permissions'] & 2 else 0
             request = struct.pack('<4I', region['offset'], region['bytes'], flags, 0)
-            fcntl.ioctl(self.fd, IOC_ALLOC, request)
+            try:
+                fcntl.ioctl(self.fd, IOC_ALLOC, request)
+            except OSError as error:
+                raise RuntimeError(f'allocation failed for {region["name"]}: '
+                                   f'{region["bytes"]} bytes; {self.info()}; {error}') from error
             self.maps[region['name']] = mmap.mmap(
                 self.fd, region['bytes'], flags=mmap.MAP_SHARED,
                 prot=mmap.PROT_READ | mmap.PROT_WRITE, offset=region['offset'])
@@ -152,7 +167,10 @@ def check_traces(trace_map: mmap.mmap, fixtures: Path, case: dict) -> list[dict]
         exponents = np.frombuffer(trace_map, dtype='<u4', count=rows, offset=offset).copy()
         values = np.frombuffer(trace_map, dtype='<i2', count=rows * columns,
                                offset=offset + exponent_bytes).copy().reshape(rows, columns)
-        logical = np.ldexp(values.astype(np.float64), exponents.astype(np.int64)[:, None]) / 256.0
+        if np.any(exponents > 30):
+            raise RuntimeError(f'trace exponent out of range: {name}')
+        # NumPy on 32-bit ARM accepts the C-int exponent loop, not int64.
+        logical = np.ldexp(values.astype(np.float64), exponents.astype(np.int32)[:, None]) / 256.0
         expected_entry = case['tensors'][name]
         if sha256_file(fixtures / expected_entry['file']) != expected_entry['sha256']:
             raise RuntimeError(f'reference file digest mismatch: {name}')
@@ -298,7 +316,13 @@ def run_case(arena: DmaArena, fixtures: Path, case: dict, trace_case: dict,
         'engine_work_mixed_mac_and_sfpu_elements': trace_header[16] | trace_header[17] << 32,
     }
     if capture:
-        result['traces'] = check_traces(trace, fixtures, trace_case)
+        try:
+            result['traces'] = check_traces(trace, fixtures, trace_case)
+        except Exception as error:
+            # Preserve completed inference/timing if an independent checker
+            # fails; this partial result never changes campaign FAIL to PASS.
+            error.m5_partial_result = result
+            raise
     return result
 
 
@@ -329,6 +353,7 @@ def main() -> None:
         'platform': platform.platform(), 'kernel': platform.release(),
         'policy': policy,
         'sha256': {}, 'runs': [],
+        'memory_before_kib': memory_observation(),
     }
     report['sha256']['bitstream'] = sha256_file(stage / 'm5_pynq.bit')
     report['sha256']['firmware_file'] = sha256_file(stage / 'm5_runtime.bin')
@@ -340,6 +365,7 @@ def main() -> None:
 
     arena = DmaArena(args.device, layout)
     overlay_ready = False
+    cluster = None
     try:
         provision_start = time.monotonic()
         Overlay(str(stage / 'm5_pynq.bit'), download=True)
@@ -352,7 +378,10 @@ def main() -> None:
         report['sha256']['firmware_readback'] = load_firmware(cluster, firmware_path)
         report['provision_seconds'] = time.monotonic() - provision_start
         report['allocated_bytes'] = arena.info().get('allocated_pages', 0) * PAGE_BYTES
+        report['memory_provisioned_kib'] = memory_observation()
+        print(f'M5 provisioning complete: {report["allocated_bytes"]} mapped bytes', flush=True)
         report['boundary_rejection'] = run_rejection(arena, args.timeout)
+        print('M5 overflow rejection/non-mutation PASS', flush=True)
         for request_id, trial in enumerate(policy['matrix'], 1):
             name, count = trial['prompt'], trial['new_tokens']
             run = generations[name]
@@ -367,16 +396,25 @@ def main() -> None:
             report['runs'].append(run_case(arena, stage / 'fixtures', run, fixture_cases[name],
                                            count, trial['capture_prefill'], request_id,
                                            args.timeout))
+            print(f'M5 {name} exact tokens/logits/KV PASS: '
+                  f'{report["runs"][-1]["request_tokens_per_second"]:.6f} token/s', flush=True)
         report['status'] = 'PASS'
         report['dma'] = arena.info()
     except BaseException as error:
         report['error'] = f'{type(error).__name__}: {error}'
+        if hasattr(error, 'm5_partial_result'):
+            report['partial_run_before_trace_failure'] = error.m5_partial_result
         raise
     finally:
         try:
             try:
                 if overlay_ready and arena.info()['owner'] != 0:
                     arena.ioctl(IOC_RETURN)
+                if report['status'] != 'PASS' and cluster is not None:
+                    report['failure_hart_results'] = [int(value) for value in
+                        cluster.array[0xd000 // 4:0xd080 // 4]]
+                    if 'work' in arena.maps:
+                        report['failure_control'] = list(struct.unpack_from('<25I', arena.maps['work']))
             finally:
                 arena.close()
             report['cleanup'] = 'ownership returned and mappings/file closed'
@@ -385,6 +423,7 @@ def main() -> None:
             report['cleanup_error'] = f'{type(error).__name__}: {error}'
             raise
         finally:
+            report['memory_after_kib'] = memory_observation()
             args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(f'M5 PHYSICAL {report["status"]}: {args.output}')
 

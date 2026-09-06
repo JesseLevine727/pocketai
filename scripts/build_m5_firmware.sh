@@ -14,7 +14,7 @@ READELF=${M5_RISCV_READELF:-riscv64-unknown-elf-readelf}
 NM=${M5_RISCV_NM:-riscv64-unknown-elf-nm}
 SIZE=${M5_RISCV_SIZE:-riscv64-unknown-elf-size}
 "$CC" --version | head -1 >"$BUILD_DIR/toolchain.txt"
-"$CC" -march=rv32imc_zicsr -mabi=ilp32 -Os -fno-fast-math \
+"$CC" -march=rv32imc_zicsr -mabi=ilp32 -O2 -fno-fast-math \
   -msmall-data-limit=0 -mno-relax -Wall -Wextra -Werror -ffreestanding \
   -fno-builtin -nostdlib -Wl,--fatal-warnings -T firmware/m5/memory_test.ld \
   -Iruntime/m5 firmware/m5/memory_test_start.S firmware/m5/runtime_firmware.c \

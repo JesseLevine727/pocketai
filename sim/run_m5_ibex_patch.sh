@@ -23,8 +23,14 @@ expect_refusal() {
   fi
 }
 prepare_case normal
+if python3 "$ROOT/scripts/check_m5_sources.py" "$M5_PATCH_TEST/normal" \
+    >"$M5_PATCH_TEST/export_before.log" 2>&1; then
+  echo "M5 PATCH FAIL: source-only export without derivation was accepted" >&2; exit 1
+fi
 apply_case normal >"$M5_PATCH_TEST/normal.log" 2>&1
 apply_case normal >"$M5_PATCH_TEST/repeat.log" 2>&1
+python3 "$ROOT/scripts/check_m5_sources.py" "$M5_PATCH_TEST/normal" \
+  >"$M5_PATCH_TEST/export_after.log" 2>&1
 prepare_case unknown_lsu
 printf 'invalid test fixture\n' >"$M5_PATCH_TEST/unknown_lsu/$M5_PATCH_REL/ibex_load_store_unit.sv"
 expect_refusal unknown_lsu
@@ -37,6 +43,6 @@ ln -s "$ROOT/rtl/ibex-orig/rtl/ibex_load_store_unit.sv" \
 expect_refusal symlink
 # Verify the original dependency trees still match their historical patch pins.
 bash "$ROOT/scripts/check_deps.sh" all >"$M5_PATCH_TEST/deps.log" 2>&1
-echo "M5 IBEX PATCH BOUNDARY PASS normal=1 idempotent=1 rejected=3 frozen_deps=unchanged" \
+echo "M5 IBEX PATCH BOUNDARY PASS normal=1 idempotent=1 rejected=3 export_guard=1 frozen_deps=unchanged" \
   | tee "$M5_PATCH_TEST/result.log"
 echo "M5 PATCH EVIDENCE $M5_PATCH_TEST"

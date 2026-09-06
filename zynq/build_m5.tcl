@@ -8,6 +8,8 @@ set target_period_ns [expr {1000.0 / $target_clock_mhz}]
 set implementation_margin_ns [expr {$target_period_ns - 10.0}]
 
 source $source_tcl
+# Also reject bypassing the shell build wrapper with unqualified CPU sources.
+puts [exec python3 "$root_dir/scripts/check_m5_sources.py" [file dirname $source_tcl]]
 file mkdir $build_dir
 file mkdir $reports_dir
 set_param board.repoPaths [list $board_repo]

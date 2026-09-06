@@ -21,11 +21,15 @@ fi
 python3 -m tests.m3.generate_sfpu_tables rtl/sfpu --check
 mkdir -p "$BUILD_DIR/build_scripts"
 cp zynq/build_m5.sh zynq/build_m5.tcl zynq/eda_to_vivado.py \
-  tests/m3/generate_sfpu_tables.py "$BUILD_DIR/build_scripts/"
+  tests/m3/generate_sfpu_tables.py scripts/check_m5_sources.py "$BUILD_DIR/build_scripts/"
 fusesoc --cores-root=zynq --cores-root=rtl/m5 --cores-root=rtl/soc \
   --cores-root=rtl/gemm --cores-root=rtl/sfpu --cores-root=rtl/ibex-orig \
   run --mapping=lowrisc:prim_xilinx:all:0.1 --target=sources \
   --work-root="$SOURCE_WORK" --setup pocketai:pa:pa_cluster_m5_board
+# --setup exports hooks but does not execute pre_build. This flow invokes
+# Vivado directly, so apply the same fail-closed derivation used by simulation.
+(cd "$SOURCE_WORK" && bash ./m5_prepare_lsu.sh)
+python3 scripts/check_m5_sources.py "$SOURCE_WORK"
 python3 zynq/eda_to_vivado.py "$EDA" "$SOURCE_TCL"
 export M5_SOURCE_TCL="$SOURCE_TCL" M5_VIVADO_BUILD_DIR="$BUILD_DIR" PYNQ_BOARD_REPO="$BOARD_REPO"
 cd "$BUILD_DIR"

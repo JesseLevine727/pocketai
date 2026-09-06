@@ -1,6 +1,8 @@
 {
   "schema": 1,
   "status": "M5_TIMING_AND_STAGING_PASS_PHYSICAL_ACCEPTANCE_PENDING",
+  "current_qualification": "REVOKED_SOURCE_EXPORT_OMITTED_BOTH_M5_CPU_PATCHES",
+  "revocation_note": "Historical measurements and hashes below are preserved. Physical startup failed; resolved_sources contains original rather than qualified derived LSU/ID hashes. See the authorized physical provisioning/build-path correction in M5_VERIFICATION.md. This artifact cannot close G5 or G6.",
   "scope_policy": "docs/M5_PLAN.md, user-authorized lean closure supersedes original duplicate builds and marathon matrix",
   "implementation": {
     "directory": "build/m5_pynq_lean7",

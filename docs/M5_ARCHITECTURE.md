@@ -1,19 +1,22 @@
 # M5 architecture — autonomous memory, operators and firmware
 
-Status: **implemented/staged; physical model and Linux DMA qualification
-pending**. Translation, transfer/control and runtime ABIs are version 1.
-Component RTL and portable full-model numerics pass; the complete 91-MHz
-overlay closes timing. The helper and complete-model firmware await physical
-acceptance. See `M5_VERIFICATION.md` for the evidence boundaries.
+Status: **implemented and physically qualified under the lean M5 plan**.
+Translation, transfer/control and runtime ABIs are version 1. The corrected,
+source-checked 91-MHz overlay closes at +0.584 ns setup / +0.045 ns hold with
+zero DSPs. All three frozen prompts pass exact tokens and final logits/KV;
+the story also passes five intermediate traces. See `M5_VERIFICATION.md` for
+coverage and limitations; no new autonomous 1024-position endurance run is claimed.
 
-## Selected memory strategy and approval boundary
+## Selected memory strategy and ownership boundary
 
 Use a bounded 256-MiB *device-virtual* arena backed by individually allocated,
 kernel-owned ordinary DDR pages. The 195.763-MiB model plus 46.125-MiB full
 cache leaves approximately 14.1 MiB for aligned headers, stacks/working tensors
 and buffers; an actual exported layout must prove fit before acceptance.
 Only a small page table/control allocation needs contiguous coherent memory.
-This is a selected design to implement/test, not a measured successful allocation.
+Physical allocation of all seven active regions now passes: 65,012 pages,
+266,289,152 bytes, in 3.029 seconds initially and 2.043 seconds in the final
+post-campaign allocation check. Full-model execution is qualified separately.
 
 The memory helper must retain the pages and their Linux DMA mappings through
 the complete autonomous access lifetime. Page-table entries contain DMA bus
@@ -32,8 +35,9 @@ and the responsible module references if quiescence cannot be proved.
 Kernel build headers and `Module.symvers` for the actual board release exist.
 The kernel was built using GCC 12.2.0; board userspace GCC is 11.2.0. Build and
 symbol/version compatibility must be checked, not inferred from matching major
-kernel version. **User approval is required before loading a new helper.** No
-boot/CMA setting changes, kernel replacement, unowned DDR use or force-unload.
+kernel version. **The user has approved helper loading and subsequent necessary
+M5 board work without further routine approval prompts.** Prefer temporary
+changes; never use unowned DDR or force-unload active DMA mappings.
 
 ## Address/ownership separation
 

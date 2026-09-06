@@ -1,10 +1,17 @@
-# M5 verification — development evidence
+# M5 verification — lean closure PASS
 
-Status: **IN PROGRESS / NOT QUALIFIED**. The 91-MHz overlay has passed final
-implementation checks. Physical autonomous model execution and performance
-remain unmeasured; the temporary kernel helper has not been loaded.
-This document records component evidence without promoting it to whole-goal
-closure. M4's accepted evidence and sources remain unchanged.
+Status: **CLOSED**, 2026-09-06 UTC, under the user-selected
+[lean acceptance plan](M5_PLAN.md). Final source-checked hardware, production
+firmware, all three physical prompts, ownership cleanup and performance pass.
+The [raw physical report](m5_physical_evidence.json),
+[closure manifest](m5_closure_evidence.json) and [performance](M5_PERFORMANCE.md)
+record the accepted result. M6 remains unstarted.
+
+The dated development entries below preserve failures and intermediate scope;
+their then-current "pending" statements are historical, not outstanding gates.
+In particular, the earlier unpatched staged artifact remains revoked, not
+silently promoted to correct hardware. M4's accepted sources/evidence remain
+unchanged. The final requirement-by-requirement audit is at the end.
 
 ## 2026-09-06: isolated memory primitives
 
@@ -414,6 +421,11 @@ or board performance.
 
 ## 2026-09-06: final 91-MHz implementation and firmware staging
 
+**Superseded qualification:** physical testing below discovered that this
+source-only Vivado flow did not execute the CPU pre-build patch hook. The
+reported implementation measurements describe that unqualified artifact only.
+The simulator did contain the fixes. Do not use this build to close G5/G6.
+
 The lean test-cost policy permits one accepted implementation. Two complete
 95-MHz strategies produced WNS -0.002/-0.028 ns; a 92-MHz attempt produced
 +0.203 ns. The final clean build in `build/m5_pynq_lean7/` uses **91 MHz**, a
@@ -515,10 +527,234 @@ misrepresented as end-to-end model throughput.
 Exact current source, artifact and report hashes are in
 [`m5_staging_evidence.json`](m5_staging_evidence.json).
 
-## Outstanding mandatory gates
+## 2026-09-06: authorized physical provisioning and build-path correction
 
-The lean closure policy in `M5_PLAN.md` supersedes the original marathon test
-matrix. Physical full-model firmware execution, Linux allocation/ownership,
-concise physical correctness/performance and final auditing remain open.
-Kernel-helper loading still requires explicit approval;
-no helper has been loaded and no boot setting changed.
+The user approved temporary helper loading and subsequent necessary M5 work
+without further routine confirmations. The module loads normally on the
+matching kernel release; no boot change, forced module operation or arbitrary
+RAM reservation was used. PYNQ requires the login environment's
+`XILINX_XRT=/usr` to survive sudo (`bash -lc` and `sudo -E`). The first runner
+failure omitted that environment and stopped before overlay programming.
+
+The next run programmed the overlay but returned ENOMEM during model-page
+allocation. A one-page test passed, excluding coherent page-table allocation
+as the cause. The full allocation reproduced failure at page 3,759 (about
+15 MiB), despite about 391 MiB reported available after cleanup. The allocator
+used `__GFP_NORETRY`, which permits only lightweight reclaim. Replacing it
+with `__GFP_RETRY_MAYFAIL` permits bounded reclaim/page-out without directly
+invoking the OOM killer, as documented in the
+[Linux 6.6 allocation API](https://www.kernel.org/doc/html/v6.6/core-api/mm-api.html).
+No CMA pool change or global cache drop was necessary.
+
+`zynq/m5_dma_check.py` passes the actual Linux ioctl/mmap seam: 65,012 pages
+(266,289,152 bytes) allocated in **3.02885 seconds**; exclusive-open, empty,
+unaligned, overflow, overlap, unmapped-guard and START-without-pages rejection;
+first/last mapped-word read/write in all seven regions; close/reopen with zero
+remaining pages and CPU ownership. MemAvailable was 150,612 KiB with the full
+arena allocated. This is physical allocation/ownership evidence, not a claim
+of full-model numerical correctness. Raw report:
+`build/m5_physical.6jgElc/m5_allocation.json`.
+
+The third full runner successfully provisioned all model/cache regions and
+passed firmware overflow rejection: all four cache-region hashes and the
+output sentinel remained unchanged. The subsequent valid story request
+trapped before model initialization finished: state 1, hart-0 mcause 2,
+mtval 0, mepc `0xfa3c`; safe ownership return/cleanup succeeded. A 64-KiB
+model-header-only hardware reproduction produced the same trap. A diagnostic
+uncompressed firmware passed startup but is **not** the delivered firmware or
+a substitute for correcting the hardware.
+
+Inspecting actual exported source files identified the mismatch: the Vivado
+wrapper invoked FuseSoC `--setup` then Vivado directly, bypassing the exported
+`pre_build` hook. Both CPU files still had their original hashes, whereas the
+accepted actual-core simulation contained the derived hashes in
+`M5_LSU_REVIEW.md`. `zynq/build_m5.sh` now invokes the exported fail-closed hook
+explicitly. `scripts/check_m5_sources.py` independently checks both derived
+hashes in the shell and again before Vivado project creation. It rejects the
+old `m5_pynq_lean7` export and accepts the corrected `m5_pynq_lean8` export.
+Patch/export regression `build/m5_ibex_patch.XNYWMr/` passes, including
+idempotence, unsafe-input rejection and unchanged frozen dependencies.
+
+A short extension of the real dual-Ibex accelerator harness runs the exact
+production firmware and model header, deliberately truncating workspace to
+terminate at a known store fault after model binding/both-hart readiness.
+Six memory-response delays (0/16/32/64/128/256 cycles) all reach state 3,
+hart-ready 3 and the intended fault at `0x4f201a00` on the already qualified
+derived simulation library. This is startup coverage, not full-model proof.
+Historical failed reports, scratchpad dump and diagnostic builds are retained
+under `build/m5_physical.6jgElc/`; the original staging JSON is a historical
+snapshot and is not silently rewritten to claim corrected hardware.
+
+## 2026-09-06: corrected clean implementation
+
+`build/m5_pynq_lean8/` completes the full shell/Vivado flow with exit 0,
+including bitstream, HWH and XSA export. Both CPU derived-source hashes are
+verified before compilation. Final 91-MHz setup WNS is **+0.584 ns**, TNS 0;
+hold WNS **+0.045 ns**, THS 0. All clocks/endpoints are constrained; 44,736
+routable nets are fully routed with zero routing errors. Utilization:
+28,442 LUTs, 21,688 registers, 95.5 BRAM tiles, **zero DSPs**.
+
+Final DRC has zero errors/critical warnings and one RTSTAT-10 warning for
+30 unloaded SmartConnect reset-pipeline nets. The seven LUTAR-1 methodology
+warnings have no accompanying errors/critical warnings. A fresh read-only
+checkpoint audit (`review_reset_cones.tcl`, `reset_cones.log`, exit 0) examines
+all seven cells named in the actual final report: six NANDs combine the
+peripheral/cluster resets, and the seventh combines that reset, core reset
+and the registered/protected sticky cancellation sources. The previously
+qualified drain/reset/flush sequence applies; no opposed live switching is
+permitted. This replaces, rather than requalifies, the unpatched artifact.
+
+Fresh startup simulation `build/m5_startup.hktjIS/` passes all three selected
+response delays using `sim/run_m5_startup.sh`. The same fresh simulation also
+passes the unchanged nine-job accelerator/two-boot/14-case lifecycle matrix
+in 31,208,171 cycles; the terminal log is
+`build/m5_physical.6jgElc/accelerators_regression_corrected_cwd.log`.
+
+## 2026-09-06: physical full-model progress and ARM checker correction
+
+The corrected overlay passes the production startup/precise-fault test on the
+board with both harts ready, exactly the intended first-embedding load fault
+(`mcause=5`, `mtval=0x40010000`) and safe ownership return. The unchanged `-Os`
+firmware then completes the valid story request: five generated tokens,
+17 valid cache positions, 64,112 completed transfers, zero firmware error,
+and a 1,909,188-byte workspace high-water mark. All token, final full-logit
+and KV assertions execute successfully before the trace checker fails.
+
+That remaining failure is host-only: 32-bit ARM NumPy does not accept an
+int64 exponent array in `ldexp`. The checker now validates exponent range
+0..30 and uses int32. Eight host tests and six focused tests using the actual
+board NumPy/frozen trace fixtures pass. A trace-checking failure now preserves
+the already calculated inference/timing result explicitly as partial evidence,
+without converting FAIL into PASS. The earlier report is retained as
+`build/m5_physical.6jgElc/m5_physical_corrected.json`; it did not retain full
+64-bit timing data, so no throughput is reconstructed from its wrapping
+32-bit counters or shell observations.
+
+To reduce remaining run time without numerical/RTL changes, the delivered
+firmware build now uses `-O2` instead of `-Os`. It still fits easily: 30,916
+text bytes, 128 data, 112 BSS, exact 65,536-byte image, no F/D instructions
+or undefined symbols. Build: `build/m5_firmware_o2/`, image SHA-256
+`39314468a20eb4b89a72f25dee99abede3aba91d07afd29ae84195a2b4a8ac1c`.
+The actual-core production-startup test passes all three response delays with
+this image (`build/m5_physical.6jgElc/startup_o2.log`). The complete short
+physical matrix is rerun once to qualify these final firmware/checker bytes;
+no extra implementation build or marathon is introduced.
+
+## 2026-09-06: final physical acceptance and normal cleanup
+
+The complete frozen `m5-lean-physical-v1` matrix passes on the final `-O2`
+firmware and corrected overlay. The shell records `M5_O2_CAMPAIGN_EXIT=0`.
+Exact physical outputs are:
+
+| Prompt | Input / generated tokens | Generated IDs | Final valid cache | Checks |
+|---|---:|---|---:|---|
+| story | 13 / 5 | 257, 582, 3706, 399, 2271 | 17 | Tokens, full logits/KV and five prefill traces exact |
+| science | 8 / 1 | 5004 | 8 | Token and full logits/KV exact |
+| computing | 8 / 1 | 22712 | 8 | Token and full logits/KV exact |
+
+The five story traces are embedding, layer-0 QKV, all-head attention context,
+layer-0 output and layer-11 output. Their complete shapes and SHA-256 values,
+and every final full-logit/KV hash, are in the committed raw report. References
+come from the independently frozen M4 fixture manifest, never this firmware.
+The unchanged portable foundation additionally qualifies 396 trace tensors /
+4,670,788 values and 60 exact generation steps. The separate frozen M4
+floating-model quality evidence is retained, not replaced by self-consistency.
+
+Hart 0 owns the complete model loop, metadata, scale/packing/KV and greedy
+selection; hart 1 executes the accelerator/transfer jobs through the bounded
+mailbox. Both are active; this is not a claim of two simultaneous model loops.
+The actual host runner only polls supervisor status between START and DONE.
+Story completes 64,112 transfers without any A9 tensor, operator or transfer
+service. All cache/model work is on the bare-metal RISC-V/accelerator system.
+
+Before the accepted runs, prompt_count=1 / generation_count=1024 is rejected
+with state 5 / error 1 in 2.353512 seconds. Cache-valid/generated-count sentinels
+remain 17/19, the output sentinel remains unchanged and all four full cache
+region hashes remain unchanged. Subsequent accepted boots prove recovery.
+The separately accepted production-startup test deliberately faults on an
+unmapped first embedding load, reports exact mcause/mtval with both harts ready,
+and returns ownership before the full campaign. This is targeted physical
+error/recovery evidence, not a claim of physical fault injection at every AXI phase.
+
+Final request timing from resident START through safe RETURN_CPU and copying
+output IDs is 494.913238 / 208.818166 / 208.869540 seconds. Story primary rate
+is 0.010102781 tok/s. Its first cached interval is a retained warmup; the next
+three have median 39.520935 seconds/token and aggregate 0.025275681 tok/s.
+See `M5_PERFORMANCE.md` for all samples, boundaries, memory and limitations.
+No positive speedup or >=1 tok/s claim is made.
+
+All 65,012 pages / 266,289,152 bytes were allocated, including the full
+1024-position cache capacity. Peak process RSS was 326,360 KiB; the highest
+firmware workspace usage was 1,909,188 bytes. The runner reports CPU ownership
+and `ownership returned and mappings/file closed`. A subsequent full allocation
+and bounds regression passes again in 2.043103 seconds, with close/reopen
+showing zero pages and owner 0. Normal helper unload succeeds; module and
+device-node absence are explicitly checked. No force unload, CMA resize,
+global cache drop or boot change was used.
+
+Accepted identities:
+
+- Bitstream: `b25c6058b00783df611761f0cc1edf15b6c8d666cc86011c03e051c4b24dc813`.
+- HWH: `6a16da94a5a4a0738834d247b50ec4a27d2582f3678ea1787d097298c34f11c9`.
+- Firmware/readback: `39314468a20eb4b89a72f25dee99abede3aba91d07afd29ae84195a2b4a8ac1c`.
+- Loaded helper: `4c0f5b345c93751d3c8e9c8a26410d80ba66930cbc7e7111da72758091e2df86`.
+- Model: `4a8743dce2f9dd9b32087ef30e45131ec2e02488789c6a949e36ee2959ad5a78`.
+- Frozen fixtures: `7324fb3a88c9b7340e9aa65ea6dd43f77253f0ddf7e7aca9fb100f47f963c537`.
+
+The closure manifest pins the remaining sources, 182-file resolved hardware
+tree, tools, build/warning-review logs, final artifacts and physical reports.
+Large build products/logs remain in the ignored local build tree; the compact
+raw model report and closure manifest are committed. The auditor requires
+those local artifacts and fails closed if they are missing or stale; a clone
+alone is not claimed to contain every bitstream or test fixture.
+
+Representative reproduction commands (do not rerun long work just to audit):
+
+```sh
+# Local read-only closure and focused host checks:
+python3 -m scripts.audit_m5
+build/m4_venv/bin/python -m unittest tests.m5.test_board_runner -v
+
+# Optional reproduction of production-startup simulation:
+bash sim/run_m5_startup.sh build/m5_firmware_o2/m5_runtime.bin \
+  build/m5_arena.1Org4t/model/model.bin
+
+# Board login shell, final bytes staged, helper loaded and XILINX_XRT preserved:
+sudo -E /usr/local/share/pynq-venv/bin/python3 \
+  /home/xilinx/pocketai_m5_final/m5_startup_check.py \
+  --stage /home/xilinx/pocketai_m5_final \
+  --output /home/xilinx/pocketai_m5_final/m5_startup_o2.json
+sudo -E /usr/local/share/pynq-venv/bin/python3 \
+  /home/xilinx/pocketai_m5_final/m5_run.py \
+  --stage /home/xilinx/pocketai_m5_final \
+  --output /home/xilinx/pocketai_m5_final/m5_physical_o2.json
+sudo -E /usr/local/share/pynq-venv/bin/python3 \
+  /home/xilinx/pocketai_m5_final/m5_dma_check.py \
+  --stage /home/xilinx/pocketai_m5_final \
+  --output /home/xilinx/pocketai_m5_final/m5_allocation_final.json
+sudo rmmod pa_m5_dma
+test ! -e /sys/module/pa_m5_dma
+test ! -e /dev/pocketai_m5
+```
+
+## Final requirement audit
+
+| Gate | Accepted evidence / explicit boundary |
+|---|---|
+| G0 scope/ownership | User-authorized lean `M5_PLAN.md`, ABI v1 and premeasurement policy; no in-run A9 tensor/transfer/operator work |
+| G1 memory/safety | Kernel-owned DMA pages, full model/cache capacity, physical allocation/mmap/guards/exclusivity/close-reopen and normal unload |
+| G2 autonomous control | Directed component tests; fresh dual-Ibex nine-job/two-boot/14-lifecycle simulation; physical precise fault, rejection, safe return and successful reuse |
+| G3 faithful full runtime | All 12 layers/heads, full 50,257 logits, W8A8/int16/scales/greedy contract retained; actual RV32IMC software numerics and final physical exactness |
+| G4 regressions | 396 native full-model traces, 60 native exact generation steps; actual-Ibex 6,904 + 6,881 numerical cases; 84 ISA passes with exactly four historical xfails; affected legacy cluster/M1 harts; eight host and six ARM checker tests |
+| G5 implementation | One correct clean 91-MHz full build, +0.584 ns setup / TNS 0, +0.045 ns hold / THS 0, zero DSPs, fully constrained/routed, zero DRC/methodology errors or critical warnings; all eight remaining warnings reviewed |
+| G6 physical acceptance | Final 5/1/1-token matrix, all final full-logit/KV hashes and five intermediate traces exact; overflow non-mutation, precise fault, recovery, terminal exit 0 and cleanup |
+| G7 honest performance | All raw times/counters/memory, one warmup + three growing-context decode samples, full resident generation boundary; historical-only M4 comparison; slow result and unmet stretch explicit |
+| G8 closure | Source/artifact/fixture pins, read-only `scripts.audit_m5`, reconciled README/PLAN/architecture/ABI/performance and scoped local closure commit |
+
+No required gate remains open under the user-selected lean policy. A second
+clean build, a new empty-cache 1024-position autonomous marathon, longer
+generation/endurance tests, broad cold-start statistics and >=1 tok/s remain
+outside mandatory closure. Full-capacity memory and bounded limit tests do
+not pretend to establish that omitted endurance evidence. Necessary M5 board
+work was authorized without subsequent routine approval prompts; M6 and a
+remote push are not included.

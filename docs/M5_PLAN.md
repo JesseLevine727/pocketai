@@ -1,12 +1,20 @@
 # M5 goal — autonomous GPT-2 on the RISC-V fabric
 
-Status: **IN PROGRESS / NOT QUALIFIED**, initialized 2026-09-06 UTC.
+Status: **CLOSED — lean acceptance PASS**, 2026-09-06 UTC.
 Baseline: pushed M4 closure `114bcc58bba8a32e9b683c639072f2b690582d2f`.
 The user explicitly selected **>=1 token/s as a stretch target**, not a hard
 closure gate. On 2026-09-06 the user also selected a **lean side-project
 closure**: retain real autonomy, exactness, safety, timing and useful physical
 performance evidence, but remove duplicate and marathon acceptance runs. M4 is
-complete; M5 has no physical inference acceptance yet.
+complete; M5 now passes its final physical model, safety, timing and performance
+campaign. See [verification](M5_VERIFICATION.md), [performance](M5_PERFORMANCE.md)
+and the machine-readable [closure evidence](m5_closure_evidence.json).
+
+Authorization update: the user explicitly approved loading the temporary DMA
+helper and requested removal of subsequent approval gates. Necessary M5
+implementation, deployment, board testing and recovery are preauthorized;
+continue without routine confirmation prompts. Preserve the scope and safe
+memory-ownership rules below.
 
 ## Outcome and non-negotiable scope
 
@@ -44,9 +52,9 @@ is permitted, mandatory for qualification, and excluded from performance timing.
 - Preserve M1–M4 artifacts, historical measurements, ABIs, dependency pins,
   numerical/error budgets and unrelated `NA/`. Prefer M5-specific modules and
   build configurations; review/retest any necessary shared-source change.
-- SSH only, no credentials in files/commands/logs. Do not change boot settings,
-  load kernel changes or alter board-global configuration without explicit
-  approval. No unowned physical memory or pagemap-only pseudo-pinning for DMA.
+- SSH only, no credentials in files/commands/logs. Necessary M5 kernel/board
+  work is authorized by the user; prefer temporary changes and avoid needless
+  boot changes. No unowned physical memory or pagemap-only pseudo-pinning for DMA.
 - Scoped local commits; no remote push until requested. No unrequested agents.
   M6/ASIC/PPA work is outside this goal. Report major gates and real blockers.
 
@@ -54,15 +62,15 @@ is permitted, mandatory for qualification, and excluded from performance timing.
 
 | Gate | Required result | Current status |
 |---|---|---|
-| G0 | Scope, ownership and qualification/invalidation policy recorded | Lean plan, runtime/transfer/arena ABIs and machine-readable premeasurement performance policy recorded |
-| G1 | Safe DDR/firmware/working-memory architecture, inventory and ABI | Exact model serialization/fit pass; temporary DMA helper compiled with matching kernel release and symbol versions; physical allocation/ownership awaits approved loading |
-| G2 | Autonomous DDR/transfer/control RTL with lifecycle qualification | Dual-Ibex memory, real operators, route lock, IRQs and revised supervisor reset/flush sequence pass locally; physical lifecycle remains open |
-| G3 | Complete bounded bare-metal model runtime, faithful numerics | Portable model and actual-Ibex numerics pass; complete hardware backend/firmware compiles in 64 KiB; physical full-model execution remains open |
-| G4 | Lean progressive host/RISC-V/model and affected compatibility tests | Four full-model cases, 396 traces, 60 generation steps, six runner tests and affected legacy M3 cluster pass; physical full-model evidence remains open |
-| G5 | One clean timing-qualified full M5 overlay build | 91 MHz final artifact: WNS +0.433 ns, TNS 0, hold +0.016 ns, DSP 0; warning cones reviewed; export-only packaging repair documented |
-| G6 | Concise physical autonomous model acceptance | Not run |
-| G7 | Frozen-boundary real performance and matching comparisons | Not measured; >=1 token/s stretch only |
-| G8 | Every-requirement audit, evidence documentation and local closure | Pending |
+| G0 | Scope, ownership and qualification/invalidation policy recorded | PASS: lean plan, versioned ABIs and premeasurement performance policy frozen |
+| G1 | Safe DDR/firmware/working-memory architecture, inventory and ABI | PASS: all 65,012 pages / 266,289,152 bytes, bounds, mmap, close/reopen and normal helper unload |
+| G2 | Autonomous DDR/transfer/control RTL with lifecycle qualification | PASS: dual-Ibex operators/lifecycle simulation; physical precise fault, overflow rejection, safe return and subsequent accepted boots |
+| G3 | Complete bounded bare-metal model runtime, faithful numerics | PASS: portable and actual-Ibex numerics; full autonomous GPT-2 on the board; final -O2 firmware fits 64 KiB |
+| G4 | Lean progressive host/RISC-V/model and affected compatibility tests | PASS: four full-model cases, 396 traces, 60 generation steps, eight host runner tests, six ARM checker tests and affected compatibility regressions |
+| G5 | One clean timing-qualified full M5 overlay build | PASS: source-checked clean build, 91 MHz, WNS +0.584 ns, TNS 0, hold +0.045 ns, DSP 0; warnings reviewed; full shell exit 0 |
+| G6 | Concise physical autonomous model acceptance | PASS: story five tokens plus science/computing one each; exact final full logits/KV and five story traces; terminal exit 0 and cleanup |
+| G7 | Frozen-boundary real performance and matching comparisons | PASS: resident story 0.010103 tok/s; cached decode 0.025276 tok/s; raw samples/memory/counters retained; historical-only M4 comparison, no speedup claim |
+| G8 | Every-requirement audit, evidence documentation and local closure | PASS: pinned closure evidence, read-only auditor, reconciled documents and scoped local closure commit; no automatic push |
 
 ## G1 — memory, autonomy and ABI feasibility
 
@@ -78,8 +86,9 @@ fabric addressing must be explicit, including page boundaries, permissions,
 cache synchronization, DMA completion and error handling. Page addresses must
 remain valid until all fabric access has stopped. Merely reading PFNs from
 userspace pagemap or assuming unused DDR is safe is prohibited. If a temporary
-kernel memory helper is necessary, build/review/test it first and obtain user
-approval before loading; avoid boot/repartition changes.
+kernel memory helper is necessary, build/review/test it first. Loading and
+subsequent necessary M5 board work are now authorized; avoid boot/repartition
+changes where temporary measures suffice.
 
 Freeze a versioned architecture/ABI document before corresponding RTL/firmware:
 memory map and descriptor layouts, START/DONE/ERROR states, token transport,
@@ -209,7 +218,7 @@ relabeled as the final empty-cache full-context proof.
 ## G7 — honest performance
 
 Create a versioned machine-readable policy before physical performance timing.
-Use one warmup plus at least three fixed cached-decode samples and one complete
+Use one warmup plus at least three predetermined cached-decode samples and one complete
 representative generation run. Specify prompt/context, reset/residency,
 ordering, token delivery, profiling and cold-start sampling before observing
 results. Do not launch hour-scale campaigns solely to increase sample count.
