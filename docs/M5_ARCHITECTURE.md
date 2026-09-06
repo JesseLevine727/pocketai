@@ -240,3 +240,38 @@ unmapped sizes. Export acceptance compares all 248 delivered raw array payloads
 against the independently hash-checked M4 pack and checks binary-header/layout
 agreement, page permissions, guards and fit. This proves serialization/fit,
 not a successful board allocation or complete working-memory liveness analysis.
+
+## Core routing and multi-client memory contract v1
+
+Each core instruction/data port gets an M5-only registered router. It accepts
+one request into owned registers and grants that acceptance to Ibex, then holds
+the selected downstream request through its grant and waits for its response.
+Only `0x4xxxxxxx` routes to translated DDR; all other addresses retain the local
+bus decode (and its errors). A port has at most one outstanding transaction,
+so local and DDR responses cannot reorder. Other ports continue local BRAM
+traffic while one port waits on DDR. Local/DDR downstream response latency is
+at least one clock after grant. Core stop blocks **new** admission, not already
+accepted requests; routers are not reset by core-only reset.
+
+The OBI-to-DDR adapter requests exactly one aligned word and preserves the
+captured write data/byte strobes. Ibex performs cross-word unaligned access
+decomposition; no word request can itself straddle a translated page. It
+collects read data before forwarding completion/error to the waiting OBI port.
+Address low bits are removed only for DDR word transfers, not local peripherals.
+
+A separate round-robin arbiter serializes four core ports plus the autonomous
+bulk-transfer client into the translated bridge. A grant owns the captured
+command until completion; payload/completion routing uses that registered owner,
+not a changing arbitration result. Each granted burst advances round-robin
+priority. Clients retain their valid command until grant and obey the buffered
+stream/cancellation contract. There is no speculative multi-owner packet queue.
+
+During global abort the arbiter drains any submitted bridge operation before
+returning fault 11. It also consumes already-pending client commands and returns
+fault 11 without issuing memory, so stopped cores' accepted router requests can
+retire. Aborted completions need no cooperation from a halted consumer. Global
+quiescence must include **all** routers/adapters, the bulk engine, arbiter,
+translator and AXI bridge, and exclude pending requests—not merely an idle AXI
+master between requests. Mapping flush occurs at that disabled/quiescent system
+boundary. The platform integration must implement/test this combined condition
+before a kernel helper may use it as authority to release pages.

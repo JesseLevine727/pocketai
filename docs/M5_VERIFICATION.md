@@ -125,6 +125,54 @@ inferred solely from this table.
 | `build/m5_arena.1Org4t/model/model.bin` | `4a8743dce2f9dd9b32087ef30e45131ec2e02488789c6a949e36ee2959ad5a78` |
 | `build/m5_arena.1Org4t/model/layout.json` | `f782820638969163e0dd975a6fcfc87076bc6cd47dc841f6fb0ae6d2b52729d8` |
 
+## 2026-09-06: core-port routing and memory ownership
+
+`bash sim/run_m5_core_memory.sh` passes 340 synthetic core-port requests plus
+40 bulk-client requests. The exact accounting is 170 local-bus grants and 210
+memory-arbiter grants/completions. Evidence: `build/m5_core_memory.fcwDbH/`,
+terminal exit 0. Four independent OBI port drivers exercise the two-hart
+instruction/data-port topology; **this is not yet executing Ibex instructions**.
+
+The tests mix local/DDR reads and byte-strobed writes, change upstream pins
+after grant to check captured ownership, stall bulk input/output/completion,
+check round-robin non-starvation, and verify no lost/duplicated transaction.
+Ten local operations complete while another port has an indefinitely withheld
+DDR response. Aborts cover pre-bridge issue, a live memory operation and pending
+requests on the other ports. Already accepted requests retire with errors while
+core stop blocks new admission; ordinary operation succeeds after drain/reuse.
+This qualifies the router/adapter/arbiter against a variable-latency memory
+interface model, not their final combined physical overlay.
+
+Development failures were preserved and resolved before acceptance:
+
+- A generated timed-fork C++ function had no return/co-return, produced a
+  compiler diagnostic and segfaulted (`build/m5_core_memory.gSSHic/`; ASan
+  reproduction in `build/m5_core_asan.5NQ4s2/`). The runner now keeps generated
+  test coroutines unsplit and treats return-type diagnostics as fatal. It does
+  not suppress RTL warnings or alter hardware to satisfy that compiler issue.
+- Mixed structural/procedural drivers on unpacked testbench arrays produced
+  stale generated port copies (including a zero burst count and a duplicated
+  input beat). The bulk driver now drives scalar signals connected structurally
+  to the arrays, matching the intended hardware wiring. Ready handshakes are
+  sampled before the active clock edge to remove scheduling ambiguity.
+- One over-wide boolean expression in the testbench was corrected at lint.
+
+| File | SHA-256 |
+|---|---|
+| `rtl/m5/pa_m5_obi_router.sv` | `73e114d4902ed1ef4bce5bf5df108cd3c02caf402e84d7f5de49836419bdbbdb` |
+| `rtl/m5/pa_m5_obi_ddr.sv` | `e5fce18b506840ca5c85d6d6e0524ee7c0cef7e104bb78f28cf99eee07e975bd` |
+| `rtl/m5/pa_m5_memory_arbiter.sv` | `8852993d778637ea80165e91ee6dfbaab31bcf964bf6cd5449955e1e52596803` |
+| `tests/m5/pa_m5_core_memory_tb.sv` | `6bbabe7bc57b4a5d0a5f7504e29e5ccf5c028ab44aa9b54999fa7f804474b253` |
+| `sim/run_m5_core_memory.sh` | `91c2769f0b633f9c24488eaf9ce6faf9b69f1eeb6209875f3ba0ffb2cadfe4d9` |
+| `build/m5_core_memory.fcwDbH/build.log` | `dacf5e3d4bbb2a740521fcaa111d22cfbfd269db791e5f1945bc10f69fdb1d59` |
+| `build/m5_core_memory.fcwDbH/test.log` | `2a2e71e2c72f8488a37f50fe8f57e9b5240a5bb7904dca10355e28e8aa7925e5` |
+
+The same final local checkpoint also reran translation, AXI burst and translated
+bridge tests from fresh directories `build/m5_translation.WBQRn5/`,
+`build/m5_axi_burst.aaTtpH/` and `build/m5_memory_bridge.mpZMS4/`. All passed
+with result logs byte-identical to the corresponding accepted logs above.
+All four fresh build logs contain no RTL or C++ warning/error diagnostic.
+
 ## Outstanding mandatory gates
 
 All of `M5_PLAN.md` G1–G8 remain open. In particular, local component simulation
