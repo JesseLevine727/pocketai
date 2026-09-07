@@ -1,5 +1,21 @@
 # Current project status
 
+**Latest characterization:** [bounded M5 experiment sweep](docs/M5_SWEEP_RESULTS.md),
+**CLOSED / PASS**. All 31 predeclared experiments pass in **38 min 24 s** of the
+60-minute board cap, with no skips and normal zero-resource DMA release.
+The design remains the qualified `e5883bc` release below; this pass changes no
+firmware, hardware, precision or clock. Full 16-token requests deliver
+**0.07829 token/s (story)** and **~0.09046 (science/computing)** including prompts.
+Matched past-13 cached decode averages **0.10024 token/s**, but one sample takes
+10.019 s; past-1023 cached delivery is **0.01671 token/s**. Context and prefill
+cost are now measured explicitly. Long-context CPU/control/scalar-memory
+remainder reaches **96.63%**, dominated by attention. Full logits/KV, original
+traces and overflow recovery pass; all previous audits remain intact.
+See [machine evidence](docs/m5_sweep_evidence.json), [samples](docs/m5_sweep_samples.csv)
+and [reproduction](docs/M5_SWEEP_REPRODUCE.md). Audit with
+`python3 -m scripts.audit_m5_sweep`. M6 is the next requested goal, not part of
+this characterization closure.
+
 **Latest qualified system:** [M5 0.1-token/s pursuit](docs/M5_TENTH_RESULTS.md),
 **CLOSED / PASS — target achieved on the matched cached decode**.
 Mean resident START-through-delivery is **9.958322 s / 0.10041853 token/s**,
