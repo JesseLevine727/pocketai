@@ -1,6 +1,21 @@
 # Current project status
 
-**Latest qualified system:** [three more M5 search cycles](docs/M5_SEARCH_RESULTS.md),
+**Latest qualified system:** [M5 0.1-token/s pursuit](docs/M5_TENTH_RESULTS.md),
+**CLOSED / PASS — target achieved on the matched cached decode**.
+Mean resident START-through-delivery is **9.958322 s / 0.10041853 token/s**,
+up **21.53% throughput** from 12.102234 s / 0.08263 token/s. All three measured
+samples are below 10 s, but margin is only 41.68 ms: not a sustained, tail,
+long-context or prompt-prefill-inclusive guarantee. Model time is 8.896736 s.
+Exact signed rounding, full-width channel multiplication and certified exact
+reciprocals retain the same full W8A8 model and both fast harts / 91-MHz DSP0
+overlay. Native/full-logit/KV/traces, original full 2/1/1 requests, rejection/
+recovery, byte-identical rebuild and normal zero-resource DMA release pass.
+Full campaign ~3 min 26 s; no marathon tests. Scalar/control/memory remainder
+is still 84.59%; one token/s remains stretch. No M6 or new hardware.
+See [evidence](docs/m5_tenth_evidence.json); audit with
+`python3 -m scripts.audit_m5_tenth`.
+
+**Previous qualified system:** [three more M5 search cycles](docs/M5_SEARCH_RESULTS.md),
 **CLOSED / PASS**. Reject LTO; retain fused projection preparation and exact
 integer/binary64 scaling. Matched cached-token delivery falls **13.27 → 12.10 s**
 (**1.0962× throughput, 0.08263 token/s**); model time **12.21 → 11.04 s**.
