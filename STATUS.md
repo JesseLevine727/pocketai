@@ -1,6 +1,23 @@
 # Current project status
 
-**Latest qualified system:** [M5 fast-controller pass](docs/M5_FAST_RESULTS.md),
+**Latest qualified system:** [three bounded M5 cycles](docs/M5_ITERATE_RESULTS.md),
+**CLOSED / PASS**. Exact attention/LayerNorm preparation and projection range
+specialization lower matched cached-token delivery **18.46 → 16.74 seconds**
+(**1.1029× throughput, 0.05975 token/s**); model time 17.40 → 15.68 s.
+The polling/WFI experiment is documented but not deployed: hart-0 sleep
+undercounts its timer; hart-1-only sleep has no demonstrated material speedup.
+Full original 2/1/1 board requests, logits/KV/traces, overflow non-mutation and
+recovery, fresh binary reproduction, zero retained DMA resources and normal
+helper unload pass. Full campaign ~5 min 51 s; no marathon tests or new RTL.
+Both pipelined RV32MFast harts and the exact 91-MHz +0.263-ns / DSP0 overlay
+remain. ~91% of model time is still scalar/control/memory remainder.
+
+See the [three first-principles reviews](docs/M5_ITERATE_REVIEWS.md) and
+[machine evidence](docs/m5_iterate_evidence.json); audit with
+`python3 -m scripts.audit_m5_iterate`. No fourth cycle or M6 has started;
+>=1 token/s remains stretch. Earlier results below are historical.
+
+**Previous qualified system:** [M5 fast-controller pass](docs/M5_FAST_RESULTS.md),
 closed with both Ibex harts using a pipelined RV32MFast derivative (9/12 execute
 cycles), 91 MHz, +0.263-ns setup margin, positive hold and zero DSPs.
 Exact preparation plus REQUANT8 lowers matched cached-token START-through-

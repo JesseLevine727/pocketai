@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "id": "m5-three-cycles-complete-short-v1",
+  "clock_hz": 91000000,
+  "parent_policy": "tests/m5_iterate/performance_policy.json",
+  "parent_policy_sha256": "5978e44aacd9aecd92fa2cedd065a74e21e43d4f1c4c9a313779982ab2001d3b",
+  "matrix": [
+    {"prompt": "story", "new_tokens": 2, "capture_prefill": true},
+    {"prompt": "science", "new_tokens": 1, "capture_prefill": false},
+    {"prompt": "computing", "new_tokens": 1, "capture_prefill": false}
+  ],
+  "primary_boundary": "Resident START through safe RETURN_CPU and token copy, including empty-cache prefill and all required metadata, transfers, model work and delivery. Provisioning and independent checks excluded and separately retained.",
+  "checks": "Original full-model prompts; exact IDs, complete final logits and valid KV, five original story-prefill traces, overflow non-mutation/recovery, safe release/reopen and normal helper unload.",
+  "campaign_watchdog_seconds": 1200,
+  "per_request_watchdog_seconds": 600,
+  "scope": "Final bounded 2/1/1 qualification after three optimization cycles; not endurance, tail or long-context performance. Seeded warmup+3 are measured separately."
+}

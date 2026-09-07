@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "id": "m5-three-bounded-cycles-v1",
+  "cycles": 3,
+  "baseline_commit": "bf4ec02043ad8759d0c4bbe60e781055e224fd87",
+  "baseline_evidence_sha256": "bef7535dd3da115248a62c6bf413d43cabed17fa61c25b3a7a797c3f64c7caf1",
+  "hardware": {
+    "clock_hz": 91000000,
+    "both_harts": "pipelined RV32MFast, 9/12 execute cycles",
+    "bit_sha256": "6c647a3dc2f0305b9add96d6a8240be2ada9c6d91ac526feb8376a124551c9bc",
+    "hwh_sha256": "e05c696a5b196cf8e9a3c564108286679b1afb9cc989945bcc71bdbb0342f514",
+    "minimum_setup_wns_ns": 0.250,
+    "tns": 0,
+    "positive_hold": true,
+    "ths": 0,
+    "dsp": 0,
+    "default_reuse_qualified_overlay": true
+  },
+  "imported_seed": {
+    "manifest_sha256": "4b105dd9588f8c19c78fdde697966c6fc2ed76d8e97f02c82f7e0a225dd59711",
+    "original_policy_sha256": "d30dcdd8112c0b484d012a1ec697a63baae994d339c8aaa30b240cbefc7ee44e",
+    "reference_manifest_sha256": "7324fb3a88c9b7340e9aa65ea6dd43f77253f0ddf7e7aca9fb100f47f963c537"
+  },
+  "fixed_decode": {
+    "past": 13,
+    "input_token": 257,
+    "expected_token": 582,
+    "valid_cache": 14,
+    "timeout_seconds": 120,
+    "exact_checks": "Every sample: all logits, complete valid KV, token; independent original seed",
+    "diagnostic_roles": ["profiled_diagnostic", "unprofiled_diagnostic"],
+    "final_roles": ["profiled_diagnostic", "unprofiled_warmup", "unprofiled_measured_1", "unprofiled_measured_2", "unprofiled_measured_3"],
+    "boundaries": ["firmware model and greedy selection", "resident START through safe ownership return and token copy"],
+    "statistics": ["all samples", "mean", "median", "minimum", "maximum", "population standard deviation", "aggregate tokens per second"]
+  },
+  "max_measured_candidates_per_cycle": 2,
+  "default_diagnostic_timeout_seconds": 120,
+  "final_campaign_watchdog_seconds": 1200,
+  "final_per_request_watchdog_seconds": 600,
+  "final_complete_matrix": [
+    {"prompt": "story", "new_tokens": 2, "capture_prefill": true},
+    {"prompt": "science", "new_tokens": 1, "capture_prefill": false},
+    {"prompt": "computing", "new_tokens": 1, "capture_prefill": false}
+  ],
+  "preparation_accounting": "All required setup charged to request or explicitly reported provisioning; no hidden warm cache setup",
+  "retention": "Exact and measured useful improvement; bounded negative candidates documented; freeze choices at each cycle review",
+  "limitations": "No tail, sustained, long-context or endurance claim from the short samples. CPU remainder includes scalar memory/instruction stalls. Engine cycles are nested in backend service.",
+  "new_precision_variants": false,
+  "tokens_per_second_stretch": 1
+}
