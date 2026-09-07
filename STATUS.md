@@ -1,6 +1,19 @@
 # Current project status
 
-**Latest qualified system:** [M5 scalar preparation](docs/M5_SCALAR_RESULTS.md),
+**Latest qualified system:** [three more M5 search cycles](docs/M5_SEARCH_RESULTS.md),
+**CLOSED / PASS**. Reject LTO; retain fused projection preparation and exact
+integer/binary64 scaling. Matched cached-token delivery falls **13.27 → 12.10 s**
+(**1.0962× throughput, 0.08263 token/s**); model time **12.21 → 11.04 s**.
+Full-logit/KV/native checks, original 2/1/1 board requests and traces, overflow
+recovery, byte-identical firmware reproduction and zero-resource normal DMA
+release pass. Full requests take 91.33 / 51.09 / 51.12 s delivered; campaign
+~4 min 2 s, no marathon tests. Both fast harts, exact W8A8, timed preparation
+and the qualified 91-MHz DSP0 overlay are unchanged. The CPU/control/scalar-
+memory remainder is still 87.55%; >=1 token/s remains stretch. No M6.
+See [three reviews](docs/M5_SEARCH_REVIEWS.md), [evidence](docs/m5_search_evidence.json);
+audit with `python3 -m scripts.audit_m5_search`.
+
+**Previous qualified system:** [M5 scalar preparation](docs/M5_SCALAR_RESULTS.md),
 **CLOSED / PASS**. Four exact optimizations reduce matched cached-token delivery
 **16.74 → 13.27 seconds (1.2616× throughput, 0.07538 token/s)**; model time
 15.68 → 12.21 s. CPU/control/scalar-memory remainder falls **24.24%**.
