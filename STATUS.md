@@ -1,6 +1,21 @@
 # Current project status
 
-**Latest qualified system:** [three bounded M5 cycles](docs/M5_ITERATE_RESULTS.md),
+**Latest qualified system:** [M5 scalar preparation](docs/M5_SCALAR_RESULTS.md),
+**CLOSED / PASS**. Four exact optimizations reduce matched cached-token delivery
+**16.74 → 13.27 seconds (1.2616× throughput, 0.07538 token/s)**; model time
+15.68 → 12.21 s. CPU/control/scalar-memory remainder falls **24.24%**.
+Native/full-logit/KV checks, original 2/1/1 board requests and traces, overflow
+recovery, byte-identical firmware reproduction and normal DMA release pass.
+Original full requests improve from 143.49 / 78.86 / 78.87 s delivered to
+98.68 / 55.22 / 55.26 s. Full campaign ~4 min 19 s, no marathon tests.
+Lazy quantizer setup stays inside model timing; no hidden persistent cache.
+Both pipelined RV32MFast harts, exact W8A8 and the qualified 91-MHz DSP0 overlay
+remain unchanged. Head preparation is still the largest phase; this is not
+a hardware limit or global optimum. >=1 token/s remains stretch; no M6.
+See [evidence](docs/m5_scalar_evidence.json); audit with
+`python3 -m scripts.audit_m5_scalar`.
+
+**Previous qualified system:** [three bounded M5 cycles](docs/M5_ITERATE_RESULTS.md),
 **CLOSED / PASS**. Exact attention/LayerNorm preparation and projection range
 specialization lower matched cached-token delivery **18.46 → 16.74 seconds**
 (**1.1029× throughput, 0.05975 token/s**); model time 17.40 → 15.68 s.
