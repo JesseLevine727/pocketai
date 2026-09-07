@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "id": "m5-fast-complete-short-v1",
+  "clock_hz": 91000000,
+  "parent_policy": "tests/m5_fast/performance_policy.json",
+  "parent_policy_sha256": "b9b4cf7c80b7ec7ca24bba64d0a1e89607f4013a7a5f767e7290f69a9bcbc5bf",
+  "matrix": [
+    {"prompt": "story", "new_tokens": 2, "capture_prefill": true},
+    {"prompt": "science", "new_tokens": 1, "capture_prefill": false},
+    {"prompt": "computing", "new_tokens": 1, "capture_prefill": false}
+  ],
+  "primary_boundary": "Resident START through safe RETURN_CPU and token copy. Includes empty-cache prefill and all required metadata, transfers, numerical work and output delivery. Provisioning and independent result checks excluded and separately retained.",
+  "checks": "Original full-model prompts; exact IDs, complete final logits and valid KV, five selected original story-prefill traces, overflow rejection/non-mutation and successful recovery, safe cleanup and normal helper unload.",
+  "campaign_watchdog_seconds": 1200,
+  "per_request_watchdog_seconds": 600,
+  "scope": "Bounded full-request correctness/performance; not 1024 endurance or tail latency. Fixed-context warmup plus three measured samples are separate."
+}

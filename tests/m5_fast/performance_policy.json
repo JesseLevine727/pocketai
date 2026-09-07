@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "id": "m5-fast-short-v1",
+  "plan": "docs/M5_FAST_PLAN.md",
+  "baseline_commit": "c40d7cd7effd3e03dfc0d42232f8c4ebb61d4f9c",
+  "baseline_evidence_sha256": "1697999b5dd1d1c2f27b8dad42ff7e536a8001079a4cc7f7e39d45292aae8d85",
+  "imported_seed": {
+    "manifest": "build/m5_opt_seed_v1/manifest.json",
+    "manifest_sha256": "4b105dd9588f8c19c78fdde697966c6fc2ed76d8e97f02c82f7e0a225dd59711",
+    "original_policy_sha256": "d30dcdd8112c0b484d012a1ec697a63baae994d339c8aaa30b240cbefc7ee44e",
+    "reference_manifest_sha256": "7324fb3a88c9b7340e9aa65ea6dd43f77253f0ddf7e7aca9fb100f47f963c537",
+    "provenance": "Reuse the independently checked original seed and its original policy identity. Record this new policy separately; do not rewrite the seed to claim new provenance."
+  },
+  "hardware": {
+    "required_multiplier": "ibex_pkg::RV32MFast",
+    "required_harts": [0, 1],
+    "slow_multiplier_fallback_allowed": false,
+    "clock_hz": 91000000,
+    "minimum_setup_wns_ns": 0.250,
+    "preferred_setup_wns_ns": 0.500,
+    "setup_tns_ns": 0,
+    "hold_wns_strictly_positive": true,
+    "hold_ths_ns": 0,
+    "dsp_count": 0,
+    "floating_point_isa_allowed": false,
+    "complete_route_and_constraints": true,
+    "drc_methodology_errors_and_critical_warnings": 0,
+    "remaining_warnings_require_review": true
+  },
+  "configurations": [
+    {
+      "id": "qualified-slow-reuse",
+      "source": "Imported previous qualification; remeasure only if boundaries or harness changes prevent a valid comparison.",
+      "profile_firmware_sha256": "7352fa42bce18b90a1f80f5bd5b33424f4d534690081b9e9180dd7bd2cc0ceb5",
+      "complete_runtime_sha256": "6a004e8585f972d8d565e0c393dcbe1f58b0f05291fcaadc1f45aa5a2c33eb35"
+    },
+    {
+      "id": "fast-only",
+      "source": "New qualified fast-core overlay with byte-identical retained profile firmware and identical measurement mode; label any other hardware differences explicitly."
+    },
+    {
+      "id": "fast-plus-software",
+      "source": "Same fast-core overlay plus only retained exact software improvements. May equal fast-only if both software investigations are negative."
+    }
+  ],
+  "fixed_decode": {
+    "prompt": "story",
+    "past": 13,
+    "input_token": 257,
+    "expected_output_token": 582,
+    "expected_valid_cache": 14,
+    "reference_generation_step_zero_based": 1,
+    "reset": "Restore the same independently qualified prefill cache before every request; verify firmware identity and safely return ownership between boots.",
+    "warmup": 1,
+    "measured_samples": 3,
+    "diagnostic_samples": "Separate profiled diagnostics; never mix with the unprofiled sample set.",
+    "timeout_seconds": 120,
+    "exact_checks": ["all 50257 final logits", "all valid KV", "greedy output token"],
+    "boundaries": [
+      "Firmware cached-forward plus greedy selection",
+      "Resident host START through safe ownership return and output copy"
+    ],
+    "scope": "Seeded fixed-context decode only, not cold start, empty-cache prefill, complete generation or endurance."
+  },
+  "profile": {
+    "timestamps": "64-bit cycle differences",
+    "nesting": "Backend service is nested within model phases; GEMM/SFPU engine cycles are nested within service, never added again.",
+    "cpu_remainder": "Includes scalar arithmetic, scalar memory stalls and loop overhead; do not call it pure compute.",
+    "instrumentation": "Report enabled/disabled comparison; do not subtract an assumed profiling overhead from primary measurements.",
+    "required_focus": ["head preparation", "dynamic quantization", "LayerNorm", "smoothing"]
+  },
+  "software_investigations": [
+    "Existing SFPU REQUANT8 including expansion, transfers, launch and output packing",
+    "Persistent exact prepared metadata, shared scales and eligible head/LayerNorm specialization"
+  ],
+  "optional_software_acceptance": "Retain only exact transformations with measured net benefit; bounded negative results are valid. Freeze the candidate set after the two priority investigations.",
+  "precomputation": "Report lifecycle, identity, bounded storage, invalidation and elapsed cost; include required per-request work in the primary boundary, separately report true one-time provisioning.",
+  "final_complete_requests": [
+    {"prompt": "story", "new_tokens": 2},
+    {"prompt": "science", "new_tokens": 1},
+    {"prompt": "computing", "new_tokens": 1}
+  ],
+  "complete_request_timeout_seconds": 600,
+  "final_primary_boundary": "Resident host START through safe RETURN_CPU and copying generated IDs, including prefill and all mandatory runtime work; independent checking excluded.",
+  "final_exactness_and_safety": [
+    "Complete final logits and valid KV hashes against original independent fixtures",
+    "Affected selected traces",
+    "Bounded overflow rejection with non-mutation and successful recovery",
+    "Post-close zero pages and ownership, normal helper unload"
+  ],
+  "statistics": ["all samples", "median", "mean", "minimum", "maximum", "population standard deviation"],
+  "statistics_limit": "Three measured fixed-context observations are descriptive; no tail-latency, long-context performance or endurance claim.",
+  "default_probe_timeout_seconds": 120,
+  "final_campaign_timeout_seconds": 1200,
+  "build_budget": "One necessary clean source-pinned final FPGA implementation after focused simulation; corrected reruns only for documented failures, no duplicate build or speculative seed sweep.",
+  "stretch_tokens_per_second": 1,
+  "no_marathon_or_exhaustive_sweep": true,
+  "new_precision_variants_in_scope": false
+}
