@@ -1,5 +1,24 @@
 # Current project status
 
+**Latest qualified system:** [maximum-context M5 extension](docs/M5_CONTEXT_RESULTS.md),
+**CLOSED / PASS — >=0.1 delivered token/s at the measured maximum cached context.**
+All six final unprofiled past-1023 forwards reach 1024 valid K/V positions in
+<=9.469 s. Story averages **8.974859 s / 0.111422 token/s**; the harder science
+prefix averages **9.467926 s / 0.105620 token/s**. Worst observed margin is 531 ms.
+The matched original story baseline is 60.730311 s: **6.7667x delivered speedup**.
+Exact consumer-ready caches, selective updates and two-hart preparation retain
+the full W8A8/int16 model, both fast multipliers and the same 91-MHz DSP0 overlay.
+Cold derived preparation stays timed on FPGA (~45 s); this is last-slot resident
+decode, not long-prompt prefill, sustained generation or arbitrary-content/tail
+latency assurance. All logits/KV, original full 2/1/1 requests/story traces,
+overflow/recovery, threaded/edge tests, byte-identical rebuild and normal
+zero-resource release pass. Prior audits remain intact; intermediate misses and
+the trace-fixture checker failure are preserved. Audit with
+`python3 -m scripts.audit_m5_context`; see [evidence](docs/m5_context_evidence.json)
+and [reproduction](docs/M5_CONTEXT_REPRODUCE.md).
+**M6, ASIC/PPA and its report have not started.** The speed prerequisite is now
+met; the bounded optimization ends here. Older measurements below are historical.
+
 **Latest characterization:** [bounded M5 experiment sweep](docs/M5_SWEEP_RESULTS.md),
 **CLOSED / PASS**. All 31 predeclared experiments pass in **38 min 24 s** of the
 60-minute board cap, with no skips and normal zero-resource DMA release.
