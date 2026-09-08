@@ -24,6 +24,10 @@ def main():
                         help="bind the frozen simulation's lowRISC generic clock gate")
     parser.add_argument("--portable-syntax", action="store_true",
                         help="spell the packed zero I-cache configuration with replication")
+    parser.add_argument("--asic-register-file", action="store_true",
+                        help="bind Ibex's resettable FF register file; retain RV32MFast")
+    parser.add_argument("--fpga-no-dsp", action="store_true",
+                        help="explicit no-DSP attribute for hierarchical FPGA area experiment")
     args = parser.parse_args()
     output = args.output.resolve()
     if output.parent != ROOT / "build" or not output.name.startswith("m6_"):
@@ -80,6 +84,30 @@ def main():
         syntax_changes[str(original.relative_to(baseline))] = {
             "before": old, "after": new, "occurrences": 2, "sha256": digest(target),
             "reason": "Equivalent packed array replication; ICache remains disabled"}
+    if args.asic_register_file:
+        original = next(p for p in groups["pocketai_rtl_files"] if p.name == "pa_ibex_wrapper.sv")
+        target = output / original.relative_to(baseline)
+        content = target.read_text()
+        old, new = "ibex_pkg::RegFileFPGA", "ibex_pkg::RegFileFF"
+        assert content.count(old) == 1 and "ibex_pkg::RV32MFast" in content
+        target.write_text(content.replace(old, new))
+        key = str(original.relative_to(baseline))
+        bindings[key] = {"source": records[key]["source"], "sha256": digest(target),
+            "before": old, "after": new, "reason": "ASIC resettable register-file technology binding; RV32MFast unchanged"}
+        # Any syntax-only intermediate digest must not masquerade as the final file.
+        if key in syntax_changes:
+            syntax_changes[key]["sha256"] = digest(target)
+    if args.fpga_no_dsp:
+        assert not args.asic_register_file and not args.generic_clock_gate
+        original = next(p for p in groups["pocketai_rtl_files"] if p.name == "ibex_multdiv_fast.sv")
+        target = output / original.relative_to(baseline)
+        content = target.read_text()
+        old = 'module ibex_multdiv_fast #('
+        assert content.count(old) == 1
+        target.write_text(content.replace(old, '(* use_dsp = "no" *)\n'+old))
+        key = str(original.relative_to(baseline))
+        bindings[key] = {"source": records[key]["source"], "sha256": digest(target),
+            "reason": "Hierarchy-only FPGA area experiment: enforce the qualified no-DSP contract locally; RV32MFast logic unchanged"}
     includes = ["-I" + str(p.relative_to(baseline)) for p in groups["pocketai_include_dirs"]]
     sources = [str(p.relative_to(baseline)) for k in ("pocketai_rtl_files", "pocketai_verilog_files")
                for p in groups[k]]

@@ -117,6 +117,7 @@ def collect():
         record(str(path.relative_to(ROOT)))
 
     return {"schema": 1, "status": "PREFLIGHT_ONLY_M6_INCOMPLETE", "m6_pass": False,
+        "snapshot_scope": "Historical single-SRAM preflight; newer full-port progress is in docs/m6_port_evidence.json",
         "baseline_commit": "7405919", "artifacts": dict(sorted(artifacts.items())),
         "board_watts": {"status": "USER_DEFERRED", "value": None},
         "fpga": {"scope": "qualified full PYNQ-Z1 system; reused frozen physical measurements",
@@ -133,11 +134,15 @@ def collect():
             "standalone_macro_lvs": {"status": "FAIL_NETLISTS_DO_NOT_MATCH",
                 "scope": "original SRAM GDS versus supplied SPICE; public KLayout deck",
                 "deck_change": "omit unavailable pmap from logging and normalize trailing blank line; extraction/comparison unchanged",
-                "waiver": False},
+                "waiver": True, "acceptance": "USER_DEFERRED_INTERNAL_VERIFICATION_RESEARCH_ONLY"},
+            "sram_leakage_data": "USER_DEFERRED_UNAVAILABLE_NOT_ZERO",
             "qualified_workload_power": None,
             "power_limitation": "Default activity only; SRAM Liberty leakage is zero/unqualified; no VSRC placement."},
         "full_system_asic": {"memory_mapping": "NOT_IMPLEMENTED", "chip_interface": "NOT_IMPLEMENTED",
             "functional_equivalence": "NOT_RUN", "pnr": "NOT_RUN", "timing_100mhz": "NOT_RUN",
+            "timing_100mhz_gate": "USER_DEFERRED",
+            "timing_at_declared_operating_clock": "REQUIRED_NOT_RUN",
+            "declared_operating_clock_mhz": None,
             "area": None, "power": None, "throughput": None, "mpw_submission": "NONE"}}
 
 

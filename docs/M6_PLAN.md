@@ -1,9 +1,11 @@
 # M6 — Sky130 port and evidence-led PPA report
 
-Status: **ACTIVE; not qualified.** Baseline `7405919` was pushed to
+Status: **WAITING FOR STORAGE; research-only scope, not qualified.** Baseline `7405919` was pushed to
 `origin/main` on 2026-09-08 before this work began. M1–M5 and every subsequent
 FPGA performance qualification remain frozen. This document records the M6
-acceptance details before any ASIC RTL changes; it does not claim a port exists.
+acceptance details before the ASIC RTL changes. The current port passes RTL
+functional, synthesis and macro-placement/power-grid connectivity checks;
+routed timing and chip-level physical qualification remain open.
 
 ## Scope and explicit decisions
 
@@ -27,6 +29,28 @@ available to this workflow. Mark that measurement deferred, never zero and
 never replace it with nominal supply ratings. Any tool power analysis must
 state its activity source, corner, voltage, frequency, scope and coverage.
 
+The user also explicitly deferred the **100-MHz ASIC closure requirement** on
+2026-09-08. Reaching 100 MHz is no longer a hard M6 gate. No replacement clock
+has been qualified. The current candidate is 12.5 MHz system / 25 MHz memory.
+The previous direct-clock-as-phase revision failed its 25-MHz system candidate;
+the revised separate-phase-data netlist has passed functional/synthesis/PDN
+checks but has not yet completed standard-cell placement or routed timing.
+The port must still close setup and hold timing
+at its declared operating clock, with macro-boundary and constraint coverage
+checked. Report the achieved clock and corresponding performance honestly;
+do not relabel a failed 100-MHz run as passing. The existing 100-MHz SRAM probe
+result and qualified 91-MHz FPGA baseline remain unchanged.
+
+In a subsequent explicit approval on 2026-09-08, the user deferred
+**SRAM-internal verification and unavailable SRAM leakage-power data** for a
+research-only M6 result. SRAM22 may therefore be integrated as third-party IP.
+Retain the failed standalone LVS result and distinguish this acceptance
+deferral from verification success. Missing leakage stays unavailable, not
+zero; do not claim complete power or energy per token from partial data.
+These decisions do not waive full-system functional checks, memory-interface
+equivalence, macro-boundary timing, routing/DRC, or our power connectivity.
+They do not authorize fabrication or a fabrication-ready claim.
+
 ## Ordered gates
 
 1. **Baseline and feasibility.** Preserve/push the baseline; verify the frozen
@@ -39,7 +63,8 @@ state its activity source, corner, voltage, frequency, scope and coverage.
    them against the qualified memories. No missing/black-box memory may make
    area or timing appear artificially favorable. Preserve fast multipliers.
 3. **Implementation.** Run bounded synthesis/floorplan feasibility before full
-   placement/routing. The original ASIC target remains **100 MHz**. Declare
+   placement/routing. **100-MHz closure is deferred by the user**; qualify and
+   report the implemented operating clock instead. Declare
    clock/I/O constraints and library/RC/PVT corners; verify setup, hold,
    unconstrained paths and macro boundary timing. Do not present typical-corner
    analysis as worst-corner or tapeout signoff. Timing failure is not a pass.
@@ -84,11 +109,11 @@ SRAM GDS layers and a separate public KLayout LVS run does not match the
 supplied SRAM schematic. The public extractor lacks the special SRAM device
 models in that schematic; internal SRAM verification is not qualified.
 
-No signoff switch was disabled to hide these results, and no SRAM internals
-have been black-boxed for a claimed LVS pass. Before selecting this memory for
-the full-system port on a third-party-IP basis, ask whether its internal
-verification may be explicitly deferred for a research PPA release. That scope
-would still require full-system functionality, macro-boundary timing, our
-logic/routing/power connectivity checks and truthful PPA, and would not mean
-fabrication-ready. The user has deferred only measured board watts so far.
+The user has now approved the third-party-IP research scope described above.
+Internal SRAM checks may be excluded from the integration LVS scope only if
+that boundary is explicit; never report an SRAM-internal LVS pass. Preserve
+original GDS manufacturing layers, use KLayout for stream-out/public DRC, and
+keep the failed Magic experiment. Full-system functionality, macro-boundary
+timing, our logic/routing/power connectivity checks and truthful PPA remain
+required. Deferral does not fix the failed comparison or supply missing data.
 The [preliminary report](PPA_REPORT.md) is not M6 closure.

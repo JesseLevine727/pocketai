@@ -1,14 +1,35 @@
 # Current project status
 
-**M6 ACTIVE:** the qualified startup release `7405919` is pushed. The next
+**M6 WAITING FOR STORAGE; research-only scope, not qualified:** the qualified
+startup release `7405919` is pushed. The current
 goal is the Sky130 port and PPA report under [M6 acceptance](docs/M6_PLAN.md).
-The full system elaborates; a single-SRAM probe passes extracted 100-MHz
-timing and the public KLayout DRC run, but its standalone LVS does not match
-and Magic cannot ingest all SRAM layers. No full-system ASIC pass is claimed.
+The complete SRAM-backed system passes the original dual-hart GEMM/SFPU
+firmware, two boots, packet-abort recovery and 14 lifecycle cases, with the
+unchanged 16,477,049-cycle result. Its 47 mapped arrays use 292 SRAM macros;
+synthesis and macro-placement/power-grid connectivity checks pass. The digital
+SPI loader also boots both real fast-multiply harts and returns UART output.
+The revised adapter keeps 47 phase-data registers separate from the system
+clock. It passes those functional gates again, synthesis and all 292-macro
+power-grid connections. Earlier placement/CTS used the superseded phase
+topology and failed the 25-MHz candidate; those results do not qualify this RTL.
+No routed ASIC or pad-level chip pass is
+claimed. A separate single-SRAM probe passes extracted 100-MHz timing/public
+DRC, but standalone SRAM LVS does not match; its internal checks are deferred.
 See the [preliminary PPA report](docs/PPA_REPORT.md) and
-[preflight reproduction](docs/M6_PREFLIGHT_REPRODUCE.md). Measured
-physical-board watts are explicitly deferred by the user; missing measurements
-will not be replaced by nominal ratings. Earlier milestone entries below are
+[port evidence](docs/m6_port_evidence.json) and
+[full-port reproduction](docs/M6_PORT_REPRODUCE.md). Measured
+physical-board watts and the 100-MHz ASIC closure requirement are explicitly
+deferred by the user. Timing must still close at the declared implementation
+clock; the 12.5-MHz system / 25-MHz memory candidate is not qualified yet. The user has also deferred
+SRAM-internal verification and unavailable leakage data, permitting SRAM22 as
+third-party IP without a fabrication-ready claim. Full-system functionality,
+macro-boundary timing and our routing/power checks remain required.
+Only about 7.4 GiB is free after lossless deduplication of completed M6 views.
+The next physical stage stopped at the 10-GiB storage guard. More working space
+is needed; 30 GiB free is recommended before continuing routing/extraction.
+All evidence paths/content and unrelated user files remain intact.
+Missing measurements will not be replaced
+by nominal ratings. Earlier milestone entries below are
 historical, frozen qualifications, not the current M6 status.
 
 **Latest qualified system:** [M5 startup and prompt-inclusive performance](docs/M5_STARTUP_RESULTS.md),
