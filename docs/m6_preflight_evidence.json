@@ -1,0 +1,1802 @@
+{
+  "artifacts": {
+    "asic/m6/fpga_inventory.tcl": "9f6b89301565e666bb546276ae67f1146553f6fac28126d83639ffb6134758d2",
+    "asic/m6/rtl/pa_m6_sram_probe.v": "c0783d0a92a5bf6c9fc142835a7dd90462e58b0d02728be107fef1acc29237b9",
+    "asic/m6/sram_probe.json": "a4268223eb0132c2f60e9c7a25883ae3e406bb5bc78e4b5f9fac7c7f90acbabb",
+    "asic/m6/sram_probe_pdn.tcl": "3ffac95c5285a589599169d552c57c99f82e02d33dbbe0a005564cabd4476d1c",
+    "asic/m6/tools.json": "cf9a879320eb983f03ce8a61bcf78385b0b7d5e564a2df0dea8219f2c69cd949",
+    "build/m6_elaboration_v4/conversion.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/m6_elaboration_v4/converted.v": "8313e092168f2440c8a4e2ff1bc2f97488bc57e41750e1ae0b72a89c4fa15cdb",
+    "build/m6_elaboration_v4/elaborated.json": "d3089d177129000659567b52e66777bce5ff9041f8fb7c327c539419d9a94d5a",
+    "build/m6_elaboration_v4/elaboration.log": "8f68e58717390037904914ad2bf15610f2ff7f53397987e2e68c440725867d8f",
+    "build/m6_elaboration_v4/manifest.json": "cf4004a258198be58a64afa077e025fef5ae914290daf0aa6bde7f7eab65e62d",
+    "build/m6_elaboration_v4/memories_checked.json": "43ce3daf7e58f61529679c441a0f545d0994e8f201ea4f68174cfdf9cd36b904",
+    "build/m6_fpga_inventory_v2/clocks.rpt": "a4f867c704d7b9e66b26d9ee3990064226f9da1a0c556a6fbb7ad3d0db012284",
+    "build/m6_fpga_inventory_v2/data_mirror_storage.rpt": "ec92249f6c51a0c4fa19f8360d2cb938cba37e9f136af591fe9e57adadc04c1f",
+    "build/m6_fpga_inventory_v2/gemm.rpt": "f264745c851b3e457b9d2f178ac719265c661dad14bd6f3568c102a68f903ed2",
+    "build/m6_fpga_inventory_v2/hart0.rpt": "3c03827c978aecf1312c51e0abcdd218122c6e351a233a52cdc32bae38151dd7",
+    "build/m6_fpga_inventory_v2/hart1.rpt": "2fba6c801dcc72964d9a1f810d0966252ab092e91e07f553bb34966c7127a3a9",
+    "build/m6_fpga_inventory_v2/hierarchy.rpt": "f114eca5e9469865c7ff0e03dad91f98875bdbcba258c5934e1a9a7904bd1d84",
+    "build/m6_fpga_inventory_v2/instruction_mirror_storage.rpt": "ac7ad24351197572d5855dbdd7e8a772e7a44c74ef87063dda5b3a6975c7eca0",
+    "build/m6_fpga_inventory_v2/other_portable_control.rpt": "bf53ca2359b250ee20785a04f1f644bc4b629a61717168d50b8f5b9be368787f",
+    "build/m6_fpga_inventory_v2/platform_shell.rpt": "62298c355489e5f4641829c5182ea56545c84bd63f16f61359ee728c9dbfb27d",
+    "build/m6_fpga_inventory_v2/scratchpad.rpt": "698c8ecfaed02a38280239f80fe49ab6932c5fd3de15660900232321871824d1",
+    "build/m6_fpga_inventory_v2/sfpu.rpt": "2d9b79ced9ec7b2f6fbd319d6c9a3405123d8eb5430f7c9e3959046d38f806b7",
+    "build/m6_macro_preflight_v1/2k.lef": "e35072ac14a991285619477f13c80fd3837e76ef7ed354ae6ab80d9232ce7a2e",
+    "build/m6_macro_preflight_v1/2k.lib": "8656384775f5e10b44bed97b7193dd3188ce8cd60b7c8e02a5a4ad9e35ed03ba",
+    "build/m6_macro_preflight_v1/2k.v": "2712357fbc3d1ee3343c4bcb7d630de92ca87d869fb5d50d1d3cea967f288208",
+    "build/m6_macro_preflight_v1/2k_generation.log": "f41dd46ab8a6bf6fdabbeeab9e8bebd2629de7de2923f7ecb192e6ead638bd12",
+    "build/m6_pdks/sky130A/libs.tech/klayout/drc/sky130A_mr.drc": "6cbb73fc445eae75e7827a7eaa94d79dd107205dbef28b01c9a15685746919e2",
+    "build/m6_pdks/sky130A/libs.tech/klayout/lvs/sky130.lvs": "447865a68283a0b21ed3ed48162a273f60703bb11851cc9f59e393bf0120bfa2",
+    "build/m6_preflight_logs_v1/m6_baseline_audit_v1.log": "5b2810d9d3d7816b0f34b9537c98cd0d34a79ee19e5f1cee9f28ee159dc27b88",
+    "build/m6_preflight_logs_v1/m6_baseline_audit_v2.log": "a715defdbae85d36e3dd5bc196e23e031b43fc17ac1ca893698e564d0279013c",
+    "build/m6_preflight_logs_v1/m6_fpga_inventory_v2.log": "884251253790988e692790a4f4d6591dc10b910c988ac640352afd03b5fa12cd",
+    "build/m6_preflight_logs_v1/m6_preflight_tests_v2.log": "4703644320a1bc45fc38a1809f7b0b1bcbae10e1cf6b387f4c9602c3eee060de",
+    "build/m6_preflight_logs_v1/m6_report_prose_audit_v2.log": "0f0ddc52f5f12e54ad3ca367ee4abe165d77745c8a05e58d3584980d0a46f946",
+    "build/m6_preflight_logs_v1/m6_sram512_fetch_v1.log": "23a20f5f31cfb9c001253eaf5f3c5fd1773bf509c7cdd7cc311c5f37659e36a5",
+    "build/m6_preflight_logs_v1/m6_sram_probe_v1.log": "a1e61dbb1fa3c1c362a6cac583a10005242882bb8b7342ef1d85cef60f7772fa",
+    "build/m6_preflight_logs_v1/m6_sram_probe_v2.log": "7ad9f48c1ee3299fdc473fa086c6a1ff62f628586638b6ee1fcf0d9d0c2e33e1",
+    "build/m6_preflight_logs_v1/m6_sram_probe_v4.log": "92432bdf5a77aa83c3310542ad4d3250b81ac2894a67ec30cf1e748d0b74f9a3",
+    "build/m6_preflight_logs_v1/m6_tool_smoke_v1.log": "c596ab129eb67b421a2a42f3309a023c63b55dc5d35edfecfc6dd1f987425dc9",
+    "build/m6_sram512_v1/LICENSE": "e91ff698e1cf0345aee8cb35c3d815ca230919a6219d1c2865d46f0fbbbd3cad",
+    "build/m6_sram512_v1/sram22_512x32m4w8.gds.gz": "34d989098723fe4ed0cab1f0dbcf800724689c40b4280f9794b2c7e573b2d60b",
+    "build/m6_sram512_v1/sram22_512x32m4w8.lef": "09ccad5be8a496091763dfc2656e008ab7169f94f8ae797503794a4117fad56b",
+    "build/m6_sram512_v1/sram22_512x32m4w8.spice": "3199c16367d0c156a5cf56104fc8a1ae8b0ea7411492b88dd4c02c62908e68b8",
+    "build/m6_sram512_v1/sram22_512x32m4w8.v": "e60858b7b783c626d783674c56fd578b3785febfe025fac2f5dff47d8e9ddbef",
+    "build/m6_sram512_v1/sram22_512x32m4w8_ff_n40C_1v95.lib": "7986a128c686c65adffd2564b988a9c5163d513e987cceeffc7064d67b7e7481",
+    "build/m6_sram512_v1/sram22_512x32m4w8_ss_100C_1v60.lib": "75de15985f27c7f1232c50b2fae4324a3e6ef51b770ab113ee8beaaa25a24ba8",
+    "build/m6_sram512_v1/sram22_512x32m4w8_tt_025C_1v80.lib": "3dcbc059294e0f54a7f5111046d23c4e759ea9f053f353b01a00a1fb1da32e68",
+    "build/m6_sram_klayout_drc_v1/drc.xml": "9a3ca79e521dbecf5234fab4fd21aae92f495202b4d5733eddb261c1b121acbb",
+    "build/m6_sram_klayout_drc_v1/run.log": "ff1588a076af9d39c4a9af9f333e7c4aa8bc00b04f9229f3a8707e0e3b889f66",
+    "build/m6_sram_klayout_lvs_v2/extracted.cir": "e5f692b98b1fba888b0dfacef34debf13db83b463ed4cc001dee07c32bd079d8",
+    "build/m6_sram_klayout_lvs_v2/lvs.lvsdb": "5dc6e868d811d692f7e81b758f1195b7cfcfafe2561838d2bc803c4797193d0b",
+    "build/m6_sram_klayout_lvs_v2/run.log": "fac16d759db9dac995f4b9c3e1f971ba830292283368ce481b496ef929170f13",
+    "build/m6_sram_klayout_lvs_v2/sky130.lvs": "db729471b36e69c0ce5b82e4f84babe68c2ffc7694f93d34c9ab343ea0094a9b",
+    "build/m6_sram_probe_v4/boundary_check.json": "6b9809efd8afead7909e49cbfbab9c842948e2f76ba50809a53abfe574b20400",
+    "build/m6_sram_probe_v4/config.json": "625ad4f7f4ce77aadfa2e131aa2caebb988bc65c355e1bb4290bcd0c0af5f3b5",
+    "build/m6_sram_probe_v4/runs/probe_v1/51-openroad-fillinsertion/pa_m6_sram_probe.nl.v": "194a099f63a40931693c54d08d94e6d623f09422f89c2b228966f1aa37eea040",
+    "build/m6_sram_probe_v4/runs/probe_v1/51-openroad-fillinsertion/pa_m6_sram_probe.pnl.v": "d79a7fa6053c9d45f8fd709a4be9f4faae36d0ad767b74656fbe827edea555e1",
+    "build/m6_sram_probe_v4/runs/probe_v1/51-openroad-fillinsertion/pa_m6_sram_probe.sdc": "d22d0c1cfa26cc4cb3a3b966d7bf289159c1c24ad5235a1662d1c6c0942e7a27",
+    "build/m6_sram_probe_v4/runs/probe_v1/52-odb-cellfrequencytables/pa_m6_sram_probe.def": "446a51b2af6c2a81158804f65ff2846ba823d940c74586181664b884e5f9622c",
+    "build/m6_sram_probe_v4/runs/probe_v1/53-openroad-rcx/max/pa_m6_sram_probe.max.spef": "c534d31f83a17e8f90697902fab58d94c8149becf5bf0bccce22794c9fbf2239",
+    "build/m6_sram_probe_v4/runs/probe_v1/53-openroad-rcx/min/pa_m6_sram_probe.min.spef": "ce265a34df84432ea5425797f6862cc14aa7ccba7a76494f0c7f5ba330d0eaab",
+    "build/m6_sram_probe_v4/runs/probe_v1/53-openroad-rcx/nom/pa_m6_sram_probe.nom.spef": "5520a124a7cb36a40f9f1737f6c33b8752fc95eaa0a9e4583466bcaf8c2db1b1",
+    "build/m6_sram_probe_v4/runs/probe_v1/54-openroad-stapostpnr/max_ss_100C_1v60/pa_m6_sram_probe__max_ss_100C_1v60.lib": "5b00d37382814de16b22562f7e43284973a3d9c46a072223e204a74ebccb8ba6",
+    "build/m6_sram_probe_v4/runs/probe_v1/54-openroad-stapostpnr/max_ss_100C_1v60/pa_m6_sram_probe__max_ss_100C_1v60.sdf": "1ea76bd11e73d5e0adffef58024a035839470cbc447608805883f57e3130e5f7",
+    "build/m6_sram_probe_v4/runs/probe_v1/54-openroad-stapostpnr/min_ff_n40C_1v95/pa_m6_sram_probe__min_ff_n40C_1v95.lib": "7fbc0664d3ce3fe7fe95a4eec5415c33774e19ea9c72d74b5dde01a19a347365",
+    "build/m6_sram_probe_v4/runs/probe_v1/54-openroad-stapostpnr/min_ff_n40C_1v95/pa_m6_sram_probe__min_ff_n40C_1v95.sdf": "0b4ded71ebee2c07fc3897933a040326fae8fad7d326d73aee07c5ff77cdb5c7",
+    "build/m6_sram_probe_v4/runs/probe_v1/54-openroad-stapostpnr/nom_tt_025C_1v80/pa_m6_sram_probe__nom_tt_025C_1v80.lib": "a31142ee39b4b8d72ecb1fbd016da41bbfa59cc5925d39003ccf5808946742b1",
+    "build/m6_sram_probe_v4/runs/probe_v1/54-openroad-stapostpnr/nom_tt_025C_1v80/pa_m6_sram_probe__nom_tt_025C_1v80.sdf": "a23e3449eb946213fcf94e252dcc3e5c4648e2442f2304e35000277bd330ce9e",
+    "build/m6_sram_probe_v4/runs/probe_v1/54-openroad-stapostpnr/state_out.json": "0ab5fb4fbde18adab61537356bfeb66788f95c15455c7b619ab497caed87b86e",
+    "build/m6_sram_probe_v4/runs/probe_v1/55-openroad-irdropreport/state_out.json": "8da54fe54da46b996f83f4cb0c6c79bbe604587792c4a9d92facc82c8c9d3b81",
+    "build/m6_sram_probe_v4/runs/probe_v1/57-klayout-streamout/pa_m6_sram_probe.klayout.gds": "7eba1798bae14434bfceddabe81a20bf3671d0cbcab533470481cba58cbba792",
+    "docs/m5_startup_evidence.json": "b89e7ba8eafeaa8b57b8a7bc7ee4c7af79137369ab8135e5384fa49dc542cdcf",
+    "scripts/m6_add_pr_boundary.py": "7e9d59617492512888a8398d7f89116726e1a3512ee4051065bee87ff192e4ed",
+    "scripts/m6_fetch_sram.sh": "8a52cc0d50c48bf7c80b9760f9812c68e7688731fd2c789a13d11fd9c263822f",
+    "scripts/m6_memory_inventory.py": "372df62d346193de6963fcf177a5aade63f13e74ae4ce7dc2e38ee061b89b0e3",
+    "scripts/m6_preflight_evidence.py": "850e632205b7ab589ea34ab7eca1ef323f50dd757affeded653b6abd66eb506d",
+    "scripts/m6_run_sram_probe.sh": "0d25f9a6428b7a334ea46e297976af4fa7640bc8b76ead33589ab2e46f14c2a5",
+    "scripts/m6_stage_rtl.py": "2d0129709a23a74c4e8d7e8c34b676640badf7165f6e9d1c368f4982deff25bb",
+    "tests/m6/test_preflight.py": "f2a694f1171ca3834045d5a117b71e4795d3aa9ce803939119f0418606742b59"
+  },
+  "baseline_commit": "7405919",
+  "board_watts": {
+    "status": "USER_DEFERRED",
+    "value": null
+  },
+  "elaboration": {
+    "manifest": {
+      "asic_memory_mapping": false,
+      "baseline_commit": "7405919",
+      "baseline_evidence_sha256": "b89e7ba8eafeaa8b57b8a7bc7ee4c7af79137369ab8135e5384fa49dc542cdcf",
+      "chip_pads": false,
+      "elaboration_script_sha256": "e8572a82b311cc453c1282ce53aaedb4ff29827c0579a5a2ceb2c7f4279b4c64",
+      "sources": {
+        "exp_q24.mem": {
+          "sha256": "8db26c8bcf50cb40c9e1a8a91c0ab3a36336b851ac28d4f2d4fffe6435562e35",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/exp_q24.mem"
+        },
+        "gelu_q8.mem": {
+          "sha256": "1d926a3a1e189eee3b22bae953cc1310727ffbfd57cb0a5fd53f56295f60389d",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/gelu_q8.mem"
+        },
+        "pocketai_sources.tcl": {
+          "sha256": "4c57dd67c026069d4ec12d9dd5bd35231a47bf86b3c26e1f27c1d1464836f20c",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/pocketai_sources.tcl"
+        },
+        "src/lowrisc_dv_dv_fcov_macros_0/dv_fcov_macros.svh": {
+          "sha256": "d8d02ae47a12d78f611e15e4ab6e14775b55a0bdbb0815f36fbe8ddb242984ae",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_dv_dv_fcov_macros_0/dv_fcov_macros.svh"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_alu.sv": {
+          "sha256": "06ce1c3ce30807f715478cf9e3bc279cac1c1cc2fb95d289516169fadcf7b7dc",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_alu.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_branch_predict.sv": {
+          "sha256": "78d4120eac2606e34b9338581eac55e3ba3b48c718799a46a887ac9efab2240e",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_branch_predict.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_cheriot_ex.sv": {
+          "sha256": "9784c9376f8343cf8d435fe4b7ee9eeda02b15df6a5bc1dc6ef6fb1bddb1cba9",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_cheriot_ex.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_compressed_decoder.sv": {
+          "sha256": "bea22598e9e5f734ace93826eafd01914d2b63565ee0b7e8c8deff25369fbfbd",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_compressed_decoder.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_controller.sv": {
+          "sha256": "bc3211faf87435b07922e3e61646ef83247ab86c5938d4cd2e108802a4357860",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_controller.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_core.sv": {
+          "sha256": "88b8bf3907472f1d413380f62234a7fbf53cb1de392a6660e6ef2d684a2416fd",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_core.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_counter.sv": {
+          "sha256": "0e953e2e05b5070833029d0f6fed6d3a48fbd3c02dc05785962fb0d451425d8e",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_counter.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_cs_registers.sv": {
+          "sha256": "898d036f141bdf742c0c772a5493b4bccc9636ffd7c57d3cc37011d233954548",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_cs_registers.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_csr.sv": {
+          "sha256": "6533fffc57e233b3961ebd94722a14a1a4320771ce4a76e69481bf2deb1d8514",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_csr.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_decoder.sv": {
+          "sha256": "842b520e4a942b6a27f3c44f7e8784e4a8dd40d7531a0ec3dd338f624be18217",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_decoder.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_dummy_instr.sv": {
+          "sha256": "8899ec7fcd6df73d7ea96ad25e73f664ee2ae2a95b2186a36a7ab885e16e292e",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_dummy_instr.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_ex_block.sv": {
+          "sha256": "160574c6b909276bdc9c4bf370eba7fb1f2942a8f08c62daafc57c9b4b0fef15",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_ex_block.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_fetch_fifo.sv": {
+          "sha256": "3e0b48b771055ea50356cdff418decae16e7d9586a7f953e6799112b238bb63c",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_fetch_fifo.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_id_stage.sv": {
+          "sha256": "1e9d382752cf9f13477f279ddc3f73a2b3d7bbd8e5cf8e4a7a9d755f6162c5f1",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_id_stage.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_if_stage.sv": {
+          "sha256": "8b99f212f06aa942e53e8a768863587ffdc29176f5a486c6e273262311c9f6ae",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_if_stage.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_load_store_unit.sv": {
+          "sha256": "7fe4d5c261420f9862783978c9d9370a65dae6f360b5780f7afca19b090a8791",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_load_store_unit.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_multdiv_fast.sv": {
+          "sha256": "5ec64287fb4e01e14083132943e24191fcbadc46e72ac46fcc2778c874e2d09a",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_multdiv_fast.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_multdiv_slow.sv": {
+          "sha256": "0ccf19b17783c7c919489d2e20ce445d6313b134f29163f1e4944fbde7ba4378",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_multdiv_slow.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_pmp.sv": {
+          "sha256": "a564fb312d5337b0875d16f434e8b69348e12c2560548fad93f9270f9c4b9176",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_pmp.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_prefetch_buffer.sv": {
+          "sha256": "988ca05039f033c0eef9feffba996771c3449f255c64d7d78de04e1984249ccc",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_prefetch_buffer.sv"
+        },
+        "src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_wb_stage.sv": {
+          "sha256": "872d8df3b3f3fd9ba781eabd3897bd3b74d2b3af2d2898ab5799371d05b04e8a",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_core_0.1/rtl/ibex_wb_stage.sv"
+        },
+        "src/lowrisc_ibex_ibex_icache_0.1/rtl/ibex_icache.sv": {
+          "sha256": "7b250650b7cdc056976f13bfa070b6d05eb5febe2e311a7cfa684de1711b91f9",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_icache_0.1/rtl/ibex_icache.sv"
+        },
+        "src/lowrisc_ibex_ibex_pkg_0.1/rtl/ibex_cheriot_pkg.sv": {
+          "sha256": "d8b5b51ce99129ebd0c6436689cd85883760ca98f15f45c8a18b977549d007c4",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_pkg_0.1/rtl/ibex_cheriot_pkg.sv"
+        },
+        "src/lowrisc_ibex_ibex_pkg_0.1/rtl/ibex_pkg.sv": {
+          "sha256": "d9bfed30b16dd77981f1850a8daf56fec5ce14043789b4a0a4506c833e9a7d5a",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_pkg_0.1/rtl/ibex_pkg.sv"
+        },
+        "src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_lockstep.sv": {
+          "sha256": "ee0fb3df1a86ecb66554a214efae0a7971aa1d5c545b9f7592ca86b780163341",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_lockstep.sv"
+        },
+        "src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_register_file_ff.sv": {
+          "sha256": "cb758da72120fa1ab7c3837408ef10ab96375edf727f6400d606ff5850e68a93",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_register_file_ff.sv"
+        },
+        "src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_register_file_fpga.sv": {
+          "sha256": "ae98b043c2fec8ae44784157d559673518b1febda4eb7d5862ef07094b6cf3fc",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_register_file_fpga.sv"
+        },
+        "src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_register_file_latch.sv": {
+          "sha256": "0e4100338abc2ef9720fe5ad3be4eb53e73e2d25d95eacfdbe45b557133f8727",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_register_file_latch.sv"
+        },
+        "src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_top.sv": {
+          "sha256": "0db761a029b18d17271200a7ffe438c856db53423efa25912ba7ce60948cdfc5",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_top.sv"
+        },
+        "src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_trvk.sv": {
+          "sha256": "5a1c0d84473121bbb705ddc096499de76de84eb70c20e37a72ef3237361aca49",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_ibex_ibex_top_0.1/rtl/ibex_trvk.sv"
+        },
+        "src/lowrisc_prim_assert_0.1/rtl/prim_assert.sv": {
+          "sha256": "d717d5dbcba3b5aa8a731ef9f8af18b036b49edef282f0a43a51f5ad2dd9bb40",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_assert_0.1/rtl/prim_assert.sv"
+        },
+        "src/lowrisc_prim_assert_0.1/rtl/prim_assert_dummy_macros.svh": {
+          "sha256": "cac4a930105da662547de873f0b80246074fb22df9a398663e1c8ac3e7998218",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_assert_0.1/rtl/prim_assert_dummy_macros.svh"
+        },
+        "src/lowrisc_prim_assert_0.1/rtl/prim_assert_sec_cm.svh": {
+          "sha256": "25db89fe5f250c1bcbd808d0b4808206b9e85ac337b26e4ebb23f2ad569e1a13",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_assert_0.1/rtl/prim_assert_sec_cm.svh"
+        },
+        "src/lowrisc_prim_assert_0.1/rtl/prim_assert_standard_macros.svh": {
+          "sha256": "4835706249e017eae999256ea807c526a39a49729196fc0aa18bb8818de86ab6",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_assert_0.1/rtl/prim_assert_standard_macros.svh"
+        },
+        "src/lowrisc_prim_assert_0.1/rtl/prim_assert_yosys_macros.svh": {
+          "sha256": "d1fd8c350785a7c6d8cccc0b0c385392b71575397e7dc58c70f07716c8f9f3a3",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_assert_0.1/rtl/prim_assert_yosys_macros.svh"
+        },
+        "src/lowrisc_prim_assert_0.1/rtl/prim_flop_macros.sv": {
+          "sha256": "2e8e6c2ee484899ae5d0020eaf0c9732c31537c60c30cb2a0a0acd2e92baee03",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_assert_0.1/rtl/prim_flop_macros.sv"
+        },
+        "src/lowrisc_prim_cdc_rand_delay_0/rtl/prim_cdc_rand_delay.sv": {
+          "sha256": "6b0f9f46a5559a354c9770e6eb7a4721b50b09d40d34b4efb62218c7a777829c",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_cdc_rand_delay_0/rtl/prim_cdc_rand_delay.sv"
+        },
+        "src/lowrisc_prim_cipher_0/rtl/prim_present.sv": {
+          "sha256": "7a6ae0e88160d93b5f70460e41806ef2b7b5b5726e2aa8038cf7cfab281d890c",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_cipher_0/rtl/prim_present.sv"
+        },
+        "src/lowrisc_prim_cipher_0/rtl/prim_prince.sv": {
+          "sha256": "e3fa14d45eebe18e6404370540648d1037887877dbde4b22fddd83c2b43d1e0d",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_cipher_0/rtl/prim_prince.sv"
+        },
+        "src/lowrisc_prim_cipher_0/rtl/prim_subst_perm.sv": {
+          "sha256": "6cae23ff8a3c6d1dc775c2a55280f532cef98a9a6c787a2d717c50b5854ee3a6",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_cipher_0/rtl/prim_subst_perm.sv"
+        },
+        "src/lowrisc_prim_cipher_pkg_0.1/rtl/prim_cipher_pkg.sv": {
+          "sha256": "9cd66bdbc64020e3fe1f14a5baee30a93609b7887a9d21df7991929087b0973f",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_cipher_pkg_0.1/rtl/prim_cipher_pkg.sv"
+        },
+        "src/lowrisc_prim_count_0/rtl/prim_count.sv": {
+          "sha256": "b48580aefff674a48a674489c9b21a98d5399ca5b4c7623f3a7c907a75d8f0cb",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_count_0/rtl/prim_count.sv"
+        },
+        "src/lowrisc_prim_count_0/rtl/prim_count_pkg.sv": {
+          "sha256": "8e465ed25b7d59f29faf0f315243a774cf0e50d178ec2068d8c71983cb2f18df",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_count_0/rtl/prim_count_pkg.sv"
+        },
+        "src/lowrisc_prim_fifo_0/rtl/prim_fifo_assert.svh": {
+          "sha256": "9cd4f9edd759567ff6941618477117765e44e810627480b89f41211ea8ba8517",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_fifo_0/rtl/prim_fifo_assert.svh"
+        },
+        "src/lowrisc_prim_fifo_0/rtl/prim_fifo_async.sv": {
+          "sha256": "0fde480a5f513a4273540e0d70c7502d0e179b759414e3020c8d4d3d349cf6c7",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_fifo_0/rtl/prim_fifo_async.sv"
+        },
+        "src/lowrisc_prim_fifo_0/rtl/prim_fifo_async_simple.sv": {
+          "sha256": "4a7e4c2543194473227cb93f7d6de71bdaa2136d0abafbd0fe40e980fd1cf21a",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_fifo_0/rtl/prim_fifo_async_simple.sv"
+        },
+        "src/lowrisc_prim_fifo_0/rtl/prim_fifo_async_sram_adapter.sv": {
+          "sha256": "1fb4405f2aa48894d9afe63775e14904bca8d4df8384f5f430757a8f5f290e0f",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_fifo_0/rtl/prim_fifo_async_sram_adapter.sv"
+        },
+        "src/lowrisc_prim_fifo_0/rtl/prim_fifo_sync.sv": {
+          "sha256": "2655befe56a70ee672c2f1259a82ef2beb2adf429ed0405bcf26bea7c4de3630",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_fifo_0/rtl/prim_fifo_sync.sv"
+        },
+        "src/lowrisc_prim_fifo_0/rtl/prim_fifo_sync_cnt.sv": {
+          "sha256": "be647efa36aa4228db8a9151ac07c83a95cdd9aef71a4488fa619a876d809fbc",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_fifo_0/rtl/prim_fifo_sync_cnt.sv"
+        },
+        "src/lowrisc_prim_generic_clock_div_0/rtl/prim_clock_div.sv": {
+          "sha256": "3d2ef35a6e0b2215cbc78b24979c27d916e6757a27d738f86b74c88bbc018f31",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_generic_clock_div_0/rtl/prim_clock_div.sv"
+        },
+        "src/lowrisc_prim_generic_clock_inv_0/rtl/prim_clock_inv.sv": {
+          "sha256": "c1988aec07ae5e38f42465be35500f84e17eb056cb2ae62808b57ec1e8f9be18",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_generic_clock_inv_0/rtl/prim_clock_inv.sv"
+        },
+        "src/lowrisc_prim_generic_flop_2sync_0/rtl/prim_flop_2sync.sv": {
+          "sha256": "5780aef67607c161eb8a4b3326757af5b416eb5337aef0afc457fdebf2891c53",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_generic_flop_2sync_0/rtl/prim_flop_2sync.sv"
+        },
+        "src/lowrisc_prim_generic_ram_1p_pkg_0/rtl/prim_ram_1p_pkg.sv": {
+          "sha256": "f51c6a588ec476b5cb2e95d9e8d19a67551732e9661a0c0933c6fccee8e92722",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_generic_ram_1p_pkg_0/rtl/prim_ram_1p_pkg.sv"
+        },
+        "src/lowrisc_prim_generic_ram_1r1w_0/rtl/prim_ram_1r1w.sv": {
+          "sha256": "734404e89eb8b39af204dc499c244aebc3fd00fc87aadcfc006dd6ec02f5b913",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_generic_ram_1r1w_0/rtl/prim_ram_1r1w.sv"
+        },
+        "src/lowrisc_prim_generic_ram_1r1w_pkg_0/rtl/prim_ram_1r1w_pkg.sv": {
+          "sha256": "cd0d1006faf18ce7f26de47861494146d0f72872b38be7f0b2564e24d8201b10",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_generic_ram_1r1w_pkg_0/rtl/prim_ram_1r1w_pkg.sv"
+        },
+        "src/lowrisc_prim_generic_ram_2p_0/rtl/prim_ram_2p.sv": {
+          "sha256": "2d0990cd5ecd47db750279425b09447640ec881d20d75e10b157320ef3affc75",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_generic_ram_2p_0/rtl/prim_ram_2p.sv"
+        },
+        "src/lowrisc_prim_generic_ram_2p_pkg_0/rtl/prim_ram_2p_pkg.sv": {
+          "sha256": "118b23a1742bda9193021676d17b9ddf360f68e1ac702107fea1239a6d9ab62c",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_generic_ram_2p_pkg_0/rtl/prim_ram_2p_pkg.sv"
+        },
+        "src/lowrisc_prim_generic_rom_pkg_0/rtl/prim_rom_pkg.sv": {
+          "sha256": "262a631ab5dc148945a0cda36ed4aa6b4f9bd9957ad984c12bd9979644378384",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_generic_rom_pkg_0/rtl/prim_rom_pkg.sv"
+        },
+        "src/lowrisc_prim_generic_rst_sync_0/rtl/prim_rst_sync.sv": {
+          "sha256": "5ea59afe93b02ba71f08f955704e46dd36c2266238f34430fc5bdd8bd5a46931",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_generic_rst_sync_0/rtl/prim_rst_sync.sv"
+        },
+        "src/lowrisc_prim_generic_usb_diff_rx_0/rtl/prim_usb_diff_rx.sv": {
+          "sha256": "10b5a865b7f073ac828ebff639838d1a0d3486d4dbc874a4e9aba83ba830126a",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_generic_usb_diff_rx_0/rtl/prim_usb_diff_rx.sv"
+        },
+        "src/lowrisc_prim_lfsr_0.1/rtl/prim_lfsr.sv": {
+          "sha256": "c61632878728613ba0403f2d068c03a5103165663b58d8dd50892ef032dec916",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_lfsr_0.1/rtl/prim_lfsr.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi12_dec.sv": {
+          "sha256": "7e30e02744c255717d0094fd0b3cb5d77caf4626c5704dce37ac5c86c59d5d50",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi12_dec.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi12_sender.sv": {
+          "sha256": "d57946855f6d5674f557b84976189449117f4f17014a7eca0fa716f8e990d012",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi12_sender.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi12_sync.sv": {
+          "sha256": "44a06e1eb454387e104c51621dd99e5840d4b187ea7fda74bd8b5e0a824206e1",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi12_sync.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi16_dec.sv": {
+          "sha256": "34ae5437446015f276f09e30c515a5538af44fbe5617f73f61b464c613dccc20",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi16_dec.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi16_sender.sv": {
+          "sha256": "cafef386918aee0fcccbaa1a36bf4c11b15a0051c8f94742d926a09c834590a4",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi16_sender.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi16_sync.sv": {
+          "sha256": "27d63c260b986b0db77b90a4f26d0c165f7451f01b60bbf48f3b7601059bb913",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi16_sync.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi20_dec.sv": {
+          "sha256": "99a296946f4547c4907840db35dc8d65e7d61d20cbd8120e6f8e3bc3abd49bd6",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi20_dec.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi20_sender.sv": {
+          "sha256": "cda878555930047822ac382e1a19e2db5a31bb2dddb8f920165bc8d515e0b7d5",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi20_sender.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi20_sync.sv": {
+          "sha256": "5c582e50e12a201d5060a85fa33e1de2298804ed3d273334b66c58240f2dd190",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi20_sync.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi24_dec.sv": {
+          "sha256": "677c30909b141e0f9adaf579ad4681ece28892b8911a1c85d7c11ca866bb7d8d",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi24_dec.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi24_sender.sv": {
+          "sha256": "9748a85ac3dd716d09be4047718dac6e78f7a1e23a03082fb95158abcf3367de",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi24_sender.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi24_sync.sv": {
+          "sha256": "5072f6c7b6ad93ca1362fc84e986e994ca9d7e80c621fd6b14308d71ad675c19",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi24_sync.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi28_dec.sv": {
+          "sha256": "64ae1fc075458e4cab87f8d7a665f548f78e1cbffb05b43041e48d7b941010b0",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi28_dec.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi28_sender.sv": {
+          "sha256": "0d036039d7d48b9fa614b93803167b0f1bc2dae5eb7aec2b3a6f33f39084c6ac",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi28_sender.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi28_sync.sv": {
+          "sha256": "d55a1857dda0a0de5a1fbfc0af3860e1731df8cdb030c9da0efe6e654dd7d70f",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi28_sync.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi32_dec.sv": {
+          "sha256": "75dbc715d66adb61c72ecfa4747192317b0a036be240a9bfeedd52bde30a6932",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi32_dec.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi32_sender.sv": {
+          "sha256": "b4dae09251ff294afea4532ed5e7205dbf52d4265aa75dc90d1b003e22f7fdd6",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi32_sender.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi32_sync.sv": {
+          "sha256": "66269bfff124800e2073a423bce9922ebd0f865d39608d40803b23397e3eee5b",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi32_sync.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi4_dec.sv": {
+          "sha256": "b33530adf41b05849d06424a40db5536dfb5ffd441752bf49af03ad3d7b5f48e",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi4_dec.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi4_sender.sv": {
+          "sha256": "2bd763ba3f489b406de68e6759650fe2ed7fd875298ac0adff71e70234993b39",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi4_sender.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi4_sync.sv": {
+          "sha256": "8d6461687bb7f022f326875e401a271f1bf6df3a7a87bf625508b334530c20df",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi4_sync.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi8_dec.sv": {
+          "sha256": "e34268f75dd36cc0bf6cce710e1ebbd900cb253fd977a394a84eaf2f19f52956",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi8_dec.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi8_sender.sv": {
+          "sha256": "cfd926dd909081b590aade41fac9a91cb72c2493defb870cbaec45153f3aa951",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi8_sender.sv"
+        },
+        "src/lowrisc_prim_mubi_0.1/rtl/prim_mubi8_sync.sv": {
+          "sha256": "2f0b9d5f5c95e0338cda232d61c390136cb0e17696c4edfd842007a6a9fbcaa7",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_0.1/rtl/prim_mubi8_sync.sv"
+        },
+        "src/lowrisc_prim_mubi_pkg_0.1/rtl/prim_mubi_pkg.sv": {
+          "sha256": "11a2f1a16ddaf750d859c95e07fc48c54743fe6ad3b5c5eabe2e14a51d9fb1af",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_mubi_pkg_0.1/rtl/prim_mubi_pkg.sv"
+        },
+        "src/lowrisc_prim_onehot_0/rtl/prim_onehot_enc.sv": {
+          "sha256": "e9a65c74e4478063ea00fc3d80eaff214fdbacfe07e91f13f28ceb725e5ad362",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_onehot_0/rtl/prim_onehot_enc.sv"
+        },
+        "src/lowrisc_prim_onehot_0/rtl/prim_onehot_mux.sv": {
+          "sha256": "adf35f6708fd04cf2a01138033de3f5b23674685c213bcfc39fc3819d04cfa7c",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_onehot_0/rtl/prim_onehot_mux.sv"
+        },
+        "src/lowrisc_prim_pad_wrapper_pkg_0/rtl/prim_pad_wrapper_pkg.sv": {
+          "sha256": "af14a8b1331d9c7d46a7d4b3784768868c113407179a6e4db0db5245e2301de6",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_pad_wrapper_pkg_0/rtl/prim_pad_wrapper_pkg.sv"
+        },
+        "src/lowrisc_prim_ram_1p_adv_0.1/rtl/prim_ram_1p_adv.sv": {
+          "sha256": "b69410fc7b7aeaa067d080cbd7fd86074456aa0c212779bfbd3b9f5d3abb7fa3",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_ram_1p_adv_0.1/rtl/prim_ram_1p_adv.sv"
+        },
+        "src/lowrisc_prim_ram_1p_scr_0.1/rtl/prim_ram_1p_scr.sv": {
+          "sha256": "823add68b2a538c23a1d7fb05a225ec4a45094508213a65d9ac500ec6fd7eb48",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_ram_1p_scr_0.1/rtl/prim_ram_1p_scr.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_22_16_dec.sv": {
+          "sha256": "1db557bc993dab53bcdeeb31a3051b4468f61a489c88387d0e9072c7cacd860b",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_22_16_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_22_16_enc.sv": {
+          "sha256": "dc9be87f59567a2a6828de6e38de9f283ac7f48c088c852665e2767cea61fd35",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_22_16_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_28_22_dec.sv": {
+          "sha256": "bc719bdaaae7a7566528b346b2771b4dd907496a4f5a9b6105c0b12edd090598",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_28_22_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_28_22_enc.sv": {
+          "sha256": "7759abde1e32bd8c568831de1a139698897b873592714fd6a3926a35123fadb0",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_28_22_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_39_32_dec.sv": {
+          "sha256": "13cbe5fdac6efeba3e92cbddc5c77efa68477996c616984d87f7abe438c2c61e",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_39_32_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_39_32_enc.sv": {
+          "sha256": "31b80e9aefe5cc6df99fe7134a39c417809536b29de6892e6382a9ec3374b4c7",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_39_32_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_64_57_dec.sv": {
+          "sha256": "473c72849e087ef8ff113034bc0bfd5557cb058a615da6c50dc26721adc1c63a",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_64_57_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_64_57_enc.sv": {
+          "sha256": "c955ae516645355d3d095441f2025826a542360c391335e2acb500dbf5f23c31",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_64_57_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_72_64_dec.sv": {
+          "sha256": "b706646195e58396cff43b5256f25a474a180ea18eb483499cb85c649f5ee532",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_72_64_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_72_64_enc.sv": {
+          "sha256": "71c2c5924cf277fd978ab40ccc5eec939f609894ddf8adb3f81144baaa774755",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_72_64_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_22_16_dec.sv": {
+          "sha256": "ed611f2143cf73b7ff540807e41ba45cdc03c4c9b94c005c930ed08a4466a3b0",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_22_16_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_22_16_enc.sv": {
+          "sha256": "4a6a3bdd2d466a3fbf9b2d389f0203972291f2b6b9eac089f73b0302bd7fd1a9",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_22_16_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_39_32_dec.sv": {
+          "sha256": "1d01e347a42ae0e9de40c8dda1fb557f951c8db7c990ae2ba7c67e14073646af",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_39_32_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_39_32_enc.sv": {
+          "sha256": "d510dc23a3150a5f7b086cb465cfe679279489fc54678567d7889972efb76629",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_39_32_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_72_64_dec.sv": {
+          "sha256": "b6af19127ac10720d328f56f790fff4eee79481321374d3b52d3b432c7fe1bb2",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_72_64_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_72_64_enc.sv": {
+          "sha256": "2f8732b489b9c00993a189348c25766c519269b7bc58a56e4b800a93b8771f02",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_72_64_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_76_68_dec.sv": {
+          "sha256": "98b4a274d14b0f1877308f7fc62f0191ec48350a9376c77622ff12ce2c3f4c63",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_76_68_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_76_68_enc.sv": {
+          "sha256": "8b524f2e3ea9f481177ac729d8f38ff8bf063b2a4b467551b1a62aac9c1f0a6e",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_hamming_76_68_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inc.svh": {
+          "sha256": "59591eea595305d0ece809e980ee080990d52f1c4fef564e1a6e9c4f54812c3d",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inc.svh"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_22_16_dec.sv": {
+          "sha256": "2620fc37a5acfde0d54f0a638d13d3150b3c08acc840ce45a9ae4a24833711ef",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_22_16_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_22_16_enc.sv": {
+          "sha256": "b6df81ecfb12826002fa979c1beae2b8b47e8fa33bd465ad7c6e4784657e8ca9",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_22_16_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_28_22_dec.sv": {
+          "sha256": "06c0dfdf59f2dbfffa7c73e609ae6361c94927a298f13ac6815c9543633b35a4",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_28_22_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_28_22_enc.sv": {
+          "sha256": "15b373e491fba6d6251c241229bd78d2766214771942e3fac0bdbe4cbff720fd",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_28_22_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_39_32_dec.sv": {
+          "sha256": "f07f26fd2375952e4ec7cfc1641cebcea373a8030d82dd5977a76f81c430cb12",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_39_32_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_39_32_enc.sv": {
+          "sha256": "4588fda3fd5ebdd711c98f6900caaaaddddf1257337c5b931ca86de7fb0ef8ff",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_39_32_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_64_57_dec.sv": {
+          "sha256": "e598eef60254ac4a0e6899f6d1e4af5ae5bbd2ac22395ac53ee925296bc8a826",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_64_57_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_64_57_enc.sv": {
+          "sha256": "74b3b327047b90682468614708bb4b1104b1f069c0dc3189e2b078622ac566b8",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_64_57_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_72_64_dec.sv": {
+          "sha256": "3763fa9e291c0e33217b18cf74b7dd3830f232065a6a62ad21582d6e2bdcfd9d",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_72_64_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_72_64_enc.sv": {
+          "sha256": "d7c176fffecdf629db3c2e3958a4ca603e99a995b4aaeab9a2f73ad55e0e2d51",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_72_64_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_22_16_dec.sv": {
+          "sha256": "4fedd80e34009d4e54881ef2358ca3a7fd971acaa8f1621b1832aea6d0aaac3c",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_22_16_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_22_16_enc.sv": {
+          "sha256": "74fc5522c24f1f3505a2dc7f3c34adaac07fdb54dce055268a4e2b3df3d6f416",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_22_16_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_39_32_dec.sv": {
+          "sha256": "975eda8d8623f617f9d4e89b948c44e2d657b000596cdeeb9ed62910f6d1e8f7",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_39_32_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_39_32_enc.sv": {
+          "sha256": "b63ddfd743b51476dea494af1665433747ce021e0933d6e1e6b7a1b2ca5f9d3a",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_39_32_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_72_64_dec.sv": {
+          "sha256": "ee22ebd7c918a537c883ce42c27ad2ab75125e35c6184c5e2dc2b1bd9fd0fb79",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_72_64_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_72_64_enc.sv": {
+          "sha256": "773f02fda14b0c20a41ddae143292b6b422b4b946da5476ea5a61ee97e1fd127",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_72_64_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_76_68_dec.sv": {
+          "sha256": "925fd53e9b06cd4d770f355cd72491bac8fbd21e038b596d778de26f10bc5de5",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_76_68_dec.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_76_68_enc.sv": {
+          "sha256": "d7e15dc949ee0f935e012bb1d666cf1e329b016979e73b5a71f168971e261a82",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_inv_hamming_76_68_enc.sv"
+        },
+        "src/lowrisc_prim_secded_0.1/rtl/prim_secded_pkg.sv": {
+          "sha256": "bcbd03333a30e7a1cb01195d1c40c7d0e736f91d9f73c2347ef5b0bd9dc3c82b",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_secded_0.1/rtl/prim_secded_pkg.sv"
+        },
+        "src/lowrisc_prim_util_0.1/rtl/prim_util_pkg.sv": {
+          "sha256": "f71235ef5b92eaa3d2ed5c676f76108082df93b8aae8f9baa816584d1d285208",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_util_0.1/rtl/prim_util_pkg.sv"
+        },
+        "src/lowrisc_prim_util_get_scramble_params_0/rtl/prim_util_get_scramble_params.svh": {
+          "sha256": "827cfe69062e975e9acc9c15c306c92c41e1d0d487cd197b1350d8bcdb62cca1",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_util_get_scramble_params_0/rtl/prim_util_get_scramble_params.svh"
+        },
+        "src/lowrisc_prim_util_memload_0/rtl/prim_util_memload.svh": {
+          "sha256": "9484798c23f4f441e9e454677429af14bcefcad2d10f74d099acbe4b39475da3",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_util_memload_0/rtl/prim_util_memload.svh"
+        },
+        "src/lowrisc_prim_xilinx_and2_0/rtl/prim_and2.sv": {
+          "sha256": "58b709b55c0e53434905e9cd5dd10632cbde256a32edecafe2482b14dde0f836",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_and2_0/rtl/prim_and2.sv"
+        },
+        "src/lowrisc_prim_xilinx_buf_0/rtl/prim_buf.sv": {
+          "sha256": "bed1d649efbdf479fe4cd8cdeff8131367d719ed204875f4a46db70ba6668ad5",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_buf_0/rtl/prim_buf.sv"
+        },
+        "src/lowrisc_prim_xilinx_clock_buf_0/rtl/prim_clock_buf.sv": {
+          "sha256": "9d0331f75525be068a6eeef0f034ef14aacdeb547eaf0f78d5f3a8d5ae4b6404",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_clock_buf_0/rtl/prim_clock_buf.sv"
+        },
+        "src/lowrisc_prim_xilinx_clock_gating_0/rtl/prim_clock_gating.sv": {
+          "sha256": "eb3561a174e569f77a0fb9f2cd921544524bd694bc77959e6fe45f339ea7566a",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_clock_gating_0/rtl/prim_clock_gating.sv"
+        },
+        "src/lowrisc_prim_xilinx_clock_mux2_0/rtl/prim_clock_mux2.sv": {
+          "sha256": "cc61491d0675f2a05a7c17ba9d755f4d29c2a115390270ffece5fd735850fd39",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_clock_mux2_0/rtl/prim_clock_mux2.sv"
+        },
+        "src/lowrisc_prim_xilinx_flop_0/rtl/prim_flop.sv": {
+          "sha256": "5d0938f09b2e90968e632e1067deb33ba08c312a0aef8ee8b2c116cfb3541714",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_flop_0/rtl/prim_flop.sv"
+        },
+        "src/lowrisc_prim_xilinx_flop_en_0/rtl/prim_flop_en.sv": {
+          "sha256": "0a4b69b2b8dff2d1628389e6cfc817ea4670406f4ae2cd87fda03fbb09df625c",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_flop_en_0/rtl/prim_flop_en.sv"
+        },
+        "src/lowrisc_prim_xilinx_pad_attr_0/rtl/prim_pad_attr.sv": {
+          "sha256": "e65613ecedd1e64bcf83cadc6926b5d38791d8dde19182cbcf3821bbf0bd5b22",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_pad_attr_0/rtl/prim_pad_attr.sv"
+        },
+        "src/lowrisc_prim_xilinx_pad_wrapper_0/rtl/prim_pad_wrapper.sv": {
+          "sha256": "4f23742cd6f01d3db02f9e40d3d214ac7aba7d335493825225d50f09d39f0e47",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_pad_wrapper_0/rtl/prim_pad_wrapper.sv"
+        },
+        "src/lowrisc_prim_xilinx_prim_pkg_0/rtl/prim_pkg.sv": {
+          "sha256": "435e6678fd798fb3abe46168f7db455a9588b102a9d63ab9710fe38cff62169e",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_prim_pkg_0/rtl/prim_pkg.sv"
+        },
+        "src/lowrisc_prim_xilinx_prim_xilinx_default_pkg_0/rtl/prim_xilinx_pkg.sv": {
+          "sha256": "1ebdd27f0bffbf06f28bbcfe2c057e49db812cb96010532097d840cceda657ea",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_prim_xilinx_default_pkg_0/rtl/prim_xilinx_pkg.sv"
+        },
+        "src/lowrisc_prim_xilinx_ram_1p_0/rtl/prim_ram_1p.sv": {
+          "sha256": "99d8d9fd815d79d2a2dd1d72393146f9fe680d9366839528bee08e18aa04190a",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_ram_1p_0/rtl/prim_ram_1p.sv"
+        },
+        "src/lowrisc_prim_xilinx_rom_0/rtl/prim_xilinx_rom.sv": {
+          "sha256": "015485d303a1ec0ae0039039931acc1ac2239b6a9c878c12435aef3133a5a6b7",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_rom_0/rtl/prim_xilinx_rom.sv"
+        },
+        "src/lowrisc_prim_xilinx_xnor2_0/rtl/prim_xnor2.sv": {
+          "sha256": "064de8167a4177e821252f22802e997532b5576947e07d7b3021e472cb67925e",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_xnor2_0/rtl/prim_xnor2.sv"
+        },
+        "src/lowrisc_prim_xilinx_xor2_0/rtl/prim_xor2.sv": {
+          "sha256": "ed71e68abece2d980e207261839a09e434465ae205cd5f208ec7241868b87ceb",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/lowrisc_prim_xilinx_xor2_0/rtl/prim_xor2.sv"
+        },
+        "src/pocketai_pa_pa_cluster_m5_board_0.1/pa_cluster_m5_board.v": {
+          "sha256": "b08161495102efe0ac9fe3362837c4d5f343a404bd353a5168f6cce4f6581bb1",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_cluster_m5_board_0.1/pa_cluster_m5_board.v"
+        },
+        "src/pocketai_pa_pa_cluster_rtl_0.1/pa_axi_lite_bridge.sv": {
+          "sha256": "ac4d22723164c64d9b7f7efad7cbeb97e83c4d6217d42634cbdf8de52173478d",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_cluster_rtl_0.1/pa_axi_lite_bridge.sv"
+        },
+        "src/pocketai_pa_pa_cluster_rtl_0.1/pa_cluster_top.sv": {
+          "sha256": "9e71058fcd5a0658d182db5e4c1f763caf2033fa460f42d98e44c9fa46020d17",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_cluster_rtl_0.1/pa_cluster_top.sv"
+        },
+        "src/pocketai_pa_pa_cluster_rtl_0.1/pa_console.sv": {
+          "sha256": "b296ebe30c470fcb699ca2ef1d94cf4a54ab46d3b5d471f23a857e1510db0238",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_cluster_rtl_0.1/pa_console.sv"
+        },
+        "src/pocketai_pa_pa_cluster_rtl_0.1/pa_ibex_wrapper.sv": {
+          "sha256": "f48bc588da54f8789321ce8969c5a04bf27f8859b2ad88422892b02b67ba4f50",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_cluster_rtl_0.1/pa_ibex_wrapper.sv"
+        },
+        "src/pocketai_pa_pa_cluster_rtl_0.1/pa_mailbox.sv": {
+          "sha256": "2e60adefa3a9460696efe727fea22475f15522926b633a3272718f277f481875",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_cluster_rtl_0.1/pa_mailbox.sv"
+        },
+        "src/pocketai_pa_pa_cluster_rtl_0.1/pa_scratchpad.sv": {
+          "sha256": "6bb202a6786a0525fa818e7166356bf81e8b5891346a01bb689a13e0ba323d42",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_cluster_rtl_0.1/pa_scratchpad.sv"
+        },
+        "src/pocketai_pa_pa_cluster_rtl_0.1/pa_shared_bus.sv": {
+          "sha256": "1d1678c77ec23de860b149d4a59e9763a8789d87c5ac2068bf213632ecabe190",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_cluster_rtl_0.1/pa_shared_bus.sv"
+        },
+        "src/pocketai_pa_pa_gemm_0.1/pa_gemm.sv": {
+          "sha256": "659d6156cbad7f315df38b447262ce749e39ef1696a2ec72e83cc0281512efcd",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_gemm_0.1/pa_gemm.sv"
+        },
+        "src/pocketai_pa_pa_gemm_0.1/pa_gemm_slot.sv": {
+          "sha256": "70e0ac4dd21b9e9ccecd8ab56adbb89bea7d33c7b98c1f16ab91a901955c24e2",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_gemm_0.1/pa_gemm_slot.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_accelerator_system.sv": {
+          "sha256": "477f57b38802016f567dd06ab32e210af436d7412f8f9e4f7540c64a3d5df435",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_accelerator_system.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_axi_burst.sv": {
+          "sha256": "d94e902d742be7e84fbf6310713794392de4810950864cffb5b6c2c937013023",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_axi_burst.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_cluster_top.sv": {
+          "sha256": "a1dc223f30ff65a7f378f154db01ef5e0719daced2acc2024b411c343bd95458",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_cluster_top.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_memory_arbiter.sv": {
+          "sha256": "8852993d778637ea80165e91ee6dfbaab31bcf964bf6cd5449955e1e52596803",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_memory_arbiter.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_memory_bridge.sv": {
+          "sha256": "9f44830684ee682f02a6397415cf9fecf651101af84ef114e47c78055dbc5ba8",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_memory_bridge.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_memory_system.sv": {
+          "sha256": "11aa1ced39c5ddd091fd293d11f1de3c5b794faaa8bdcbdcaf7f22005615873b",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_memory_system.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_mmio_cancel.sv": {
+          "sha256": "aa9562385361507b613a6d7cad568722af129dd00c5c0092b807a89d829f84a7",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_mmio_cancel.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_obi_ddr.sv": {
+          "sha256": "e5fce18b506840ca5c85d6d6e0524ee7c0cef7e104bb78f28cf99eee07e975bd",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_obi_ddr.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_obi_router.sv": {
+          "sha256": "5e01e84aed23bf8f35cec95b3998ca17e960e9ca9109ae3efc3d70e33125e69d",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_obi_router.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_page_translate.sv": {
+          "sha256": "6c783e95fb02f4d48da16c7f45b3a83f38123b9276b5f1e501aa783cc7000142",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_page_translate.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_stream_transfer.sv": {
+          "sha256": "e86fe7dd89bd170534128df5ddaa10f0b3442f7e2d122679cc38382206330224",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_stream_transfer.sv"
+        },
+        "src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_transfer_control.sv": {
+          "sha256": "158faf881bbb27b91b349531e1270658c522c9badf38c93d7956f868557f6b7c",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_m5_rtl_0.1/pa_m5_transfer_control.sv"
+        },
+        "src/pocketai_pa_pa_sfpu_0.1/pa_sfpu.sv": {
+          "sha256": "387612215c5d4bd95505c74e807b5625cdbb77524e324269697df502d7d1d4dd",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_sfpu_0.1/pa_sfpu.sv"
+        },
+        "src/pocketai_pa_pa_sfpu_0.1/pa_sfpu_alu.sv": {
+          "sha256": "e347c4c686ddfbbe0264e5b88370c19c3d74dd39a9a6a9b10047a9d4d70331e5",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_sfpu_0.1/pa_sfpu_alu.sv"
+        },
+        "src/pocketai_pa_pa_sfpu_0.1/pa_sfpu_compute.sv": {
+          "sha256": "12ec9ce52018733ba86ecbb4772381e00eb7737be9f4d1284d7ac7b3449aa0a4",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pocketai_pa_pa_sfpu_0.1/pa_sfpu_compute.sv"
+        },
+        "src/pulp-platform_common_cells_common_cells_0.1/pulp_common_cells/rtl/stream_fork.sv": {
+          "sha256": "94aceb08b400958fe66285351ff0909b7bdd1a8555613c6aaa443c6f696afe85",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pulp-platform_common_cells_common_cells_0.1/pulp_common_cells/rtl/stream_fork.sv"
+        },
+        "src/pulp-platform_common_cells_common_cells_0.1/pulp_common_cells/rtl/stream_join_dynamic.sv": {
+          "sha256": "1c3cbfb64869114c36fbadb599379c2d639d8e7d501b983a8fad84e78dd5f128",
+          "source": "build/m5_startup_data_direct_pynq_v2/resolved_sources/src/pulp-platform_common_cells_common_cells_0.1/pulp_common_cells/rtl/stream_join_dynamic.sv"
+        }
+      },
+      "status": "SOURCE_STAGE_ONLY",
+      "syntax_changes": {
+        "src/pocketai_pa_pa_cluster_rtl_0.1/pa_ibex_wrapper.sv": {
+          "after": "{ibex_pkg::IC_NUM_WAYS{prim_ram_1p_pkg::RAM_1P_CFG_REQ_DEFAULT}}",
+          "before": "'{default: prim_ram_1p_pkg::RAM_1P_CFG_REQ_DEFAULT}",
+          "occurrences": 2,
+          "reason": "Equivalent packed array replication; ICache remains disabled",
+          "sha256": "b6e3d0d0da2f6fc077dd54621c6f6885f03dc9785326f37a562c3418ad77e7e0"
+        }
+      },
+      "technology_bindings": {
+        "src/lowrisc_prim_xilinx_clock_gating_0/rtl/prim_clock_gating.sv": {
+          "reason": "Replace FPGA BUFGCE binding with qualified generic latch-based gate",
+          "sha256": "b2474320674e645d423f32ba1ce60b25509042d40c2de8fe28dcb7760a8fa882",
+          "source": "build/m5_startup_data_direct_autonomous_v2/sim/src/lowrisc_prim_generic_clock_gating_0/rtl/prim_clock_gating.sv"
+        }
+      },
+      "top": "pa_cluster_m5_board"
+    },
+    "memory_inventory": {
+      "memories": [
+        {
+          "bits": 320,
+          "clocked_read_mask": 0,
+          "depth": 10,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_control/staging_q",
+          "read_ports": 12,
+          "width": 32,
+          "write_ports": 11
+        },
+        {
+          "bits": 8192,
+          "clocked_read_mask": 0,
+          "depth": 256,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/c_mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[0].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[10].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[11].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[12].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[13].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[14].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[15].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[1].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[2].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[3].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[4].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[5].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[6].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[7].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[8].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_a_row[9].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 98304,
+          "clocked_read_mask": 0,
+          "depth": 3072,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_b_group[0].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 98304,
+          "clocked_read_mask": 0,
+          "depth": 3072,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_b_group[1].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 98304,
+          "clocked_read_mask": 0,
+          "depth": 3072,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_b_group[2].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 98304,
+          "clocked_read_mask": 0,
+          "depth": 3072,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[0].u_slot/g_b_group[3].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 8192,
+          "clocked_read_mask": 0,
+          "depth": 256,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/c_mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[0].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[10].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[11].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[12].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[13].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[14].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[15].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[1].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[2].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[3].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[4].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[5].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[6].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[7].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[8].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 24576,
+          "clocked_read_mask": 0,
+          "depth": 768,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_a_row[9].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 98304,
+          "clocked_read_mask": 0,
+          "depth": 3072,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_b_group[0].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 98304,
+          "clocked_read_mask": 0,
+          "depth": 3072,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_b_group[1].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 98304,
+          "clocked_read_mask": 0,
+          "depth": 3072,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_b_group[2].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 98304,
+          "clocked_read_mask": 0,
+          "depth": 3072,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/g_slot[1].u_slot/g_b_group[3].mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 22,
+          "clocked_read_mask": 0,
+          "depth": 2,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/slot_a_stride_q",
+          "read_ports": 1,
+          "width": 11,
+          "write_ports": 3
+        },
+        {
+          "bits": 64,
+          "clocked_read_mask": 0,
+          "depth": 2,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/slot_cycles_q",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 3
+        },
+        {
+          "bits": 26,
+          "clocked_read_mask": 0,
+          "depth": 2,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/slot_k_q",
+          "read_ports": 5,
+          "width": 13,
+          "write_ports": 3
+        },
+        {
+          "bits": 10,
+          "clocked_read_mask": 0,
+          "depth": 2,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/slot_m_q",
+          "read_ports": 3,
+          "width": 5,
+          "write_ports": 3
+        },
+        {
+          "bits": 18,
+          "clocked_read_mask": 0,
+          "depth": 2,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/slot_mn_q",
+          "read_ports": 2,
+          "width": 9,
+          "write_ports": 3
+        },
+        {
+          "bits": 10,
+          "clocked_read_mask": 0,
+          "depth": 2,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/slot_n_q",
+          "read_ports": 2,
+          "width": 5,
+          "write_ports": 3
+        },
+        {
+          "bits": 18,
+          "clocked_read_mask": 0,
+          "depth": 2,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/slot_output_words_q",
+          "read_ports": 1,
+          "width": 9,
+          "write_ports": 3
+        },
+        {
+          "bits": 6,
+          "clocked_read_mask": 0,
+          "depth": 2,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/slot_state_q",
+          "read_ports": 8,
+          "width": 3,
+          "write_ports": 19
+        },
+        {
+          "bits": 64,
+          "clocked_read_mask": 0,
+          "depth": 2,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/slot_tag_q",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 3
+        },
+        {
+          "bits": 2,
+          "clocked_read_mask": 0,
+          "depth": 2,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_gemm/slot_wide_q",
+          "read_ports": 4,
+          "width": 1,
+          "write_ports": 3
+        },
+        {
+          "bits": 98304,
+          "clocked_read_mask": 0,
+          "depth": 3072,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_sfpu/b_mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 98304,
+          "clocked_read_mask": 0,
+          "depth": 3072,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_sfpu/g_mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 6425,
+          "clocked_read_mask": 0,
+          "depth": 257,
+          "initialized_bits": 6425,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_sfpu/u_compute/exp_rom",
+          "read_ports": 2,
+          "width": 25,
+          "write_ports": 0
+        },
+        {
+          "bits": 32784,
+          "clocked_read_mask": 0,
+          "depth": 2049,
+          "initialized_bits": 32784,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_sfpu/u_compute/gelu_rom",
+          "read_ports": 1,
+          "width": 16,
+          "write_ports": 0
+        },
+        {
+          "bits": 98304,
+          "clocked_read_mask": 0,
+          "depth": 3072,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/g_autonomous.u_accelerators/u_sfpu/x_mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 524288,
+          "clocked_read_mask": 0,
+          "depth": 16384,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/startup_data_read_mem",
+          "read_ports": 2,
+          "width": 32,
+          "write_ports": 4
+        },
+        {
+          "bits": 524288,
+          "clocked_read_mask": 0,
+          "depth": 16384,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/startup_instruction_mem",
+          "read_ports": 2,
+          "width": 32,
+          "write_ports": 4
+        },
+        {
+          "bits": 1024,
+          "clocked_read_mask": 0,
+          "depth": 32,
+          "initialized_bits": 1024,
+          "instance": "pa_cluster_m5_board/impl/u_core0/u_ibex/genblk3.gen_regfile_fpga.register_file_i/g_plain_rf.mem",
+          "read_ports": 2,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 64,
+          "clocked_read_mask": 0,
+          "depth": 64,
+          "initialized_bits": 64,
+          "instance": "pa_cluster_m5_board/impl/u_core0/u_ibex/u_ibex_core/ex_block_i/alu_i/$auto$proc_rom.cc:155:do_switch$36102",
+          "read_ports": 1,
+          "width": 1,
+          "write_ports": 0
+        },
+        {
+          "bits": 32,
+          "clocked_read_mask": 0,
+          "depth": 32,
+          "initialized_bits": 32,
+          "instance": "pa_cluster_m5_board/impl/u_core0/u_ibex/u_ibex_core/id_stage_i/decoder_i/$auto$proc_rom.cc:155:do_switch$36106",
+          "read_ports": 1,
+          "width": 1,
+          "write_ports": 0
+        },
+        {
+          "bits": 1024,
+          "clocked_read_mask": 0,
+          "depth": 32,
+          "initialized_bits": 1024,
+          "instance": "pa_cluster_m5_board/impl/u_core1/u_ibex/genblk3.gen_regfile_fpga.register_file_i/g_plain_rf.mem",
+          "read_ports": 2,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 64,
+          "clocked_read_mask": 0,
+          "depth": 64,
+          "initialized_bits": 64,
+          "instance": "pa_cluster_m5_board/impl/u_core1/u_ibex/u_ibex_core/ex_block_i/alu_i/$auto$proc_rom.cc:155:do_switch$36102",
+          "read_ports": 1,
+          "width": 1,
+          "write_ports": 0
+        },
+        {
+          "bits": 32,
+          "clocked_read_mask": 0,
+          "depth": 32,
+          "initialized_bits": 32,
+          "instance": "pa_cluster_m5_board/impl/u_core1/u_ibex/u_ibex_core/id_stage_i/decoder_i/$auto$proc_rom.cc:155:do_switch$36106",
+          "read_ports": 1,
+          "width": 1,
+          "write_ports": 0
+        },
+        {
+          "bits": 9216,
+          "clocked_read_mask": 0,
+          "depth": 256,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/u_memory/u_bridge/u_axi/data_mem",
+          "read_ports": 1,
+          "width": 36,
+          "write_ports": 1
+        },
+        {
+          "bits": 512,
+          "clocked_read_mask": 0,
+          "depth": 16,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/u_memory/u_bridge/u_translate/cache_pte_q",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 1
+        },
+        {
+          "bits": 256,
+          "clocked_read_mask": 0,
+          "depth": 16,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/u_memory/u_bridge/u_translate/cache_tag_q",
+          "read_ports": 1,
+          "width": 16,
+          "write_ports": 1
+        },
+        {
+          "bits": 524288,
+          "clocked_read_mask": 0,
+          "depth": 16384,
+          "initialized_bits": 0,
+          "instance": "pa_cluster_m5_board/impl/u_ram/mem",
+          "read_ports": 1,
+          "width": 32,
+          "write_ports": 4
+        }
+      ],
+      "memory_bits": 3509017,
+      "memory_instances": 70,
+      "netlist_sha256": "d3089d177129000659567b52e66777bce5ff9041f8fb7c327c539419d9a94d5a",
+      "status": "ELABORATED_RTL_MEMORY_INVENTORY_ONLY",
+      "top": "pa_cluster_m5_board"
+    },
+    "status": "PASS_NOT_ASIC_MAPPING_OR_EQUIVALENCE"
+  },
+  "fpga": {
+    "hardware": {
+      "bram36": 127.5,
+      "clock_mhz": 91,
+      "dsp": 0.0,
+      "hold_ns": 0.008,
+      "luts": 29229.0,
+      "registers": 21833.0,
+      "routed_nets": 45626,
+      "slices": 9752.0,
+      "ths_ns": 0.0,
+      "tns_ns": 0.0,
+      "wns_ns": 0.269
+    },
+    "per_block_lut_limitation": "Qualified DCP is flattened; name groups cannot recover block LUT ownership.",
+    "per_block_luts": null,
+    "requests": {
+      "computing": {
+        "mean_seconds": 9.99473889451474,
+        "output_tokens_per_request": 1,
+        "pooled_output_tokens_per_second": 0.10005263874865353,
+        "seconds": [
+          9.994643828831613,
+          9.994260996114463,
+          9.995311858598143
+        ]
+      },
+      "science": {
+        "mean_seconds": 9.993854265660048,
+        "output_tokens_per_request": 1,
+        "pooled_output_tokens_per_second": 0.10006149513667685,
+        "seconds": [
+          9.990257057361305,
+          9.994399290997535,
+          9.996906448621303
+        ]
+      },
+      "story": {
+        "mean_seconds": 16.60365871122728,
+        "output_tokens_per_request": 2,
+        "pooled_output_tokens_per_second": 0.12045537882849965,
+        "seconds": [
+          16.605435602832586,
+          16.60360094672069,
+          16.60193958412856
+        ]
+      }
+    },
+    "scope": "qualified full PYNQ-Z1 system; reused frozen physical measurements"
+  },
+  "full_system_asic": {
+    "area": null,
+    "chip_interface": "NOT_IMPLEMENTED",
+    "functional_equivalence": "NOT_RUN",
+    "memory_mapping": "NOT_IMPLEMENTED",
+    "mpw_submission": "NONE",
+    "pnr": "NOT_RUN",
+    "power": null,
+    "throughput": null,
+    "timing_100mhz": "NOT_RUN"
+  },
+  "m6_pass": false,
+  "schema": 1,
+  "sram_probe": {
+    "boundary_metadata_check": {
+      "datatype": 4,
+      "drc_qualified": false,
+      "height_um": 448.72,
+      "layer": 235,
+      "lef_sha256": "09ccad5be8a496091763dfc2656e008ab7169f94f8ae797503794a4117fad56b",
+      "macro": "sram22_512x32m4w8",
+      "nonboundary_geometry_sha256": "753e1c64762f0f7b2ec0715858ba88342941818a81c40bc0e65a90b3b8b4f1a4",
+      "output_sha256": "6347c5ca872137a4deefa901aa8055fff7fe82659e1258a6aa84c46381f6c64c",
+      "source_sha256": "34d989098723fe4ed0cab1f0dbcf800724689c40b4280f9794b2c7e573b2d60b",
+      "status": "BOUNDARY_METADATA_ONLY_PASS",
+      "width_um": 443.28
+    },
+    "classic_flow": "FAIL_AT_MAGIC_WRITELEF_UNRECOGNIZED_SRAM_LAYERS",
+    "config": {
+      "CLOCK_PERIOD": 10,
+      "CLOCK_PORT": "clk",
+      "DESIGN_NAME": "pa_m6_sram_probe",
+      "DIE_AREA": [
+        0,
+        0,
+        620,
+        630
+      ],
+      "FP_CORE_UTIL": 35,
+      "FP_PDN_CFG": "dir::sram_probe_pdn.tcl",
+      "FP_PDN_MACRO_HOOKS": [
+        "u_sram vdd vss vdd vss"
+      ],
+      "FP_PDN_MULTILAYER": true,
+      "FP_SIZING": "absolute",
+      "GND_NETS": [
+        "vss"
+      ],
+      "MACROS": {
+        "sram22_512x32m4w8": {
+          "gds": [
+            "dir::sram22_512x32m4w8_boundary.gds.gz"
+          ],
+          "instances": {
+            "u_sram": {
+              "location": [
+                85,
+                85
+              ],
+              "orientation": "N"
+            }
+          },
+          "lef": [
+            "dir::sram22_512x32m4w8.lef"
+          ],
+          "lib": {
+            "*_ff_n40C_1v95": [
+              "dir::sram22_512x32m4w8_ff_n40C_1v95.lib"
+            ],
+            "*_ss_100C_1v60": [
+              "dir::sram22_512x32m4w8_ss_100C_1v60.lib"
+            ],
+            "*_tt_025C_1v80": [
+              "dir::sram22_512x32m4w8_tt_025C_1v80.lib"
+            ]
+          },
+          "spice": [
+            "dir::sram22_512x32m4w8.spice"
+          ],
+          "vh": [
+            "dir::sram22_512x32m4w8.v"
+          ]
+        }
+      },
+      "PL_TARGET_DENSITY_PCT": 40,
+      "STA_CORNERS": [
+        "min_ff_n40C_1v95",
+        "nom_tt_025C_1v80",
+        "max_ss_100C_1v60"
+      ],
+      "STA_MACRO_PRIORITIZE_NL": false,
+      "VDD_NETS": [
+        "vdd"
+      ],
+      "VERILOG_FILES": [
+        "dir::pa_m6_sram_probe.v"
+      ]
+    },
+    "metrics": {
+      "antenna__violating__nets": 0,
+      "antenna__violating__pins": 0,
+      "design__core__area": 369140,
+      "design__core__bbox": "5.52 10.88 614.1 617.44",
+      "design__die__area": 390600,
+      "design__die__bbox": "0.0 0.0 620.0 630.0",
+      "design__instance__area": 204484,
+      "design__instance__area__macros": 198909,
+      "design__instance__area__stdcell": 5575.35,
+      "design__instance__count": 2393,
+      "design__instance__count__class:clock_buffer": 9,
+      "design__instance__count__class:clock_inverter": 7,
+      "design__instance__count__class:fill_cell": 13520,
+      "design__instance__count__class:macro": 1,
+      "design__instance__count__class:multi_input_combinational_cell": 2,
+      "design__instance__count__class:sequential_cell": 79,
+      "design__instance__count__class:tap_cell": 2132,
+      "design__instance__count__class:timing_repair_buffer": 163,
+      "design__instance__count__hold_buffer": 83,
+      "design__instance__count__macros": 1,
+      "design__instance__count__setup_buffer": 0,
+      "design__instance__count__stdcell": 2392,
+      "design__instance__displacement__max": 0,
+      "design__instance__displacement__mean": 0,
+      "design__instance__displacement__total": 0,
+      "design__instance__utilization": 0.553946,
+      "design__instance__utilization__stdcell": 0.0327515,
+      "design__instance_unmapped__count": 0,
+      "design__power_grid_violation__count": 0,
+      "design__power_grid_violation__count__net:vdd": 0,
+      "design__power_grid_violation__count__net:vss": 0,
+      "route__drc_errors": 0,
+      "route__drc_errors__iter:1": 56,
+      "route__drc_errors__iter:2": 2,
+      "route__drc_errors__iter:3": 0,
+      "timing__drv__floating__nets": 0,
+      "timing__drv__floating__pins": 0,
+      "timing__hold__tns": 0,
+      "timing__hold__tns__corner:max_ss_100C_1v60": 0,
+      "timing__hold__tns__corner:min_ff_n40C_1v95": 0,
+      "timing__hold__tns__corner:nom_tt_025C_1v80": 0,
+      "timing__hold__wns": 0,
+      "timing__hold__wns__corner:max_ss_100C_1v60": 0,
+      "timing__hold__wns__corner:min_ff_n40C_1v95": 0,
+      "timing__hold__wns__corner:nom_tt_025C_1v80": 0,
+      "timing__hold__ws": 0.10901324596025912,
+      "timing__hold__ws__corner:max_ss_100C_1v60": 0.6537042203686185,
+      "timing__hold__ws__corner:min_ff_n40C_1v95": 0.10901324596025912,
+      "timing__hold__ws__corner:nom_tt_025C_1v80": 0.299105748635064,
+      "timing__hold_r2r__ws": 0.109013,
+      "timing__hold_r2r__ws__corner:max_ss_100C_1v60": 0.881123,
+      "timing__hold_r2r__ws__corner:min_ff_n40C_1v95": 0.109013,
+      "timing__hold_r2r__ws__corner:nom_tt_025C_1v80": 0.299106,
+      "timing__hold_r2r_vio__count": 0,
+      "timing__hold_r2r_vio__count__corner:max_ss_100C_1v60": 0,
+      "timing__hold_r2r_vio__count__corner:min_ff_n40C_1v95": 0,
+      "timing__hold_r2r_vio__count__corner:nom_tt_025C_1v80": 0,
+      "timing__hold_vio__count": 0,
+      "timing__hold_vio__count__corner:max_ss_100C_1v60": 0,
+      "timing__hold_vio__count__corner:min_ff_n40C_1v95": 0,
+      "timing__hold_vio__count__corner:nom_tt_025C_1v80": 0,
+      "timing__setup__tns": 0,
+      "timing__setup__tns__corner:max_ss_100C_1v60": 0,
+      "timing__setup__tns__corner:min_ff_n40C_1v95": 0,
+      "timing__setup__tns__corner:nom_tt_025C_1v80": 0,
+      "timing__setup__wns": 0,
+      "timing__setup__wns__corner:max_ss_100C_1v60": 0,
+      "timing__setup__wns__corner:min_ff_n40C_1v95": 0,
+      "timing__setup__wns__corner:nom_tt_025C_1v80": 0,
+      "timing__setup__ws": 2.2701974276353836,
+      "timing__setup__ws__corner:max_ss_100C_1v60": 2.2701974276353836,
+      "timing__setup__ws__corner:min_ff_n40C_1v95": 7.010105139233628,
+      "timing__setup__ws__corner:nom_tt_025C_1v80": 5.735843962146279,
+      "timing__setup_r2r__ws": 2.270197,
+      "timing__setup_r2r__ws__corner:max_ss_100C_1v60": 2.270197,
+      "timing__setup_r2r__ws__corner:min_ff_n40C_1v95": 7.16528,
+      "timing__setup_r2r__ws__corner:nom_tt_025C_1v80": 5.735844,
+      "timing__setup_r2r_vio__count": 0,
+      "timing__setup_r2r_vio__count__corner:max_ss_100C_1v60": 0,
+      "timing__setup_r2r_vio__count__corner:min_ff_n40C_1v95": 0,
+      "timing__setup_r2r_vio__count__corner:nom_tt_025C_1v80": 0,
+      "timing__setup_vio__count": 0,
+      "timing__setup_vio__count__corner:max_ss_100C_1v60": 0,
+      "timing__setup_vio__count__corner:min_ff_n40C_1v95": 0,
+      "timing__setup_vio__count__corner:nom_tt_025C_1v80": 0,
+      "timing__unannotated_net__count": 8,
+      "timing__unannotated_net__count__corner:max_ss_100C_1v60": 8,
+      "timing__unannotated_net__count__corner:min_ff_n40C_1v95": 8,
+      "timing__unannotated_net__count__corner:nom_tt_025C_1v80": 8,
+      "timing__unannotated_net_filtered__count": 0,
+      "timing__unannotated_net_filtered__count__corner:max_ss_100C_1v60": 0,
+      "timing__unannotated_net_filtered__count__corner:min_ff_n40C_1v95": 0,
+      "timing__unannotated_net_filtered__count__corner:nom_tt_025C_1v80": 0
+    },
+    "power_limitation": "Default activity only; SRAM Liberty leakage is zero/unqualified; no VSRC placement.",
+    "public_klayout_drc": {
+      "beol": true,
+      "categories_with_violations": {},
+      "feol": true,
+      "foundry_signoff": false,
+      "offgrid": true,
+      "sram_exclude": false,
+      "top": "pa_m6_sram_probe",
+      "violation_items": 0
+    },
+    "qualified_workload_power": null,
+    "scope": "one 512x32 SRAM plus registered interface, not PocketAI",
+    "standalone_macro_lvs": {
+      "deck_change": "omit unavailable pmap from logging and normalize trailing blank line; extraction/comparison unchanged",
+      "scope": "original SRAM GDS versus supplied SPICE; public KLayout deck",
+      "status": "FAIL_NETLISTS_DO_NOT_MATCH",
+      "waiver": false
+    }
+  },
+  "status": "PREFLIGHT_ONLY_M6_INCOMPLETE"
+}

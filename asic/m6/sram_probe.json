@@ -1,0 +1,35 @@
+{
+  "DESIGN_NAME": "pa_m6_sram_probe",
+  "VERILOG_FILES": ["dir::pa_m6_sram_probe.v"],
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 10,
+  "FP_SIZING": "absolute",
+  "DIE_AREA": [0, 0, 620, 630],
+  "FP_CORE_UTIL": 35,
+  "PL_TARGET_DENSITY_PCT": 40,
+  "VDD_NETS": ["vdd"],
+  "GND_NETS": ["vss"],
+  "FP_PDN_MULTILAYER": true,
+  "FP_PDN_MACRO_HOOKS": ["u_sram vdd vss vdd vss"],
+  "FP_PDN_CFG": "dir::sram_probe_pdn.tcl",
+  "STA_MACRO_PRIORITIZE_NL": false,
+  "STA_CORNERS": [
+    "min_ff_n40C_1v95", "nom_tt_025C_1v80", "max_ss_100C_1v60"
+  ],
+  "MACROS": {
+    "sram22_512x32m4w8": {
+      "gds": ["dir::sram22_512x32m4w8.gds.gz"],
+      "lef": ["dir::sram22_512x32m4w8.lef"],
+      "vh": ["dir::sram22_512x32m4w8.v"],
+      "spice": ["dir::sram22_512x32m4w8.spice"],
+      "lib": {
+        "*_ff_n40C_1v95": ["dir::sram22_512x32m4w8_ff_n40C_1v95.lib"],
+        "*_tt_025C_1v80": ["dir::sram22_512x32m4w8_tt_025C_1v80.lib"],
+        "*_ss_100C_1v60": ["dir::sram22_512x32m4w8_ss_100C_1v60.lib"]
+      },
+      "instances": {
+        "u_sram": {"location": [85, 85], "orientation": "N"}
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "openlane_python": "2.3.10",
+  "container": "ghcr.io/efabless/openlane2@sha256:1c85892f7e745780c4c6bf634205f53761e34e1eab124b057889975cc5908000",
+  "container_platform": "linux/amd64",
+  "yosys_version": "0.46",
+  "yosys_commit": "e97731b9dda91fa5fa53ed87df7c34163ba59a41",
+  "openroad_commit": "edf00dff99f6c40d67a30c0e22a8191c5d2ed9d6",
+  "open_pdks_commit": "0fe599b2afb6708d281543108caf8310912f54af",
+  "pdk": "sky130A",
+  "standard_cells": "sky130_fd_sc_hd",
+  "sram22_repository": "https://github.com/ucb-substrate/sram22_sky130_macros",
+  "sram22_commit": "75cbe961e18ee00d5a6c73fa455505f0bcdf4c05",
+  "sram22_status": "single-macro timing and public DRC pass; standalone LVS mismatch; no full-system integration or qualification",
+  "sv2v_version": "v0.0.13",
+  "sv2v_archive": "https://github.com/zachjs/sv2v/releases/download/v0.0.13/sv2v-Linux.zip"
+}

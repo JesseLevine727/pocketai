@@ -1,5 +1,16 @@
 # Current project status
 
+**M6 ACTIVE:** the qualified startup release `7405919` is pushed. The next
+goal is the Sky130 port and PPA report under [M6 acceptance](docs/M6_PLAN.md).
+The full system elaborates; a single-SRAM probe passes extracted 100-MHz
+timing and the public KLayout DRC run, but its standalone LVS does not match
+and Magic cannot ingest all SRAM layers. No full-system ASIC pass is claimed.
+See the [preliminary PPA report](docs/PPA_REPORT.md) and
+[preflight reproduction](docs/M6_PREFLIGHT_REPRODUCE.md). Measured
+physical-board watts are explicitly deferred by the user; missing measurements
+will not be replaced by nominal ratings. Earlier milestone entries below are
+historical, frozen qualifications, not the current M6 status.
+
 **Latest qualified system:** [M5 startup and prompt-inclusive performance](docs/M5_STARTUP_RESULTS.md),
 **CLOSED / PASS.** All three plain repetitions of each original request pass:
 science/computing deliver one output in **9.990–9.997 s (~0.10005 token/s)**;
@@ -17,7 +28,7 @@ rebuild, stack bounds and normal zero-resource release pass. All 38 physical
 campaigns and rejected trials are retained; earlier audits remain intact.
 Validate with `python3 -m scripts.audit_m5_startup`; see
 [evidence](docs/m5_startup_evidence.json) and [reproduction](docs/M5_STARTUP_REPRODUCE.md).
-**M6 and its report remain unstarted.** Provisioning/loading/checking are
+This is the FPGA baseline for M6. Provisioning/loading/checking are
 separately recorded, not included in these inference-request throughput claims.
 
 **Previous qualified system:** [maximum-context M5 extension](docs/M5_CONTEXT_RESULTS.md),
