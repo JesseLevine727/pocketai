@@ -56,8 +56,11 @@ Local tests cover 32-bit × 2,048-word/two-read, 36-bit × 256-word/one-read and
 boundaries, concurrent write-priority behavior, disabled-read holds, synchronous
 command capture and reset retention. The isolated one-hot return alternative
 also passes these local tests; it is not promoted or full-system qualified.
-The chip SPI-loader smoke must still be rerun after integrating the 1x clock
-binding into the chip wrapper. Old 2x loader evidence is not a 1x loader pass.
+The subsequent 1x chip-wrapper integration passes SPI firmware load/readback,
+both real fast-MUL hart results and both UART bytes using a direct system-clock
+binding. The firmware is byte-identical to the earlier 188-byte loader test.
+This new RTL evidence is separate from the old 2x loader pass and is not pad,
+external-DRAM or full-model qualification. See [the resumed diagnosis](M6_SRAM_ELECTRICAL.md).
 
 ## Representative routed experiment
 
@@ -88,11 +91,13 @@ limits to 0.040 ns; that metadata must be checked against its characterized
 output tables and actual loads, not silently relaxed. Positive setup alone
 would not resolve these electrical failures. None of these probes is qualified.
 
-Next: dedicated local SRAM clock leaves, localized command/return buffering,
-and explicit review of macro transition limits. If the existing macro cannot
-meet its boundary limits, select or characterize a suitable memory before
-scaling up. Do not apply false paths, change clocks or waive electrical checks
-to obtain a pass. Full-chip placement additionally needs more durable storage.
+The post-storage pass tested dedicated local SRAM clock leaves: clock slew
+improved, but worst setup worsened to −0.386309 ns and the candidate was not
+promoted. The output-limit inconsistency is confirmed for every corner of all
+three screened macro sizes. Storage is now sufficient. Next: obtain a corrected,
+validated SRAM timing contract before more physical scaling, then close the
+clock/command/return network. Do not apply false paths, change clocks or waive
+electrical checks to obtain a pass. [Detailed results](M6_SRAM_ELECTRICAL.md).
 
 ## Reproduction
 

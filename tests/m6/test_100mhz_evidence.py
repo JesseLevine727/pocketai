@@ -11,6 +11,7 @@ class PhysicalEvidenceTests(unittest.TestCase):
         result.update({n+"__corner:"+c: 0 for c in CORNERS for n in names})
         result.update({n: 0 for n in ("route__drc_errors", "design__power_grid_violation__count",
                       "antenna__violating__nets", "antenna__violating__pins",
+                      "design__disconnected_pin__count", "design__critical_disconnected_pin__count",
                       "timing__unannotated_net_filtered__count")})
         return result
 
@@ -33,6 +34,12 @@ class PhysicalEvidenceTests(unittest.TestCase):
         result = physical_summary(metrics)
         self.assertEqual(result["timing__setup__ws"], -0.282)
         self.assertEqual(result["design__max_slew_violation__count"], 3610)
+
+    def test_missing_connectivity_is_not_pass(self):
+        metrics = self.metrics()
+        del metrics["design__critical_disconnected_pin__count"]
+        with self.assertRaises(KeyError):
+            physical_summary(metrics)
 
     def test_clean_probe_numbers_do_not_certify_system(self):
         self.assertEqual(physical_summary(self.metrics())["qualification"],

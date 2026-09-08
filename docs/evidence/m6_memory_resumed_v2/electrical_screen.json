@@ -1,0 +1,367 @@
+{
+  "all_screened_macros_have_output_default_conflict_at_all_corners": true,
+  "macros": {
+    "sram22_128x32m4w8": {
+      "ff_n40C_1v95": {
+        "any_characterized_output_transition_meets_default": false,
+        "characterized_table_entries": 98,
+        "interpretation": "Library-contract screen, not proof of a physical SRAM defect or a waiver.",
+        "library_default_max_transition_ns": 0.04,
+        "maximum_characterized_output_transition_ns": 2.58832,
+        "minimum_characterized_output_transition_ns": 0.062232,
+        "physical_timing_pass": null
+      },
+      "ss_100C_1v60": {
+        "any_characterized_output_transition_meets_default": false,
+        "characterized_table_entries": 98,
+        "interpretation": "Library-contract screen, not proof of a physical SRAM defect or a waiver.",
+        "library_default_max_transition_ns": 0.04,
+        "maximum_characterized_output_transition_ns": 4.88144,
+        "minimum_characterized_output_transition_ns": 0.157161,
+        "physical_timing_pass": null
+      },
+      "tt_025C_1v80": {
+        "any_characterized_output_transition_meets_default": false,
+        "characterized_table_entries": 98,
+        "interpretation": "Library-contract screen, not proof of a physical SRAM defect or a waiver.",
+        "library_default_max_transition_ns": 0.04,
+        "maximum_characterized_output_transition_ns": 3.27289,
+        "minimum_characterized_output_transition_ns": 0.087407,
+        "physical_timing_pass": null
+      }
+    },
+    "sram22_256x32m4w8": {
+      "ff_n40C_1v95": {
+        "any_characterized_output_transition_meets_default": false,
+        "characterized_table_entries": 98,
+        "interpretation": "Library-contract screen, not proof of a physical SRAM defect or a waiver.",
+        "library_default_max_transition_ns": 0.04,
+        "maximum_characterized_output_transition_ns": 2.5743,
+        "minimum_characterized_output_transition_ns": 0.05936,
+        "physical_timing_pass": null
+      },
+      "ss_100C_1v60": {
+        "any_characterized_output_transition_meets_default": false,
+        "characterized_table_entries": 98,
+        "interpretation": "Library-contract screen, not proof of a physical SRAM defect or a waiver.",
+        "library_default_max_transition_ns": 0.04,
+        "maximum_characterized_output_transition_ns": 4.86288,
+        "minimum_characterized_output_transition_ns": 0.154113,
+        "physical_timing_pass": null
+      },
+      "tt_025C_1v80": {
+        "any_characterized_output_transition_meets_default": false,
+        "characterized_table_entries": 98,
+        "interpretation": "Library-contract screen, not proof of a physical SRAM defect or a waiver.",
+        "library_default_max_transition_ns": 0.04,
+        "maximum_characterized_output_transition_ns": 3.25789,
+        "minimum_characterized_output_transition_ns": 0.080335,
+        "physical_timing_pass": null
+      }
+    },
+    "sram22_512x32m4w8": {
+      "ff_n40C_1v95": {
+        "any_characterized_output_transition_meets_default": false,
+        "characterized_table_entries": 98,
+        "interpretation": "Library-contract screen, not proof of a physical SRAM defect or a waiver.",
+        "library_default_max_transition_ns": 0.04,
+        "maximum_characterized_output_transition_ns": 2.58546,
+        "minimum_characterized_output_transition_ns": 0.062843,
+        "physical_timing_pass": null,
+        "zero_wire_clock_driver_screen": {
+          "buf_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.14153507687688677,
+                "pin_capacitance_pf": 0.230608,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.14248616403595685
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.2641928542841294,
+                "pin_capacitance_pf": 0.231604,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.264562512980694
+              }
+            },
+            "inverting": false,
+            "physical_clock_pass": null
+          },
+          "clkbuf_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.15422728187447668,
+                "pin_capacitance_pf": 0.230608,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.15476329231722244
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.25410782755466244,
+                "pin_capacitance_pf": 0.231604,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.2548333427975631
+              }
+            },
+            "inverting": false,
+            "physical_clock_pass": null
+          },
+          "clkinv_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.1495696680717104,
+                "pin_capacitance_pf": 0.230608,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.1678155456752099
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.16255285802582822,
+                "pin_capacitance_pf": 0.231604,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.1743818731425183
+              }
+            },
+            "inverting": true,
+            "physical_clock_pass": null
+          },
+          "inv_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.09746542477979639,
+                "pin_capacitance_pf": 0.230608,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.12433450668103403
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.224836266175801,
+                "pin_capacitance_pf": 0.231604,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.234244112888206
+              }
+            },
+            "inverting": true,
+            "physical_clock_pass": null
+          }
+        }
+      },
+      "ss_100C_1v60": {
+        "any_characterized_output_transition_meets_default": false,
+        "characterized_table_entries": 98,
+        "interpretation": "Library-contract screen, not proof of a physical SRAM defect or a waiver.",
+        "library_default_max_transition_ns": 0.04,
+        "maximum_characterized_output_transition_ns": 4.87235,
+        "minimum_characterized_output_transition_ns": 0.163674,
+        "physical_timing_pass": null,
+        "zero_wire_clock_driver_screen": {
+          "buf_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.2763373407088284,
+                "pin_capacitance_pf": 0.233091,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.2769602608485851
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": false,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.510217867605997,
+                "pin_capacitance_pf": 0.241128,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.5113052468337534
+              }
+            },
+            "inverting": false,
+            "physical_clock_pass": null
+          },
+          "clkbuf_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.34046275611570254,
+                "pin_capacitance_pf": 0.233091,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.34049586090573986
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": false,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.5067351301246628,
+                "pin_capacitance_pf": 0.241128,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.5069616095886273
+              }
+            },
+            "inverting": false,
+            "physical_clock_pass": null
+          },
+          "clkinv_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.33690515242897173,
+                "pin_capacitance_pf": 0.233091,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.3385220939353995
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.3237290073528743,
+                "pin_capacitance_pf": 0.241128,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.3240135951838574
+              }
+            },
+            "inverting": true,
+            "physical_clock_pass": null
+          },
+          "inv_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.20998015274755372,
+                "pin_capacitance_pf": 0.233091,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.21536835052695438
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": false,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.4479281575498993,
+                "pin_capacitance_pf": 0.241128,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.4483565484060147
+              }
+            },
+            "inverting": true,
+            "physical_clock_pass": null
+          }
+        }
+      },
+      "tt_025C_1v80": {
+        "any_characterized_output_transition_meets_default": false,
+        "characterized_table_entries": 98,
+        "interpretation": "Library-contract screen, not proof of a physical SRAM defect or a waiver.",
+        "library_default_max_transition_ns": 0.04,
+        "maximum_characterized_output_transition_ns": 3.27051,
+        "minimum_characterized_output_transition_ns": 0.088208,
+        "physical_timing_pass": null,
+        "zero_wire_clock_driver_screen": {
+          "buf_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.1805597630441942,
+                "pin_capacitance_pf": 0.23365,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.1808832509036224
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.34123038958895613,
+                "pin_capacitance_pf": 0.23676,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.3418456128776878
+              }
+            },
+            "inverting": false,
+            "physical_clock_pass": null
+          },
+          "clkbuf_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.20876649117353058,
+                "pin_capacitance_pf": 0.23365,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.2089745104281981
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.3326309393880311,
+                "pin_capacitance_pf": 0.23676,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.33288762149860457
+              }
+            },
+            "inverting": false,
+            "physical_clock_pass": null
+          },
+          "clkinv_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.20518131376715504,
+                "pin_capacitance_pf": 0.23365,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.21442439204751934
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.21348196298409433,
+                "pin_capacitance_pf": 0.23676,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.22068490722543055
+              }
+            },
+            "inverting": true,
+            "physical_clock_pass": null
+          },
+          "inv_16": {
+            "clock_input_limit_ns": 0.351,
+            "edges": {
+              "fall": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.12870947567560298,
+                "pin_capacitance_pf": 0.23365,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.146843497083937
+              },
+              "rise": {
+                "best_zero_wire_meets_input_limit": true,
+                "best_zero_wire_transition_at_macro_thresholds_ns": 0.29386980805954926,
+                "pin_capacitance_pf": 0.23676,
+                "threshold_normalization_ratio": 1.3333333333333333,
+                "transition_at_0p15ns_driver_input_slew_ns": 0.2981512368820892
+              }
+            },
+            "inverting": true,
+            "physical_clock_pass": null
+          }
+        }
+      }
+    }
+  },
+  "schema": 1,
+  "sources": {
+    "build/m6_memory_screen_v1/sram22_128x32m4w8_ff_n40C_1v95.lib": "d583b81af0b0c33f9bace0b6d22ff2ca7dfad971a201e786055f61ef6b5e19b7",
+    "build/m6_memory_screen_v1/sram22_128x32m4w8_ss_100C_1v60.lib": "794c89833a8f1c0adeac86e0f6d67df98dbc37b19a5857782b9064db5c790f45",
+    "build/m6_memory_screen_v1/sram22_128x32m4w8_tt_025C_1v80.lib": "223c0d289638bd078be25e21f5f8f8547335a52935c98ac217e417991e78e612",
+    "build/m6_memory_screen_v1/sram22_256x32m4w8_ff_n40C_1v95.lib": "ccb37c30f650c019f10a07794a91ee2584a81deeb0f42b2b18eb028935962a6a",
+    "build/m6_memory_screen_v1/sram22_256x32m4w8_ss_100C_1v60.lib": "c9dfddc7b9326bd3ee6ecf3dfd3265f23da81d911633bc7cb61b834248e22572",
+    "build/m6_memory_screen_v1/sram22_256x32m4w8_tt_025C_1v80.lib": "eeaaf36ed62a2cdf88fb1031626887c2b403cc881ddfe280ef916f6f32cebb4c",
+    "build/m6_memory_screen_v1/sram22_512x32m4w8_ff_n40C_1v95.lib": "7986a128c686c65adffd2564b988a9c5163d513e987cceeffc7064d67b7e7481",
+    "build/m6_memory_screen_v1/sram22_512x32m4w8_ss_100C_1v60.lib": "75de15985f27c7f1232c50b2fae4324a3e6ef51b770ab113ee8beaaa25a24ba8",
+    "build/m6_memory_screen_v1/sram22_512x32m4w8_tt_025C_1v80.lib": "3dcbc059294e0f54a7f5111046d23c4e759ea9f053f353b01a00a1fb1da32e68",
+    "build/m6_pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ff_n40C_1v95.lib": "fb61d91c55a7f85b1989e8149d040b13ba5e7f5478f5bf0c3c16c5da30720139",
+    "build/m6_pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib": "9b24f0db3967ac67b4cae1f74bb480fd47922d18d0ed577e3c121739b412c361",
+    "build/m6_pdks/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+    "scripts/m6_electrical_screen.py": "7f54f5e6bb21aa104f61696ca1d794642dae8ba66b51575dab1c5ae47c53398d"
+  },
+  "status": "UNQUALIFIED_ELECTRICAL_SCREEN"
+}

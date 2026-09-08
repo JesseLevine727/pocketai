@@ -1,0 +1,83 @@
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃ Macro/Instance  ┃ Power Pins ┃ Disconnected         ┃ Signal Pins       ┃ Disconnected ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ m6_leaf_0_pre   │            │ m6_leaf_0_pre/VGND   │ m6_leaf_0_pre/A   │              │
+│                 │            │ m6_leaf_0_pre/VNB    │ m6_leaf_0_pre/Y   │              │
+│                 │            │ m6_leaf_0_pre/VPB    │                   │              │
+│                 │            │ m6_leaf_0_pre/VPWR   │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_0_drive │            │ m6_leaf_0_drive/VGND │ m6_leaf_0_drive/A │              │
+│                 │            │ m6_leaf_0_drive/VNB  │ m6_leaf_0_drive/Y │              │
+│                 │            │ m6_leaf_0_drive/VPB  │                   │              │
+│                 │            │ m6_leaf_0_drive/VPWR │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_1_pre   │            │ m6_leaf_1_pre/VGND   │ m6_leaf_1_pre/A   │              │
+│                 │            │ m6_leaf_1_pre/VNB    │ m6_leaf_1_pre/Y   │              │
+│                 │            │ m6_leaf_1_pre/VPB    │                   │              │
+│                 │            │ m6_leaf_1_pre/VPWR   │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_1_drive │            │ m6_leaf_1_drive/VGND │ m6_leaf_1_drive/A │              │
+│                 │            │ m6_leaf_1_drive/VNB  │ m6_leaf_1_drive/Y │              │
+│                 │            │ m6_leaf_1_drive/VPB  │                   │              │
+│                 │            │ m6_leaf_1_drive/VPWR │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_2_pre   │            │ m6_leaf_2_pre/VGND   │ m6_leaf_2_pre/A   │              │
+│                 │            │ m6_leaf_2_pre/VNB    │ m6_leaf_2_pre/Y   │              │
+│                 │            │ m6_leaf_2_pre/VPB    │                   │              │
+│                 │            │ m6_leaf_2_pre/VPWR   │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_2_drive │            │ m6_leaf_2_drive/VGND │ m6_leaf_2_drive/A │              │
+│                 │            │ m6_leaf_2_drive/VNB  │ m6_leaf_2_drive/Y │              │
+│                 │            │ m6_leaf_2_drive/VPB  │                   │              │
+│                 │            │ m6_leaf_2_drive/VPWR │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_3_pre   │            │ m6_leaf_3_pre/VGND   │ m6_leaf_3_pre/A   │              │
+│                 │            │ m6_leaf_3_pre/VNB    │ m6_leaf_3_pre/Y   │              │
+│                 │            │ m6_leaf_3_pre/VPB    │                   │              │
+│                 │            │ m6_leaf_3_pre/VPWR   │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_3_drive │            │ m6_leaf_3_drive/VGND │ m6_leaf_3_drive/A │              │
+│                 │            │ m6_leaf_3_drive/VNB  │ m6_leaf_3_drive/Y │              │
+│                 │            │ m6_leaf_3_drive/VPB  │                   │              │
+│                 │            │ m6_leaf_3_drive/VPWR │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_4_pre   │            │ m6_leaf_4_pre/VGND   │ m6_leaf_4_pre/A   │              │
+│                 │            │ m6_leaf_4_pre/VNB    │ m6_leaf_4_pre/Y   │              │
+│                 │            │ m6_leaf_4_pre/VPB    │                   │              │
+│                 │            │ m6_leaf_4_pre/VPWR   │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_4_drive │            │ m6_leaf_4_drive/VGND │ m6_leaf_4_drive/A │              │
+│                 │            │ m6_leaf_4_drive/VNB  │ m6_leaf_4_drive/Y │              │
+│                 │            │ m6_leaf_4_drive/VPB  │                   │              │
+│                 │            │ m6_leaf_4_drive/VPWR │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_5_pre   │            │ m6_leaf_5_pre/VGND   │ m6_leaf_5_pre/A   │              │
+│                 │            │ m6_leaf_5_pre/VNB    │ m6_leaf_5_pre/Y   │              │
+│                 │            │ m6_leaf_5_pre/VPB    │                   │              │
+│                 │            │ m6_leaf_5_pre/VPWR   │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_5_drive │            │ m6_leaf_5_drive/VGND │ m6_leaf_5_drive/A │              │
+│                 │            │ m6_leaf_5_drive/VNB  │ m6_leaf_5_drive/Y │              │
+│                 │            │ m6_leaf_5_drive/VPB  │                   │              │
+│                 │            │ m6_leaf_5_drive/VPWR │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_6_pre   │            │ m6_leaf_6_pre/VGND   │ m6_leaf_6_pre/A   │              │
+│                 │            │ m6_leaf_6_pre/VNB    │ m6_leaf_6_pre/Y   │              │
+│                 │            │ m6_leaf_6_pre/VPB    │                   │              │
+│                 │            │ m6_leaf_6_pre/VPWR   │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_6_drive │            │ m6_leaf_6_drive/VGND │ m6_leaf_6_drive/A │              │
+│                 │            │ m6_leaf_6_drive/VNB  │ m6_leaf_6_drive/Y │              │
+│                 │            │ m6_leaf_6_drive/VPB  │                   │              │
+│                 │            │ m6_leaf_6_drive/VPWR │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_7_pre   │            │ m6_leaf_7_pre/VGND   │ m6_leaf_7_pre/A   │              │
+│                 │            │ m6_leaf_7_pre/VNB    │ m6_leaf_7_pre/Y   │              │
+│                 │            │ m6_leaf_7_pre/VPB    │                   │              │
+│                 │            │ m6_leaf_7_pre/VPWR   │                   │              │
+├─────────────────┼────────────┼──────────────────────┼───────────────────┼──────────────┤
+│ m6_leaf_7_drive │            │ m6_leaf_7_drive/VGND │ m6_leaf_7_drive/A │              │
+│                 │            │ m6_leaf_7_drive/VNB  │ m6_leaf_7_drive/Y │              │
+│                 │            │ m6_leaf_7_drive/VPB  │                   │              │
+│                 │            │ m6_leaf_7_drive/VPWR │                   │              │
+└─────────────────┴────────────┴──────────────────────┴───────────────────┴──────────────┘

@@ -1,0 +1,2 @@
+# Preserve the byte-identical OpenROAD banner (including its trailing space).
+local_leaf_topology.log -whitespace

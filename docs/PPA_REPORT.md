@@ -3,7 +3,7 @@
 Status: **preliminary M6 report; M6 is not closed.** The qualified FPGA release
 is `7405919`. The historical two-phase SRAM port passes functional tests,
 synthesis and macro-placement/power-grid connectivity checks. The new
-single-clock candidate passes full-system RTL tests but does not yet pass
+single-clock candidate passes full-system RTL and digital loader tests but does not yet pass
 the representative banked-memory physical checks. Neither result describes
 a routed, timing-closed full chip or measured ASIC inference.
 Acceptance is recorded in [M6_PLAN.md](M6_PLAN.md).
@@ -44,6 +44,8 @@ functional, synthesis, block-area and floorplan evidence. The
 single-clock candidate, its consumer assertions and the new routed bank probes.
 Small [primary log/report extracts](evidence/m6_100mhz/manifest.json) are tracked
 with the report; complete EDA runs remain retained locally and hash-bound.
+The [post-storage extracts](evidence/m6_memory_resumed_v2/manifest.json) add the
+electrical screen, local-clock trial and single-clock loader evidence.
 
 ## Architecture and implementation figures
 
@@ -398,6 +400,7 @@ PVT/RC corners. Timing is extracted, not estimated from RTL simulation.
 | Binary bank selector, default CTS | −0.495889 ns | −0.126829 ns | −4.443952 ns | −0.927285 ns |
 | Binary selector, SS CTS and targeted timing repair | −0.282133 ns | +0.052682 ns | −2.137645 ns | 0 ns |
 | One-hot registered selector, same repair settings | −0.329493 ns | +0.035324 ns | −1.517167 ns | 0 ns |
+| Binary selector, dedicated local clock-inverter pairs | −0.386309 ns | +0.004979 ns | −5.904418 ns | 0 ns |
 
 The clock/timing repair eliminates hold violations but does not close setup.
 The one-hot variant passes local storage tests but does not improve worst setup
@@ -407,13 +410,35 @@ The binary repair trial has zero detailed-router DRC errors and zero supply
 disconnects, but 26 antenna-violating nets and 3,610 slow-corner slew violations.
 Its critical SRAM clock arrives with 1.216720-ns slew, beyond the macro's
 0.351-ns input limit. The Liberty default output-transition limit of 0.040 ns
-also requires review against the characterized output behavior and loads.
-These checks are not waived. The next experiment must address dedicated local
-SRAM clock leaves and command/return buffering before scaling to the full core.
+also conflicts with the supplied output-transition tables. A read-only audit
+finds no characterized output sample meeting that default in any supplied corner
+of the 128-, 256- or 512-word alternatives. For the 512-word macro, the minimum
+SS/TT/FF output transitions are 0.163674/0.088208/0.062843 ns. These are table
+extrema, not extracted path results. The finding identifies an inconsistent IP
+contract; it does not establish a physical SRAM defect or a process-frequency
+limit. The original libraries and all electrical checks remain unchanged.
+
+The subsequent local-clock experiment inserts one non-inverting pair of clock
+inverters per SRAM. The new critical macro's rising clock slew is 0.348873 ns,
+but worst setup worsens to −0.386309 ns. The trial still reports 3,564 SS slew
+violations and 34 antenna-violating nets, despite zero detailed-router DRC errors
+and zero supply/connectivity violations. It is not promoted. The first local
+trial's PG-disconnect failure is retained; explicit PG connections fix that
+error and a post-route regression verifies all 16 inserted cells and 64 supply
+connections. This connectivity result does not qualify its timing. The
+[electrical diagnosis](M6_SRAM_ELECTRICAL.md) records the screen, driver-load
+estimates, failed experiment and reproducible primary artifacts.
+
+The single-clock digital chip integration now passes the SRAM-only loader
+test: SPI loads and reads back the unchanged 188-byte firmware, both actual
+fast-MUL Ibex harts return the expected results, and UART returns both expected
+bytes. The system clock is directly bound to the input; a divider does not hide
+a slower compute domain. The simulator uses a 10-ns period, which is not physical
+100-MHz timing evidence.
 
 These results support continuing the single-clock architecture, but **do not
-establish 100-MHz memory or full-system operation**. The 1x chip-wrapper/loader,
-physical memory interface, full placement/routing, useful throughput and final
+establish 100-MHz memory or full-system operation**. The physical memory
+interface, full placement/routing, useful throughput and final
 PPA qualifications remain open. Existing historical area and loader results
 must not be attributed to the changed candidate.
 
@@ -444,15 +469,20 @@ Measured board watts, SRAM-internal verification and unavailable leakage data
 remain deferred under the approved research-only scope. There is no MPW submission or
 fabrication-ready claim in this release.
 
-Full-chip implementation is **waiting for storage**, while the representative
-banked-memory candidate still needs setup/electrical/antenna closure. Before
-this resumed pass on 2026-09-08, approximately 7.4 GiB remained after
+Full-chip implementation is **waiting for a resolved SRAM timing contract and
+representative memory closure**, not storage. The user-authorized cleanup
+recovered approximately 132 GiB, leaving about 135 GiB available at resumption.
+Before the earlier checkpoint on 2026-09-08, approximately 7.4 GiB remained after
 byte-identical completed views were consolidated into hard links. Every
 original evidence path and its full-content hash was preserved. The physical
-runner rejected the next placement stage below its 10-GiB minimum. Additional
-working space is required for routing, extraction and chip-level artifacts;
+runner rejected the next placement stage below its 10-GiB minimum. The new free
+space exceeds that minimum and the recommended reserve for subsequent stages;
 30 GiB free is a practical recommended starting reserve, not a measured peak.
-The resumed work stayed within bounded small-probe and simulation runs, with
+The earlier checkpoint stayed within bounded small-probe and simulation runs, with
 approximately 5 GiB free after the probe stage and below 3 GiB at the final
-checkpoint audit. No retained evidence or unrelated files
-were deleted. The revised worklist remains [M6_100MHZ_CLOSURE.md](M6_100MHZ_CLOSURE.md).
+checkpoint audit. Those historical observations are not the current storage
+status. No retained evidence was deleted. Further full-system routing is gated
+on reviewed corrected SRAM characterization or suitable replacement IP, then
+banked-memory setup, electrical and antenna closure. An arbitrary relaxation
+of the 40-ps output limit is not a validated replacement contract.
+The revised worklist remains [M6_100MHZ_CLOSURE.md](M6_100MHZ_CLOSURE.md).

@@ -1,0 +1,33 @@
+{
+  "clock_input_legacy_name": "clk_mem_i",
+  "harness_changes": {
+    "Simulation sim;": "Simulation sim;\n    check(sim.context.timeprecision()==-12,\"expected 1ps simulation precision\");",
+    "context.timeInc(10)": "context.timeInc(5000)",
+    "top.eval(); ++ticks;": "top.eval(); ++ticks;\n      check(top.clk_sys_o==top.clk_mem_i,\"direct 1x clock binding\");",
+    "uart_wait=32": "uart_wait=16",
+    "uart_wait=48": "uart_wait=24"
+  },
+  "physical_timing_pass": null,
+  "simulated_clock_period_ns": 10,
+  "sources": {
+    "build/m6_portable_1x_candidate_v1/inputs.sha256": "8a3c5e5572658d1e329e2d2646fa7693bf0287cf7b58b8f78981aba534aa662d",
+    "build/m6_portable_1x_candidate_v1/portable.json": "c5be9fa5dbae5bf0f34c12da74de9484ab4d96db9cd59fc3b31bf305fffd28d9",
+    "build/m6_portable_1x_candidate_v1/portable.v": "d4eb30c3dfce8ee8b96c1f45ac9dc3485eace952b4f77d19aa383a50199ae7b6",
+    "scripts/m6_prepare_1x_chip.py": "04b83a93b53f2890563d9a800a08b45733090abeb29f82e052941e157925ee44",
+    "scripts/m6_prepare_chip.py": "39ea883709517b3c3d92b8093fe3226d927fb4d6a57b7cc4b98052f3bf0ac83e",
+    "tests/m6/chip_smoke.cc": "8130d7ae6522a1b42928789053c0ed705a90b8309ac201d9c74081d905ff3249"
+  },
+  "staged": {
+    "chip_smoke_1x.cc": "b91df7b4976d6df96861a6afc35d765e1c2ccd575518e90d395d117177997bd8",
+    "manifest.json": "649b118c5a86a179b180f5753f02d6c02ebaa9078a2b223de7f6c50ce62f0416",
+    "pa_m6_chip_core.sv": "55e8845ffcd87e771ce3d3a5f51bc6067a477a83d170df22e6c9619f35342ab9",
+    "pa_m6_clocking.sv": "8a6c417165f6c454bcb7395a2e3c02aaebe2f6b4f0cf4d2017a5de2305399409",
+    "pa_m6_host.sv": "075a9109f24edbba6e6600058d2e31a489fa81ad3619a7d7b0ca9d5ee699113f",
+    "pa_m6_soc.sv": "1a5354cf36daa2afb698a658473493f269e68422acfda742104c4af1ffd587a9",
+    "pa_m6_spi.sv": "7b78238a1626486a450719c7477fa4f5e23d50346743acbbad6bf9cded058ed9",
+    "pa_m6_uart_tx.sv": "a8a97de07e41c2c76f8e928bd829c726225ecbbadef927e9573d42c0426538ee",
+    "portable.v": "d4eb30c3dfce8ee8b96c1f45ac9dc3485eace952b4f77d19aa383a50199ae7b6"
+  },
+  "status": "STAGED_1X_DIGITAL_CHIP_NOT_PHYSICAL_QUALIFICATION",
+  "system_to_input_clock_ratio": 1
+}

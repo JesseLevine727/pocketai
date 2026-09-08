@@ -1,0 +1,42 @@
+{
+  "files": {
+    "chip_1x.log": {
+      "sha256": "f354a0a64ed7f30865ea415468be5736afaac87f76a50f7cd3b12d23faa0916f",
+      "source": "build/m6_chip_1x_test_v2/run.log"
+    },
+    "chip_1x_manifest.json": {
+      "sha256": "0404961804a75efba30889d9dda387ea190bea968400ec7db8f7a4453ec39cef",
+      "source": "build/m6_chip_1x_logic_v2/single_clock_manifest.json"
+    },
+    "electrical_screen.json": {
+      "sha256": "8fe7c71f152d449229e6aaaa7f0c43c1b14c56444ea941ac62b3882681316b60",
+      "source": "build/m6_electrical_screen_v1/electrical.json"
+    },
+    "failed_leaf_disconnected.txt": {
+      "sha256": "32c6a1465aeaf6f06c760429c0f7e931f806114a056dee6b663f708048b26e18",
+      "source": "build/m6_bank_1x_probe_v2/runs/local_leaf_v1/15-odb-reportdisconnectedpins/full_disconnected_pins_table.txt"
+    },
+    "local_leaf_resolved.json": {
+      "sha256": "ec56f53d9bb096c4d6c4baeb6d8cf278890a3825e6bcd8e8dd1cb75f016cbdfe",
+      "source": "build/m6_bank_1x_probe_v2/runs/local_leaf_v2/resolved.json"
+    },
+    "local_leaf_ss_checks.rpt": {
+      "sha256": "ce8d2ed5fd2e953d3eb55744070752daec0d7dbaa96ef829480fdd77b49d2518",
+      "source": "build/m6_bank_1x_probe_v2/runs/local_leaf_v2/22-openroad-stapostpnr/max_ss_100C_1v60/checks.rpt"
+    },
+    "local_leaf_state.json": {
+      "sha256": "c5d9980100af35f0614b0e4566bba9dad92e0580f76daccc5af0e6b8af206a60",
+      "source": "build/m6_bank_1x_probe_v2/runs/local_leaf_v2/22-openroad-stapostpnr/state_out.json"
+    },
+    "local_leaf_summary.rpt": {
+      "sha256": "0bdcb221f24bae32ec9462835bcf1eb8307a0413450d356ae522acabf5493570",
+      "source": "build/m6_bank_1x_probe_v2/runs/local_leaf_v2/22-openroad-stapostpnr/summary.rpt"
+    },
+    "local_leaf_topology.log": {
+      "sha256": "46f67c2d4a00320e24f1366079b4ba11bae4de6b67e8153fdc693379935e3939",
+      "source": "build/m6_bank_1x_probe_v2/local_leaf_v2_topology.log"
+    }
+  },
+  "schema": 1,
+  "status": "PRIMARY_EXTRACTS_NOT_M6_CLOSURE"
+}

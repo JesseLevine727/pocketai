@@ -17,6 +17,7 @@ def physical_summary(metrics):
     result.update({n: metrics[n] for n in names})
     for name in ("route__drc_errors", "design__power_grid_violation__count",
                  "antenna__violating__nets", "antenna__violating__pins",
+                 "design__disconnected_pin__count", "design__critical_disconnected_pin__count",
                  "timing__unannotated_net_filtered__count"):
         result[name] = metrics[name]
     result["qualification"] = "UNQUALIFIED_PROBE_NOT_FULL_SYSTEM"
@@ -42,6 +43,14 @@ def collect():
     screen = read("build/m6_memory_screen_v1/screen.json")
     for name, row in screen["artifacts"].items():
         assert digest(record("build/m6_memory_screen_v1/"+name)) == row["sha256"]
+    electrical = read("build/m6_electrical_screen_v1/electrical.json")
+    for path, sha in electrical["sources"].items():
+        assert digest(record(path)) == sha
+    from scripts.m6_electrical_screen import output_screen
+    for macro, corners in electrical["macros"].items():
+        for corner, row in corners.items():
+            observed = output_screen((ROOT/f"build/m6_memory_screen_v1/{macro}_{corner}.lib").read_text())
+            assert all(row[key] == value for key, value in observed.items())
     assembly = "build/m6_portable_1x_candidate_v1/"
     for line in record(assembly+"inputs.sha256").read_text().splitlines():
         sha, path = line.split(maxsplit=1)
@@ -77,6 +86,7 @@ def collect():
         "binary_default_cts": ("m6_bank_1x_probe_v2", "route_v2", "32-openroad-stapostpnr"),
         "binary_clock_repair": ("m6_bank_1x_probe_v2", "clock_repair_v2", "22-openroad-stapostpnr"),
         "onehot_return": ("m6_bank_1x_onehot_v1", "route_v1", "55-openroad-stapostpnr"),
+        "binary_local_clock_leaves": ("m6_bank_1x_probe_v2", "local_leaf_v2", "22-openroad-stapostpnr"),
     }
     physical = {}
     for label, (stage, run, step) in trials.items():
@@ -101,6 +111,39 @@ def collect():
                 if path is not None:
                     assert path.startswith("/work/")
                     record(prefix+path.removeprefix("/work/"))
+    for line in record("build/m6_bank_1x_probe_v2/local_leaf_v2_flow_sources.sha256").read_text().splitlines():
+        sha, path = line.split(maxsplit=1)
+        assert digest(record(path)) == sha
+    topology = record("build/m6_bank_1x_probe_v2/local_leaf_v2_topology.log").read_text()
+    assert "M6 CLOCK LEAF TOPOLOGY PASS macros=8 inverters=16 pg_connections=64" in topology
+    failed_leaf = read("build/m6_bank_1x_probe_v2/runs/local_leaf_v1/15-odb-reportdisconnectedpins/state_out.json")
+    assert failed_leaf["metrics"]["design__critical_disconnected_pin__count"] == 32
+    for path in ("build/m6_bank_1x_probe_v2/local_leaf_v1_console.log",
+                 "build/m6_bank_1x_probe_v2/local_leaf_v1_flow_sources.sha256",
+                 "build/m6_bank_1x_probe_v2/runs/local_leaf_v1/15-odb-reportdisconnectedpins/full_disconnected_pins_table.txt"):
+        record(path)
+    chip = read("build/m6_chip_1x_logic_v2/single_clock_manifest.json")
+    for path, sha in chip["sources"].items():
+        assert digest(record(path)) == sha
+    for name, sha in chip["staged"].items():
+        assert digest(record("build/m6_chip_1x_logic_v2/"+name)) == sha
+    assert chip["system_to_input_clock_ratio"] == 1 and chip["simulated_clock_period_ns"] == 10
+    assert "assign clk_sys_o = clk_mem_i;" in (ROOT/"build/m6_chip_1x_logic_v2/pa_m6_soc.sv").read_text()
+    for line in record("build/m6_chip_1x_test_v2/inputs.sha256").read_text().splitlines():
+        sha, path = line.split(maxsplit=1)
+        assert digest(record(path)) == sha
+    assert digest(record("build/m6_chip_1x_test_v2/smoke.bin")) == digest(record("build/m6_chip_test_v3/smoke.bin"))
+    record("build/m6_chip_1x_test_v2/build.log")
+    chip_log = record("build/m6_chip_1x_test_v2/run.log").read_text()
+    assert "M6 CHIP LOADER PASS firmware_bytes=188 spi_frames=208 harts=2 fast_mul=2 uart_bytes=2" in chip_log
+    assert "FAIL" not in chip_log
+    harness = (ROOT/"build/m6_chip_1x_logic_v2/chip_smoke_1x.cc").read_text()
+    assert "context.timeInc(5000)" in harness and "sim.context.timeprecision()==-12" in harness
+    assert "top.clk_sys_o==top.clk_mem_i" in harness
+    generated = record("build/m6_chip_1x_test_v2/obj/Vpa_m6_chip_core__Syms.cpp").read_text()
+    assert "_vm_contextp__->timeprecision(-12);" in generated
+    for path in ("build/m6_chip_1x_logic_v1/single_clock_manifest.json", "build/m6_chip_1x_test_v1/run.log"):
+        record(path)  # Historical zero-delay functional trial; not the 10-ns-period evidence.
     figures = read("docs/figures/m6/manifest.json")
     for path, sha in figures["sources"].items():
         assert digest(record(path)) == sha
@@ -110,6 +153,10 @@ def collect():
     extracts = read("docs/evidence/m6_100mhz/manifest.json")
     for name, row in extracts["files"].items():
         assert digest(record("docs/evidence/m6_100mhz/"+name)) == row["sha256"]
+        assert digest(record(row["source"])) == row["sha256"]
+    resumed = read("docs/evidence/m6_memory_resumed_v2/manifest.json")
+    for name, row in resumed["files"].items():
+        assert digest(record("docs/evidence/m6_memory_resumed_v2/"+name)) == row["sha256"]
         assert digest(record(row["source"])) == row["sha256"]
     for directory in ("asic/m6", "tests/m6"):
         tree(directory, {".py", ".sv", ".v", ".tcl", ".sdc", ".json"})
@@ -125,16 +172,19 @@ def collect():
                 "consumer_assertion_module_types": 4, "formal_equivalence": False,
                 "macro_count": 292, "logical_arrays": 47, "firmware_or_oracle_changes": False,
                 "test_harness": "Retained two-phase harness; candidate SRAM samples system clock only",
-                "general_1w2r_equivalence": False, "chip_loader_requalified_with_1x": False},
-            "memory_screen": screen["macros"], "physical_probes": physical,
+                "general_1w2r_equivalence": False, "chip_loader_requalified_with_1x": True,
+                "chip_loader_scope": "RTL SRAM-only SPI load/readback, two real fast-MUL harts and UART; not pads or full-model inference"},
+            "memory_screen": screen["macros"], "electrical_screen": electrical, "physical_probes": physical,
+            "local_clock_candidate": {"promoted": False, "topology_pg_regression_pass": True,
+                "reason": "Improved clock slew, worse setup; electrical and antenna checks still fail",
+                "first_trial": "local_leaf_v1 rejected for 32 critical PG disconnects; retained, not qualified"},
             "onehot_candidate": {"local_contract_pass": True, "full_system_test": "NOT_RUN",
                                   "promoted": False, "reason": "No worst-setup improvement"},
             "figures": figures,
             "remaining": ["SRAM clock/input slew and output-library default transition review",
                           "100-MHz banked-memory setup and antenna closure",
-                          "durable disk space: full-core guard 10 GiB; 30 GiB recommended",
                           "full-system 1x physical integration, locality, CTS, route and all-corner checks",
-                          "1x chip loader, external-memory/pad integration and useful throughput qualification",
+                          "physical external-memory/pad integration and useful throughput qualification",
                           "final routed ASIC figure, PPA report and release"],
             "artifacts": dict(sorted(artifacts.items()))}
 

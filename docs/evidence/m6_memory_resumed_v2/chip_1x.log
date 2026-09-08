@@ -1,0 +1,2 @@
+M6 CHIP OBSERVED hart0=5535 hart1=5580 control=00000023 status=00000001 uart_bytes=2
+M6 CHIP LOADER PASS firmware_bytes=188 spi_frames=208 harts=2 fast_mul=2 uart_bytes=2 memory_half_ticks=695760

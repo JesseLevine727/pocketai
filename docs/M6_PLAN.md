@@ -1,6 +1,6 @@
 # M6 — Sky130 port and evidence-led PPA report
 
-Status: **100-MHz memory-first closure resumed; research-only scope, not qualified.** Baseline `7405919` was pushed to
+Status: **Storage recovered; single-clock RTL/loader passed; SRAM contract and physical closure open.** Baseline `7405919` was pushed to
 `origin/main` on 2026-09-08 before this work began. M1–M5 and every subsequent
 FPGA performance qualification remain frozen. This document records the M6
 acceptance details before the ASIC RTL changes. The current port passes RTL
@@ -125,6 +125,13 @@ The goal service currently retains the unfinished M6 goal in its earlier
 blocked state and rejects creating a replacement. Continue the same work under
 this approved contract; do not falsely complete the old goal to bypass that
 restriction. The new report-figure deliverables are recorded here explicitly.
+
+The post-storage pass now also qualifies the 1x digital SPI-loader integration.
+It confirms an output-transition contract inconsistency in all three screened
+SRAM sizes/corners; the local-clock physical candidate is not promoted because
+worst setup worsens despite improved clock slew. Full routing remains gated on
+usable SRAM characterization and representative memory closure, not disk space.
+See [M6_SRAM_ELECTRICAL.md](M6_SRAM_ELECTRICAL.md). No electrical waiver is added.
 
 ## Preflight decision checkpoint
 

@@ -93,3 +93,34 @@ claim full-system PASS. The goal remains unfinished until all gates pass.
 Details: [single-clock contract/results](M6_SINGLE_CLOCK_MEMORY.md),
 [experiment ledger](m6_100mhz_evidence.json), [report](PPA_REPORT.md).
 This checkpoint is not M6 closure and does not revive the 100-MHz deferral.
+
+## Post-storage execution checkpoint
+
+- **Storage gate cleared:** the user-authorized Ollama model removal recovered
+  approximately 132 GiB. About 135 GiB was available at resumption, above both
+  the full-core guard and recommended reserve. The low-space observations above
+  describe the previous checkpoint. No retained M6 evidence was removed.
+- **SRAM electrical screen completed:** every supplied corner of the 128-,
+  256- and 512-word candidates has a 0.040-ns default output limit below every
+  characterized output-transition sample. This is an IP-contract inconsistency,
+  not proof that the physical memories cannot operate. No limit was changed.
+- **Local-clock experiment completed, not promoted:** dedicated non-inverting
+  pairs of clock inverters reduce the new critical macro's rising clock slew
+  to 0.348873 ns. Worst setup nevertheless worsens to −0.386309 ns; worst hold
+  is +0.004979 ns. Electrical and antenna violations remain. A first trial
+  failed PG connectivity; explicit connections fix that error and the retained
+  post-route topology/PG regression passes. The prior best setup remains
+  −0.282133 ns. No full-system physical result is inferred.
+- **Single-clock loader simulation passed:** direct 1x clock binding, unchanged
+  188-byte firmware, SPI load/readback, both real fast-MUL Ibex results and both
+  UART bytes pass. This is a digital SRAM-only integration test, not a pad,
+  external-DRAM or full GPT-2 qualification.
+- **Next gate:** resolve the SRAM timing contract through reviewed corrected
+  characterization or suitable alternative IP, then close the representative
+  clock/command/return network. Recharacterization is additional IP work, not
+  permission to substitute an arbitrary output limit. Full-chip routing remains
+  behind this gate even though storage is now sufficient.
+
+See [electrical diagnosis and reproduction](M6_SRAM_ELECTRICAL.md) and the
+[new primary extracts](evidence/m6_memory_resumed_v2/manifest.json). M6 remains
+unfinished; the 100-MHz acceptance and frozen FPGA release are unchanged.
