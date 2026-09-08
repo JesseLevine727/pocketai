@@ -106,7 +106,8 @@ def collect():
     for pattern in ("m6_*.py","m6_*.sh"):
         for path in sorted((ROOT/"scripts").glob(pattern)): record(str(path.relative_to(ROOT)))
     return dict(schema=1,status="PORT_FUNCTIONAL_SYNTHESIS_PDN_PASS_M6_INCOMPLETE",m6_pass=False,
-        acceptance=dict(asic_100mhz="USER_DEFERRED",board_watts="USER_DEFERRED",
+        snapshot_scope="Historical 2x port; new single-clock experiments in docs/m6_100mhz_evidence.json",
+        acceptance=dict(asic_100mhz="REQUIRED_REINSTATED_2026_09_08",board_watts="USER_DEFERRED",
                         sram_internal_verification="USER_DEFERRED_THIRD_PARTY_IP_RESEARCH_ONLY",
                         missing_sram_leakage="USER_DEFERRED_UNAVAILABLE_NOT_ZERO"),
         mapping=mapping,
@@ -139,11 +140,16 @@ def collect():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check",type=Path)
+    parser.add_argument("--output",type=Path)
     args=parser.parse_args()
     value=collect()
     # Decimal area values are emitted with enough precision to recheck tool sums.
     canonical=json.loads(json.dumps(value,default=float))
-    if args.check:
+    assert not (args.check and args.output)
+    if args.output:
+        assert args.output.resolve() == ROOT / "docs/m6_port_evidence.json"
+        args.output.write_text(json.dumps(canonical,indent=2,sort_keys=True)+"\n")
+    elif args.check:
         assert json.loads(args.check.read_text())==canonical,"port ledger differs from primary artifacts"
         print("M6 PORT EVIDENCE PASS; this is not M6 closure")
     else: print(json.dumps(canonical,indent=2,sort_keys=True))

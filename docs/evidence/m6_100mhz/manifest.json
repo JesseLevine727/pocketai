@@ -1,0 +1,63 @@
+{
+  "files": {
+    "binary_default_state.json": {
+      "sha256": "522d8345123ca12b6b8aae343fb28b05bd2c642931846fc62b5f1a4f6deedbee",
+      "source": "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/state_out.json"
+    },
+    "binary_default_summary.rpt": {
+      "sha256": "d6abadf74561d504289ea7589e3a027f44793b7451079fbd5e4c73d4ed7a2f9b",
+      "source": "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/summary.rpt"
+    },
+    "binary_repair_resolved.json": {
+      "sha256": "ec56f53d9bb096c4d6c4baeb6d8cf278890a3825e6bcd8e8dd1cb75f016cbdfe",
+      "source": "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/resolved.json"
+    },
+    "binary_repair_ss_checks.rpt": {
+      "sha256": "20b7823a6d5e15bd7bd45ca1e8753972aedb1f074446c9f8a9a05cf7a7567878",
+      "source": "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/checks.rpt"
+    },
+    "binary_repair_state.json": {
+      "sha256": "86085a3deb79587e4524a4d55510f61980731a2c3f3cc356b5da05499a7ab062",
+      "source": "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/state_out.json"
+    },
+    "binary_repair_summary.rpt": {
+      "sha256": "69e1fadbec88044b3d408a2071ddfc82c3565e059df93c47126f1c25f500e2a3",
+      "source": "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/summary.rpt"
+    },
+    "consumer_manifest.json": {
+      "sha256": "780f73f243128aa991940e7a53b318fb4547dc947657b6222e594d1d9313ca35",
+      "source": "build/m6_portable_1x_assertions_v1/consumer_manifest.json"
+    },
+    "liberty_screen.json": {
+      "sha256": "42c6cf625fd032fdd0ef2b571cc2439ddc94ec1251d865e4f5d5cc6c8e8ac9eb",
+      "source": "build/m6_memory_screen_v1/screen.json"
+    },
+    "memory_binary.log": {
+      "sha256": "ddfd4d46e61c70d4023d9e3b5c331e41cab6dbdbf794cb31b90a0985468bf181",
+      "source": "build/m6_sram_1x_binary_test_v3/run.log"
+    },
+    "memory_onehot.log": {
+      "sha256": "ddfd4d46e61c70d4023d9e3b5c331e41cab6dbdbf794cb31b90a0985468bf181",
+      "source": "build/m6_sram_1x_onehot_test_v1/run.log"
+    },
+    "onehot_state.json": {
+      "sha256": "4fa4c7df13779729e064754e76158cfee3966706fbecbcf5dd894c423b110a3f",
+      "source": "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/state_out.json"
+    },
+    "onehot_summary.rpt": {
+      "sha256": "3f784a074155e58eb616f685a49eeadd009d2541843652ccd43b3c7e8f0c0029",
+      "source": "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/summary.rpt"
+    },
+    "system_assertions.log": {
+      "sha256": "013ea7311e7c3d73c794642b733772fd2d556d2f26dfe2ee05d623795bef4722",
+      "source": "build/m6_system_1x_assertions_v1/run.log"
+    },
+    "system_binary.log": {
+      "sha256": "013ea7311e7c3d73c794642b733772fd2d556d2f26dfe2ee05d623795bef4722",
+      "source": "build/m6_system_1x_candidate_v1/run.log"
+    }
+  },
+  "note": "Byte-identical selected logs/metrics; full configs, netlists, SPEF and all-corner reports retained in build/ and hashed in the experiment ledger.",
+  "schema": 1,
+  "status": "PRIMARY_EXTRACTS_NOT_M6_CLOSURE"
+}

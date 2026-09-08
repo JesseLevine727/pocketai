@@ -1,0 +1,955 @@
+{
+  "acceptance": {
+    "asic_100mhz": "REQUIRED",
+    "electrical_checks_waived": false,
+    "wns_stretch_ns": 0.5,
+    "wns_target_ns": 0.25
+  },
+  "artifacts": {
+    "asic/m6/bank_probe.sdc": "0c8ade49227fe741cb8343206025c4149dcc77ee97bae5eb8e9789403e59a8b5",
+    "asic/m6/clock_data_boundaries.tcl": "984a5ae6ba50a9ee8643169f48b76b08b8cb318982f6a97b8cb0a632aeabb60d",
+    "asic/m6/cts.tcl": "004a0180ed435abcf56ce16165b6c83eab048132933405018bc90c79f5bfd50c",
+    "asic/m6/export_asic_view.tcl": "2f9807ac39ae5b9e95b05e96588d24d77999b999aaf9ec6fc964a1a5ad0e734b",
+    "asic/m6/export_vivado_bd.tcl": "882e2a8ceac61a8309147d1e9e390c1454395e436afd9a65863a7a5011137f89",
+    "asic/m6/fpga_blocks.tcl": "93916b6535f4a0b5c51c32af4c6d4b98a654a1522aa6d3ac2807c8a37669355f",
+    "asic/m6/fpga_inventory.tcl": "9f6b89301565e666bb546276ae67f1146553f6fac28126d83639ffb6134758d2",
+    "asic/m6/openlane_entry.py": "c6fc70e4df6cdc7a0614263218aa6f667f8dded4c21155229d5b67a88aafff14",
+    "asic/m6/rtl/pa_m6_bank_probe.sv": "4e60350450bba016e8947e28e08d2d70d0dbf35b99a74481230cc5f4c7d4cf7d",
+    "asic/m6/rtl/pa_m6_clocking.sv": "e3e14e3894490ab0d2fa3716c91b3c2af20cacbf6f32e1c039d46731ea0ce71e",
+    "asic/m6/rtl/pa_m6_host.sv": "075a9109f24edbba6e6600058d2e31a489fa81ad3619a7d7b0ca9d5ee699113f",
+    "asic/m6/rtl/pa_m6_spi.sv": "7b78238a1626486a450719c7477fa4f5e23d50346743acbbad6bf9cded058ed9",
+    "asic/m6/rtl/pa_m6_sram_1w2r.sv": "0beed125ea24bd85a9038cbc0a473b17026165a2830c8dc07313b57ae0c76009",
+    "asic/m6/rtl/pa_m6_sram_1x_candidate.sv": "392c913e5380d7e632563fdca1ae3c13ddffbc028e924d0087996293bdeec26d",
+    "asic/m6/rtl/pa_m6_sram_1x_onehot.sv": "23324f5f5f5c4b4e982dc42c74544abcc372df5572191c387fc066b23310d78f",
+    "asic/m6/rtl/pa_m6_sram_probe.v": "c0783d0a92a5bf6c9fc142835a7dd90462e58b0d02728be107fef1acc29237b9",
+    "asic/m6/rtl/pa_m6_uart_tx.sv": "a8a97de07e41c2c76f8e928bd829c726225ecbbadef927e9573d42c0426538ee",
+    "asic/m6/soc.sdc": "34cf35bb144039a7fd2b872827c1371265b0f0bfb800ca7cd8cb0cca7021551f",
+    "asic/m6/sram_probe.json": "a4268223eb0132c2f60e9c7a25883ae3e406bb5bc78e4b5f9fac7c7f90acbabb",
+    "asic/m6/sram_probe_pdn.tcl": "3ffac95c5285a589599169d552c57c99f82e02d33dbbe0a005564cabd4476d1c",
+    "asic/m6/timing_diagnostic.tcl": "544304b3fa366b0ce5e2090db97f823af3b91c904fd1525aafdc02946155df9f",
+    "asic/m6/tools.json": "cf9a879320eb983f03ce8a61bcf78385b0b7d5e564a2df0dea8219f2c69cd949",
+    "build/m5_startup_data_direct_accel_v2/test.bin": "8655870d764b638bf77994b160c427887596793887eb7182668b3768d724ae8f",
+    "build/m5_startup_data_direct_accel_v2/test.cc": "44ada67c352b0c88f33549dc3601dd5e1b0807d5e7bcc0e85c70b8765d01a8c6",
+    "build/m5_startup_data_direct_pynq_v2/m5_pynq.srcs/sources_1/bd/system/system.bd": "ee74a3ba49ba3d3af3096d1eb553c42106f9dde3b1c9e735ee9444f847bfc252",
+    "build/m6_asic_figure_v8/asic_floorplan.png": "b9db599fe6ad98a8975ac59a0cfa453985c9ff78e4dce82b25918fe9af5db50e",
+    "build/m6_asic_figure_v8/export.log": "43836c15012fc101a8d5b39051d3395c65e99dfe7f1b84926d6f5fbdffc8911f",
+    "build/m6_asic_figure_v8/macros.tsv": "8ea190a4b33712385372641f1e8944e3270c2928716991f902426aa1edf1f0c0",
+    "build/m6_asic_vector_v1/asic_floorplan.pdf": "4a1fd33d2e25643d3f7083052412ab6024300a52448c4fade83f0ee5d886a22d",
+    "build/m6_asic_vector_v1/asic_floorplan.svg": "bed9dbe4cfb5af1a1657fe44d857f9f96f7df1799a7afa8bd022558db2750cbe",
+    "build/m6_bank_1x_onehot_v1/LICENSE": "e91ff698e1cf0345aee8cb35c3d815ca230919a6219d1c2865d46f0fbbbd3cad",
+    "build/m6_bank_1x_onehot_v1/bank_probe.sdc": "0c8ade49227fe741cb8343206025c4149dcc77ee97bae5eb8e9789403e59a8b5",
+    "build/m6_bank_1x_onehot_v1/manifest.json": "78ed4a4319150fba44b84d51dfc87dd66f2e26c6b7dcf669f87276f0d7229312",
+    "build/m6_bank_1x_onehot_v1/pa_m6_bank_probe.sv": "4e60350450bba016e8947e28e08d2d70d0dbf35b99a74481230cc5f4c7d4cf7d",
+    "build/m6_bank_1x_onehot_v1/pa_m6_sram_1x_onehot.sv": "23324f5f5f5c4b4e982dc42c74544abcc372df5572191c387fc066b23310d78f",
+    "build/m6_bank_1x_onehot_v1/route_v1_console.log": "294385ddd0ead9e7a62bc9ee636c808459f621f449d84e18e0de8d7e5d920486",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/52-openroad-fillinsertion/pa_m6_bank_probe.nl.v": "108ce44cc90a6e9323044efb4a4dd662fec61245b2c8d3b7d6e60db52420056d",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/52-openroad-fillinsertion/pa_m6_bank_probe.pnl.v": "754e3893193f19c19d079d42c64f01d8edfa6ae5d85c8232365677e8025bd94a",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/52-openroad-fillinsertion/pa_m6_bank_probe.sdc": "7e5f378f5edea8295f9a85e49585d1d2fc016413661c78e7869598441e862011",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/53-odb-cellfrequencytables/pa_m6_bank_probe.odb": "49f9f1a19f784f795e52ff53d21de5fbbb240025c38fd9b578a57980649abd33",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/54-openroad-rcx/max/pa_m6_bank_probe.max.spef": "2db89aeceb76e5d8c0a0a17c5a4bb1d34a3516fc8e7b8f03b057994c72dae00c",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/54-openroad-rcx/min/pa_m6_bank_probe.min.spef": "8cb1ab280ea918808b4268259c5cdafa7fb61d4fc492153dae43b41551610d4b",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/54-openroad-rcx/nom/pa_m6_bank_probe.nom.spef": "0ff1699e90a31a5e12ded592fe147e4ffdee460f030f5aa4e847d39cf225966e",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/config.json": "0b59eae61ece1e3f82a272a383b3cf49db91af7e52aec714db7eb79d6d81ec14",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/checks.rpt": "412150dcc49b81be31967710bf4b6139be59c88bcf7dfa2347f6fb505c5d451a",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/clock.rpt": "d53e39d4f2587bd531c3b073163f9f439179435598790a719f9bdce73052375a",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/filter_unannotated.process_stats.json": "88883605f07d58ae69af290518990f27dd21e6b28de1ab6fb5df107580baa194",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/filter_unannotated_metrics.json": "0272e9566e706b00742697052e033e94de4d76539f5d863216a8bdbb5016d744",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/max.rpt": "1f1e3a6ad0243fe529d9f72cb7cdeeac6f7cda8783d8640c763d62854ec9281d",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/min.rpt": "ba3657a7390665d03256245ba2d38b8394b11aca6532b53237fc168028a002fd",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/pa_m6_bank_probe__max_ss_100C_1v60.sdf": "4e28e152d133b4f5f9fd759a884ffc3aea6eb27f8bb824964392276ec3ad6633",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/power.rpt": "1b62804e736b6f2f4337d7cc97f987162ad6304994a2e1806990a64202ca1e77",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/skew.max.rpt": "0c164cbddaab8822022a08c1b778b2d6c0f421c7c7fdca5cf5e2c99291aa59b9",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/skew.min.rpt": "c2c11a764f80ff163100294b8b2db0f28384f7db244c9d5e1ba1c054ab5054ac",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/sta.process_stats.json": "cb07e7d295bc3285a021da422520d00e1bd1cb18e1eb0191578f6018b2e1444b",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/tns.max.rpt": "8926ff132abaeaa895c095495cb2fa39ae740cf52def544aaae9a704d4b6b43c",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/tns.min.rpt": "43631fe1f7fcc9c60ec0a22c6d28e4da03dd569319aeb2deaeffef9de76c51f6",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/unpropagated.rpt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/violator_list.rpt": "3600a125a594eb561cf2aeb492ed072926df9922243203b9a950bb4aa92f7d4b",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/wns.max.rpt": "932985cd8a612436370c27b52a0fe2eb504ca119653a99e527ec10d7ac64cdb4",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/wns.min.rpt": "af5a436542c677f6b603976a61cffa5ad8186dd7d281c6469327b6e077de2629",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/ws.max.rpt": "61a98bddca94bfb194cb39b5c62972649029833920618dc8d36901e6c7784fed",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/max_ss_100C_1v60/ws.min.rpt": "6eaf11214eaf84b38d901832016e281213c315a48cf169eae4c2b7de72617b65",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/checks.rpt": "5feb17496076f7075f255d8b771e6f6b5da12c90468a08bb06357238ec9c194f",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/clock.rpt": "a58b4486e056baa2390baf8b7ab08209e548163d4251a7c43c50417ccc9c3cab",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/filter_unannotated.process_stats.json": "c70a619229765005460d0e82fba818fdf35b36c3b6c8324361eb000e3596d03f",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/filter_unannotated_metrics.json": "59de554ac3fa131016fa014c8fe29e3f2d0ec76d644e7f727f319208f562cf62",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/max.rpt": "fd839321bbe5ed947c08f43ee1377eae18236fdb268e5384ba5fe2b3d43c786e",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/min.rpt": "ab97fd081541e316ed0f6602c28cecbc51522b3070e6457784551d94dff645af",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/pa_m6_bank_probe__min_ff_n40C_1v95.sdf": "a711b6baef7745eb2a904b7a3def1f749a06907a1b6b01c9d537cb22e58efc21",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/power.rpt": "10f5798529bceffbaf5287111be1700e2a54160e15d972ea7b3065fc78e68b26",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/skew.max.rpt": "f8eaac30df5d0e40b6367f62021291d21bba6748a53da72c3100986dabed566b",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/skew.min.rpt": "41e91cdb084ca247a8805ff4e69ff8c38cc141da17ba3fb57033ca5f26d18060",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/sta.process_stats.json": "d77ce5d81fdd45e62cf5341e5d89fb8fa8cae7862db80f49b475ab6b9e19f307",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/tns.max.rpt": "b048d22ca86dd0023ba3329e6564cee43717a28106510e57795e70fa246e9747",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/tns.min.rpt": "587f0c55fe0209a2d348fab9ff63c908110343280555acfa493a9971d66953ec",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/unpropagated.rpt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/violator_list.rpt": "ad509148993d884e4fbf3729f30640d97ff8d99713fef0ad5813096f1f83b9d7",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/wns.max.rpt": "ecc90317df410f07970425083db2133c85f7d6aff9abc01e7087163096b0aee9",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/wns.min.rpt": "366a0d5633a47bd3e7ee29462e835d0721f48e14da26aec73596fa3dcd792a76",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/ws.max.rpt": "60155d66b1d04bf07acc74fa909a4893e047b4741125e332deb710cf97be3caf",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/min_ff_n40C_1v95/ws.min.rpt": "cca83b3aba0db1e76b9f72216f801f450a6dc139fe733d6ccf645c9d95750105",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/checks.rpt": "8b61b9e3362248134a5ea9e1224b43ae7f76679bc3aee69522acc89a7734e6a3",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/clock.rpt": "01340648c31e5f199142b1dd44d3f5907d768608075ac348d59c7c73edf04f32",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/filter_unannotated.process_stats.json": "a856490cc9024ad50e299e85dd7fedce2e449e51471a28e445e86e0339db5a5f",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/filter_unannotated_metrics.json": "96caece64bd324928f93c7f682b906d1d4147b17a05273b7be4f32f765330d05",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/max.rpt": "5b5173e2c887d8ba7e19a47b0d5169080b0b24f9359fdd5158c97fb48069a46b",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/min.rpt": "859b3975723acae9d3991e19e79b10d280b261010d423d35abb56f193cf24898",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/pa_m6_bank_probe__nom_tt_025C_1v80.sdf": "d07fa1c9c7133b5dc31dcb6631e8220644443c702c0f129447bdb099b5c32d40",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/power.rpt": "882f00c6b36dc3c84fc926348971a9620207dcf3cf4c2ec6d55fc35e3bb715ef",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/skew.max.rpt": "9d62bf5946c5e4384da3b6d499f776f26251574d761157c94e5737d7e5c0b22f",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/skew.min.rpt": "c45446fc94663278291499417717cfd71ff162d7578e94bc8ef964c1e3046c67",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/sta.process_stats.json": "9375c51f625a22ca55e4a58fee3e4deb6924182d85006241370262082c5f9912",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/tns.max.rpt": "62292ca88994c259d36d136f6d66f4d1150930fb196adc8607d058e2e80b0abd",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/tns.min.rpt": "6a441470fbb28085daadd1a4c0455339db4f4d0377a8a5e373206f10247d2534",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/unpropagated.rpt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/violator_list.rpt": "ad509148993d884e4fbf3729f30640d97ff8d99713fef0ad5813096f1f83b9d7",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/wns.max.rpt": "d7f72dc8852dff8c6c9e28cb888207ce35ac8d8068a6bc2708f3869bea3a00b9",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/wns.min.rpt": "07a4abd92ab6e63b717249e62c24c08f3f65ffdcb4998591daf4d206b7bb438a",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/ws.max.rpt": "f20d962b871e68554fcfd6a739281b9fba2085f4d4f5d6f0959d4ba5ea7b75ef",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/nom_tt_025C_1v80/ws.min.rpt": "c470c8363308778f55769286660982d129ab3113137a51150a147389c90e767a",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/state_in.json": "447cd75dd26b1a26f25e3d4700beae4ec3ef9f1f657cca50c5d6acdc74285385",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/state_out.json": "4fa4c7df13779729e064754e76158cfee3966706fbecbcf5dd894c423b110a3f",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr/summary.rpt": "3f784a074155e58eb616f685a49eeadd009d2541843652ccd43b3c7e8f0c0029",
+    "build/m6_bank_1x_onehot_v1/runs/route_v1/resolved.json": "010b820388a9aede46bfac0e35be80023bf66a3c4ae94d42eee39ab2ae65e478",
+    "build/m6_bank_1x_onehot_v1/sram22_512x32m4w8.gds.gz": "34d989098723fe4ed0cab1f0dbcf800724689c40b4280f9794b2c7e573b2d60b",
+    "build/m6_bank_1x_onehot_v1/sram22_512x32m4w8.lef": "09ccad5be8a496091763dfc2656e008ab7169f94f8ae797503794a4117fad56b",
+    "build/m6_bank_1x_onehot_v1/sram22_512x32m4w8.spice": "3199c16367d0c156a5cf56104fc8a1ae8b0ea7411492b88dd4c02c62908e68b8",
+    "build/m6_bank_1x_onehot_v1/sram22_512x32m4w8.v": "e60858b7b783c626d783674c56fd578b3785febfe025fac2f5dff47d8e9ddbef",
+    "build/m6_bank_1x_onehot_v1/sram22_512x32m4w8_boundary.gds.gz": "6347c5ca872137a4deefa901aa8055fff7fe82659e1258a6aa84c46381f6c64c",
+    "build/m6_bank_1x_onehot_v1/sram22_512x32m4w8_ff_n40C_1v95.lib": "7986a128c686c65adffd2564b988a9c5163d513e987cceeffc7064d67b7e7481",
+    "build/m6_bank_1x_onehot_v1/sram22_512x32m4w8_ss_100C_1v60.lib": "75de15985f27c7f1232c50b2fae4324a3e6ef51b770ab113ee8beaaa25a24ba8",
+    "build/m6_bank_1x_onehot_v1/sram22_512x32m4w8_tt_025C_1v80.lib": "3dcbc059294e0f54a7f5111046d23c4e759ea9f053f353b01a00a1fb1da32e68",
+    "build/m6_bank_1x_onehot_v1/sram_probe_pdn.tcl": "3ffac95c5285a589599169d552c57c99f82e02d33dbbe0a005564cabd4476d1c",
+    "build/m6_bank_1x_probe_v2/LICENSE": "e91ff698e1cf0345aee8cb35c3d815ca230919a6219d1c2865d46f0fbbbd3cad",
+    "build/m6_bank_1x_probe_v2/bank_probe.sdc": "0c8ade49227fe741cb8343206025c4149dcc77ee97bae5eb8e9789403e59a8b5",
+    "build/m6_bank_1x_probe_v2/clock_repair_v2_console.log": "a2a2ab04aabe2ee7298e4e78583dbb6de15d47982a6c4baf74959a839dc1bd94",
+    "build/m6_bank_1x_probe_v2/manifest.json": "34354da65431960effa552a5c164bb7fe065c6f69bcbfac71862a9e8a6d63c87",
+    "build/m6_bank_1x_probe_v2/pa_m6_bank_probe.sv": "4e60350450bba016e8947e28e08d2d70d0dbf35b99a74481230cc5f4c7d4cf7d",
+    "build/m6_bank_1x_probe_v2/pa_m6_sram_1x_candidate.sv": "392c913e5380d7e632563fdca1ae3c13ddffbc028e924d0087996293bdeec26d",
+    "build/m6_bank_1x_probe_v2/route_v2_console.log": "11e0de7db2b121e2b753c49e0769272253b5711b55ef4eb1f72dc659f3ddf472",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/19-openroad-fillinsertion/pa_m6_bank_probe.nl.v": "acf0b013a8f1f57d61a3457d6f72d7da20aa7eb6851ac329d716709327a6e2ec",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/19-openroad-fillinsertion/pa_m6_bank_probe.pnl.v": "951b51dc41634a5d7775dc8e7f1bf0783d5cdb389914f31a73a9e2d15a7bdd95",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/19-openroad-fillinsertion/pa_m6_bank_probe.sdc": "7e5f378f5edea8295f9a85e49585d1d2fc016413661c78e7869598441e862011",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/20-odb-cellfrequencytables/pa_m6_bank_probe.odb": "cbfb3ad457e116ed8917690972e7f30348da4dfc7bfb73a6deaf2b15e1021350",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/21-openroad-rcx/max/pa_m6_bank_probe.max.spef": "089e50fcd3761c716ae7d95027b10daa70e9dd70492037ad000319ceca86f95a",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/21-openroad-rcx/min/pa_m6_bank_probe.min.spef": "ae675049aeea406695807478f1654cb9682e503f3e16e2e79c927584dc6ef39d",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/21-openroad-rcx/nom/pa_m6_bank_probe.nom.spef": "b06b6d25ab29e178ac9e3eb420bfbad8b1202de94feda1dd86d8c2360a586fc9",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/config.json": "0b59eae61ece1e3f82a272a383b3cf49db91af7e52aec714db7eb79d6d81ec14",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/checks.rpt": "20b7823a6d5e15bd7bd45ca1e8753972aedb1f074446c9f8a9a05cf7a7567878",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/clock.rpt": "fa27d5668e39d00ef3fc1397c3dfd6c598021c98fe7772db965f230c958c24a0",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/filter_unannotated.process_stats.json": "e976c68414590df65625991390fd5e04c461524787a70d63aee886f91daf5f27",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/filter_unannotated_metrics.json": "0272e9566e706b00742697052e033e94de4d76539f5d863216a8bdbb5016d744",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/max.rpt": "665eaeddc15a30fa6b363bc28d693f71b508f5a1178a92e513f8014f2b9edf7f",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/min.rpt": "e11059f9dd5526f3162955fcff37adf826a5414f9e06cc6587b15985182a6112",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/pa_m6_bank_probe__max_ss_100C_1v60.sdf": "902a8e134e5e3d1ae4cbd40e377e3c0abbe751054519b6f3ad64e761feb04357",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/power.rpt": "84097e8b604c37f60c3886b22193ad74996a4c0531b0d95c161b28a4a0d98da0",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/skew.max.rpt": "a0f4a4d38d7c9e86c2ddc92469f992d6cad1cbfca44dcdd317dea6c35ac4d6c5",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/skew.min.rpt": "b2cb1ff49a69f87f38c50ca2a086f863e7055072fa78e899c19c788cc6c5c056",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/sta.process_stats.json": "876a3392703d74e93545ef2f14fce17797e66ab511a6ca6dc0ab0b1f7ae31763",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/tns.max.rpt": "7fabdd72bebea75a265887a6d8aea1bb91f13d8ca59bf7034680aa9f5286c273",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/tns.min.rpt": "43631fe1f7fcc9c60ec0a22c6d28e4da03dd569319aeb2deaeffef9de76c51f6",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/unpropagated.rpt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/violator_list.rpt": "76b314ffb8979f1192d6857a9d1e42005847413891947adc6e6da1449b316675",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/wns.max.rpt": "1c0e3ff902155a6a5cdc5edb346bdac28e18ac444355a042a5e45fcbcce0d691",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/wns.min.rpt": "af5a436542c677f6b603976a61cffa5ad8186dd7d281c6469327b6e077de2629",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/ws.max.rpt": "5939ba38d7d9ccc1048703456a50d25d81036cb29c4603f9496b75981e1bb392",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/max_ss_100C_1v60/ws.min.rpt": "520760e0fdea72aedbbe7d934892140d2053d31b4d6a46171b09326ad5cebc08",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/checks.rpt": "98dd941eefa40179db5e701d442e57e39c154d87b80a93f85fe7779c1b431718",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/clock.rpt": "69d8756da681331ef2ccba90941b24251ace5dbcc0348663aaf7d17e30179b8a",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/filter_unannotated.process_stats.json": "2200fc94a19466ac275d28401f0a86d8c694937bc16f30d2732d6f1292f49c4e",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/filter_unannotated_metrics.json": "59de554ac3fa131016fa014c8fe29e3f2d0ec76d644e7f727f319208f562cf62",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/max.rpt": "aa09c89e3439900fe0eefa3714eb6630037470bed186781461188df998a41f26",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/min.rpt": "8e1f8b3b29df9a3e53e82b4058c8a08aa892f7a5e4c52e8aeab38960c37474d5",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/pa_m6_bank_probe__min_ff_n40C_1v95.sdf": "1e6d0af246afe4efc8aa9e9d8b7ec58fb89d30acb1f8a1381c6540ebbfc4ef64",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/power.rpt": "b04ee3faeb214a8d9b456ba3ee58e8adfc99eeabced0614bab2124d972dc2c11",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/skew.max.rpt": "0ec3245ad3223b8eb1b91263508fa1a262e67ba11d668e518420213e0cf5fd0c",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/skew.min.rpt": "07d1bdeaf71e32d662ad78390039b1da1b6d42e3033a05ab4d31051c793d9691",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/sta.process_stats.json": "d24728f88afdc4924de02ad4808ec3aa8512b26549aa76e63ceb88115a77cbf1",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/tns.max.rpt": "b048d22ca86dd0023ba3329e6564cee43717a28106510e57795e70fa246e9747",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/tns.min.rpt": "587f0c55fe0209a2d348fab9ff63c908110343280555acfa493a9971d66953ec",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/unpropagated.rpt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/violator_list.rpt": "ad509148993d884e4fbf3729f30640d97ff8d99713fef0ad5813096f1f83b9d7",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/wns.max.rpt": "ecc90317df410f07970425083db2133c85f7d6aff9abc01e7087163096b0aee9",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/wns.min.rpt": "366a0d5633a47bd3e7ee29462e835d0721f48e14da26aec73596fa3dcd792a76",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/ws.max.rpt": "8a164fc1d3ef76347fb568b93da73f811de8cb324a62b3372a8e0a3ec13463de",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/min_ff_n40C_1v95/ws.min.rpt": "6bd4df5cb78ecdf56a15591e619a3d2312bee36a07dd48d984485db83d1f8f72",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/checks.rpt": "36203beafc29925bd0f27f294fb71d7e2684c6f733046ebb57bc2d3fe61e1cd3",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/clock.rpt": "289bf1536f1a90d6d4a8cab59d472837eda4beeeef332190a630428b645a8142",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/filter_unannotated.process_stats.json": "929ed76f0aba2596e12ae41a894cd45c85e5a5f61017f4ba68937b6f49c824cb",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/filter_unannotated_metrics.json": "96caece64bd324928f93c7f682b906d1d4147b17a05273b7be4f32f765330d05",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/max.rpt": "46dce73700cfa2da5bf884bd8c363286993f36325d7e37448d7f3d04c8f38ca6",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/min.rpt": "9334d2078c1b001aa1b884b1caf4ce6b2db5ec32b4b3f175cc2e4799d6886f1f",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/pa_m6_bank_probe__nom_tt_025C_1v80.sdf": "4b5f1f3cb0351970d16d6a5039a01064ba0ec8664952cbe3d2a079a8ebc59c0f",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/power.rpt": "230929064ec2d337e96651e03c9eb89f576149506142a276f0fd3320f5a2decb",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/skew.max.rpt": "a9602bb5a6cc4554aa2a656bc1da203162b48c09d30a254ae065c0bb14325294",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/skew.min.rpt": "b6631ecbef866f5d0788044ce0589f63807af6f112fcf0291fc383b61da202cb",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/sta.process_stats.json": "b06b5d24e5eb4c90aed3f6e710d33bda59a49d32c9921c3e3f71229a189f22cf",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/tns.max.rpt": "62292ca88994c259d36d136f6d66f4d1150930fb196adc8607d058e2e80b0abd",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/tns.min.rpt": "6a441470fbb28085daadd1a4c0455339db4f4d0377a8a5e373206f10247d2534",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/unpropagated.rpt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/violator_list.rpt": "ad509148993d884e4fbf3729f30640d97ff8d99713fef0ad5813096f1f83b9d7",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/wns.max.rpt": "d7f72dc8852dff8c6c9e28cb888207ce35ac8d8068a6bc2708f3869bea3a00b9",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/wns.min.rpt": "07a4abd92ab6e63b717249e62c24c08f3f65ffdcb4998591daf4d206b7bb438a",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/ws.max.rpt": "0d81704e59f381e64de8e25fd3b2eeda6ca5b0eafa0d389fdc042ab132705545",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/nom_tt_025C_1v80/ws.min.rpt": "69d54f8f393e5a1cd58866a3cd5b57403b5ea22fdb9f94314cf0ba25e055e7f4",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/state_in.json": "7f83ee259535682cd646e2289ff0e80574446e95302544b5606532ec4a86ce8d",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/state_out.json": "86085a3deb79587e4524a4d55510f61980731a2c3f3cc356b5da05499a7ab062",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr/summary.rpt": "69e1fadbec88044b3d408a2071ddfc82c3565e059df93c47126f1c25f500e2a3",
+    "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/resolved.json": "ec56f53d9bb096c4d6c4baeb6d8cf278890a3825e6bcd8e8dd1cb75f016cbdfe",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/29-openroad-fillinsertion/pa_m6_bank_probe.nl.v": "ee4169648dd08b34565c73ff0f8b6ae836b56096db8b8d3019c7e530c97b4aa9",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/29-openroad-fillinsertion/pa_m6_bank_probe.pnl.v": "61d69f44ab0ac814140e0bd7faae800e7e7dd21754dbd526a5eb773a5c33f5d0",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/29-openroad-fillinsertion/pa_m6_bank_probe.sdc": "7e5f378f5edea8295f9a85e49585d1d2fc016413661c78e7869598441e862011",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/30-odb-cellfrequencytables/pa_m6_bank_probe.odb": "e7d7180360c2faa72715142b4886443312e4998661cac8b23da6353d9375c80a",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/31-openroad-rcx/max/pa_m6_bank_probe.max.spef": "c7223e328bf9002bb98f211338b92aed49eeb3c77f77887e106887e512c32722",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/31-openroad-rcx/min/pa_m6_bank_probe.min.spef": "6c9e1921c787824258747404a20dd2bbda7ec49cc0a1c872f8da2b69f1498387",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/31-openroad-rcx/nom/pa_m6_bank_probe.nom.spef": "a1effe705e3c541311d63c6926b4ccd27e3e75df263805601fbc3ef92982bd01",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/config.json": "0b59eae61ece1e3f82a272a383b3cf49db91af7e52aec714db7eb79d6d81ec14",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/checks.rpt": "b4038693e932850d5e280d51f15ff8bcb916af16203aecbe3542a0d930ad5041",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/clock.rpt": "44739670748fb105479cf680cf32ad3c93b7a877661bb9baed47862492f1ae25",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/filter_unannotated.process_stats.json": "fc4270e16c94422be86b009657bce364f57776bc4613a7776c2f8659a0325fa7",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/filter_unannotated_metrics.json": "0272e9566e706b00742697052e033e94de4d76539f5d863216a8bdbb5016d744",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/max.rpt": "985495f49083dc1086046300128696a67f00b16c1b64cbd039980e8c381040f8",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/min.rpt": "3541058393da15bf48c0eaea63362336c720e3356b298978b7ae1d2885ef0c41",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/pa_m6_bank_probe__max_ss_100C_1v60.sdf": "23895b7257bddd2d665fba576b84ca149dcd4565bc9910c68ce440207185f1ff",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/power.rpt": "2a930f07b70d833c2ba108849877c5d67e7ed29bdd352698d1c0744ac649ece1",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/skew.max.rpt": "bd3f269ed7b8ab3260e29155e142a9caa82b245e01a469e5124562f2b4491084",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/skew.min.rpt": "1237289c9af91d8e4016a92eafc4218a6cbe5570532586bd335505a942d7e178",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/sta.process_stats.json": "0606dbe19bec9c213526a52883a4ce0a25ead0b2e2a8979e6369b61d01023940",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/tns.max.rpt": "348b48c43997d17955a44cc5aa405dbac4e69e47df9f3095c201d6e5590514eb",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/tns.min.rpt": "4b9dde29d38db05299a46ed43c631b7cd20907a0a39dcd757622c5d7c3a6f42d",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/unpropagated.rpt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/violator_list.rpt": "cc19bd7685ed2957d04e8a3970bd2c9979555f7e10a09d884858609a4da0732c",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/wns.max.rpt": "25b94cc451e7b1e0e49439c41f306b47b3b4bd27bb9421723ae8b501565e5ebc",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/wns.min.rpt": "3c684f261105c854779f74bafc77b33f53a88c1f164146799a30dcc138af2f58",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/ws.max.rpt": "43a4e317c67ddceeb0c552e13d620501932c0e3ede32581bafa5b4c87c29993e",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/max_ss_100C_1v60/ws.min.rpt": "bab9d3149fd932fc61dd399df90003d294245c82dd2a11ac864d730e7877679a",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/checks.rpt": "238132b88d97d84586c7e303190c18a399a32399cd18298b1510e4d2491c79ed",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/clock.rpt": "b00e4c5efc4b432b668eb2603499e211039a7bedd59c3ba2803a1bb513c0ea71",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/filter_unannotated.process_stats.json": "9f799f0510b3d838b57ba862160206f8ca13440696e93e001f49237641e28bb5",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/filter_unannotated_metrics.json": "59de554ac3fa131016fa014c8fe29e3f2d0ec76d644e7f727f319208f562cf62",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/max.rpt": "e546ffb6b5eb9d5ca0281aac64a32c85460dc220db1de0609cddb1a1565e2b18",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/min.rpt": "e727997f5f2efbeb54747269616f30f703d1fe0dcd3926f645edded5cfe30cb6",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/pa_m6_bank_probe__min_ff_n40C_1v95.sdf": "8bc20e32a8b744e76dcfdfb97c53c07b39137e4fea2020c64e00330f3c68ffbb",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/power.rpt": "512cf1917bef1876bcf8f4f36cb7a80b65829b9a48089eec610128cb93b53b72",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/skew.max.rpt": "cb8352fdf0a6c400d1b93d5d18bc3276d32ae04c50cc4beca4dddff383d3c688",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/skew.min.rpt": "7ee7cc52f775ada591f3c76a8517737a4bb63029278631c8d0d2c32d8a770e7b",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/sta.process_stats.json": "4fbd7fc78819d4616cf27bee1e075a1b9a6baa76e5f6ce549da5bf9f1c9c30aa",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/tns.max.rpt": "b048d22ca86dd0023ba3329e6564cee43717a28106510e57795e70fa246e9747",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/tns.min.rpt": "587f0c55fe0209a2d348fab9ff63c908110343280555acfa493a9971d66953ec",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/unpropagated.rpt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/violator_list.rpt": "ad509148993d884e4fbf3729f30640d97ff8d99713fef0ad5813096f1f83b9d7",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/wns.max.rpt": "ecc90317df410f07970425083db2133c85f7d6aff9abc01e7087163096b0aee9",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/wns.min.rpt": "366a0d5633a47bd3e7ee29462e835d0721f48e14da26aec73596fa3dcd792a76",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/ws.max.rpt": "cc9209a9c712ace6f6e87569ec4c6a4a019bc524e9274911e71750d0a3b80ccc",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/min_ff_n40C_1v95/ws.min.rpt": "e07fca0b7d94ad19207d46e07890abdc5351fa6582535731e357854ccb53770f",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/checks.rpt": "27ddd98aa5073ec64ede7ffb86434722b1d9ce3dae09825e3edb3870ec883746",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/clock.rpt": "2ecbad38d9cd1c2acfdae354e020cb8785cddbc8bdccf5db9b2b3f522ea9d8c3",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/filter_unannotated.process_stats.json": "1a33d1a2a867b0024cf07f4ed54207c366c1153b855edba3b0abd7f3e6f40826",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/filter_unannotated_metrics.json": "96caece64bd324928f93c7f682b906d1d4147b17a05273b7be4f32f765330d05",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/max.rpt": "94a8cd738a5e02c07f56f7a560d72344d3cbd409d0614af7085488f915ecb916",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/min.rpt": "72244b9033608bf70d7cef766fea3f9d327cb53a0bf6ace928a66426032efead",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/pa_m6_bank_probe__nom_tt_025C_1v80.sdf": "601f9af4e8146d0d43c5e37a062158d723a422b3108661bd960c4dac44900c08",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/power.rpt": "fbc4d0a7a109b7f61f9ed3f3fafd27b8a2490f37b479ca861d56e26d79fc91de",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/skew.max.rpt": "2000a1f027995627ac37d2f9d2df6ffd197d158a0522e231709f9bb245b1a980",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/skew.min.rpt": "1881b229d0187c14d05793dda0d94066e8c031c1b71115fe9d8056b2094a4bd3",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/sta.process_stats.json": "a3384813cdb12865804fb6d5516138b4ed3aa30c72eb2d1a6252c9c405c688a7",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/tns.max.rpt": "62292ca88994c259d36d136f6d66f4d1150930fb196adc8607d058e2e80b0abd",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/tns.min.rpt": "403e9ce8b0cbdb71e3c40ba239f566bc5aafe64b578bc42e34b229b3858a8839",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/unpropagated.rpt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/violator_list.rpt": "7d14aec87d21b2f83f14f50db4af2ada62a622b61789e3d67f808baa9828fcd7",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/wns.max.rpt": "d7f72dc8852dff8c6c9e28cb888207ce35ac8d8068a6bc2708f3869bea3a00b9",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/wns.min.rpt": "5ab90c8f4b2818c66ab0184a6e90bdd714767978cec72c00c54c9cbcd61f6ad1",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/ws.max.rpt": "343156c90b37c35afc9678e4a00351f90176b5b9dd2fa0cee6d4a734104eeed9",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/nom_tt_025C_1v80/ws.min.rpt": "91b53b611e9e428edb021c0e26aa91c2277a3279e3e7e25acb9c6155275a0ae3",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/state_in.json": "a4629e89f8b6e06dbf48693e28f613e5960b4509b8c903c6ec9707ba323f97dd",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/state_out.json": "522d8345123ca12b6b8aae343fb28b05bd2c642931846fc62b5f1a4f6deedbee",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr/summary.rpt": "d6abadf74561d504289ea7589e3a027f44793b7451079fbd5e4c73d4ed7a2f9b",
+    "build/m6_bank_1x_probe_v2/runs/route_v2/resolved.json": "3f642db30903709e178b2ed4ab46335f49579879763e6ee95e7ea187b815d7bd",
+    "build/m6_bank_1x_probe_v2/sram22_512x32m4w8.gds.gz": "34d989098723fe4ed0cab1f0dbcf800724689c40b4280f9794b2c7e573b2d60b",
+    "build/m6_bank_1x_probe_v2/sram22_512x32m4w8.lef": "09ccad5be8a496091763dfc2656e008ab7169f94f8ae797503794a4117fad56b",
+    "build/m6_bank_1x_probe_v2/sram22_512x32m4w8.spice": "3199c16367d0c156a5cf56104fc8a1ae8b0ea7411492b88dd4c02c62908e68b8",
+    "build/m6_bank_1x_probe_v2/sram22_512x32m4w8.v": "e60858b7b783c626d783674c56fd578b3785febfe025fac2f5dff47d8e9ddbef",
+    "build/m6_bank_1x_probe_v2/sram22_512x32m4w8_boundary.gds.gz": "6347c5ca872137a4deefa901aa8055fff7fe82659e1258a6aa84c46381f6c64c",
+    "build/m6_bank_1x_probe_v2/sram22_512x32m4w8_ff_n40C_1v95.lib": "7986a128c686c65adffd2564b988a9c5163d513e987cceeffc7064d67b7e7481",
+    "build/m6_bank_1x_probe_v2/sram22_512x32m4w8_ss_100C_1v60.lib": "75de15985f27c7f1232c50b2fae4324a3e6ef51b770ab113ee8beaaa25a24ba8",
+    "build/m6_bank_1x_probe_v2/sram22_512x32m4w8_tt_025C_1v80.lib": "3dcbc059294e0f54a7f5111046d23c4e759ea9f053f353b01a00a1fb1da32e68",
+    "build/m6_bank_1x_probe_v2/sram_probe_pdn.tcl": "3ffac95c5285a589599169d552c57c99f82e02d33dbbe0a005564cabd4476d1c",
+    "build/m6_core_physical_v4/runs/floorplan_v1/12-openroad-generatepdn/pa_m6_soc.odb": "5bd9d83fa13ce8799abe68ea8368617bb6d1a9e3439a3cbe613331b129abd312",
+    "build/m6_memory_map_v2/mapped.json": "e92fbeb573a92a9bab1eb3c07e64216774c82ca4f632c258b18a3466ad2e5471",
+    "build/m6_memory_map_v2/mapping.json": "fc8b80198c6e272094ca2f51c70c225661e6fcce61ad3c7aa69fbe89d4f888af",
+    "build/m6_memory_map_v2/wrappers.sv": "be4621449e849adf31bbb7c0dd3ea14a576680e19849f5da31cf1ba93efb69c9",
+    "build/m6_memory_screen_v1/screen.json": "42c6cf625fd032fdd0ef2b571cc2439ddc94ec1251d865e4f5d5cc6c8e8ac9eb",
+    "build/m6_memory_screen_v1/sram22_128x32m4w8.lef": "8dbd4d9e2db1e7617303cc7b493f530ba1275b5d364081a59daeb9907deb10c8",
+    "build/m6_memory_screen_v1/sram22_128x32m4w8.v": "31ee21255cbe9471cccb25fdddbaec6ba93309445456a5e062a3b8920d7c30f9",
+    "build/m6_memory_screen_v1/sram22_128x32m4w8_ff_n40C_1v95.lib": "d583b81af0b0c33f9bace0b6d22ff2ca7dfad971a201e786055f61ef6b5e19b7",
+    "build/m6_memory_screen_v1/sram22_128x32m4w8_ss_100C_1v60.lib": "794c89833a8f1c0adeac86e0f6d67df98dbc37b19a5857782b9064db5c790f45",
+    "build/m6_memory_screen_v1/sram22_128x32m4w8_tt_025C_1v80.lib": "223c0d289638bd078be25e21f5f8f8547335a52935c98ac217e417991e78e612",
+    "build/m6_memory_screen_v1/sram22_256x32m4w8.lef": "4d3a5cfbbb9f3616c6c9c3bafe1ba1fedbbabe7a9aedebdd50c7e84a87d9375d",
+    "build/m6_memory_screen_v1/sram22_256x32m4w8.v": "75d925b9ad4977e8b20cbe612e77b2020ba20b217bd3db5b33c9f0c53b2ec972",
+    "build/m6_memory_screen_v1/sram22_256x32m4w8_ff_n40C_1v95.lib": "ccb37c30f650c019f10a07794a91ee2584a81deeb0f42b2b18eb028935962a6a",
+    "build/m6_memory_screen_v1/sram22_256x32m4w8_ss_100C_1v60.lib": "c9dfddc7b9326bd3ee6ecf3dfd3265f23da81d911633bc7cb61b834248e22572",
+    "build/m6_memory_screen_v1/sram22_256x32m4w8_tt_025C_1v80.lib": "eeaaf36ed62a2cdf88fb1031626887c2b403cc881ddfe280ef916f6f32cebb4c",
+    "build/m6_memory_screen_v1/sram22_512x32m4w8.lef": "09ccad5be8a496091763dfc2656e008ab7169f94f8ae797503794a4117fad56b",
+    "build/m6_memory_screen_v1/sram22_512x32m4w8.v": "e60858b7b783c626d783674c56fd578b3785febfe025fac2f5dff47d8e9ddbef",
+    "build/m6_memory_screen_v1/sram22_512x32m4w8_ff_n40C_1v95.lib": "7986a128c686c65adffd2564b988a9c5163d513e987cceeffc7064d67b7e7481",
+    "build/m6_memory_screen_v1/sram22_512x32m4w8_ss_100C_1v60.lib": "75de15985f27c7f1232c50b2fae4324a3e6ef51b770ab113ee8beaaa25a24ba8",
+    "build/m6_memory_screen_v1/sram22_512x32m4w8_tt_025C_1v80.lib": "3dcbc059294e0f54a7f5111046d23c4e759ea9f053f353b01a00a1fb1da32e68",
+    "build/m6_portable_1x_assertions_v1/consumer_manifest.json": "780f73f243128aa991940e7a53b318fb4547dc947657b6222e594d1d9313ca35",
+    "build/m6_portable_1x_assertions_v1/portable.v": "7c7f5aa02e383f84c9831ca9669f8ae038c5ebfe6d975e6d8e31291c6b3c12e3",
+    "build/m6_portable_1x_candidate_v1/inputs.sha256": "8a3c5e5572658d1e329e2d2646fa7693bf0287cf7b58b8f78981aba534aa662d",
+    "build/m6_portable_1x_candidate_v1/portable.json": "c5be9fa5dbae5bf0f34c12da74de9484ab4d96db9cd59fc3b31bf305fffd28d9",
+    "build/m6_portable_1x_candidate_v1/portable.v": "d4eb30c3dfce8ee8b96c1f45ac9dc3485eace952b4f77d19aa383a50199ae7b6",
+    "build/m6_portable_1x_candidate_v1/run.log": "ac15c9b0146a52c12019d53e23716caf1cb59622b0272fe9d0839b81ff2d7695",
+    "build/m6_sram512_v1/sram22_512x32m4w8.v": "e60858b7b783c626d783674c56fd578b3785febfe025fac2f5dff47d8e9ddbef",
+    "build/m6_sram_1x_binary_test_v3/build.log": "d656df48ccd52db1b81608dcd864a2a031ade71af5ca797123e5ea4b29705a38",
+    "build/m6_sram_1x_binary_test_v3/inputs.sha256": "888a59618af433c57949a004f531f98229b3e9b63bf443028c569961eabfb9a0",
+    "build/m6_sram_1x_binary_test_v3/run.log": "ddfd4d46e61c70d4023d9e3b5c331e41cab6dbdbf794cb31b90a0985468bf181",
+    "build/m6_sram_1x_onehot_test_v1/build.log": "c87476d57d0b41ccd86d715257eb6645ed185bf18e65a4036eede52cd2cde273",
+    "build/m6_sram_1x_onehot_test_v1/inputs.sha256": "e4a728354a6fa08f6374d159bd2a7a6af53e0901d6704e7b974e6ab2c815267a",
+    "build/m6_sram_1x_onehot_test_v1/run.log": "ddfd4d46e61c70d4023d9e3b5c331e41cab6dbdbf794cb31b90a0985468bf181",
+    "build/m6_system_1x_assertions_v1/build.log": "74213772d3a1e88a5cb1b83d9c31cd109f5b9b10494591c25f6231a8c66cd0ea",
+    "build/m6_system_1x_assertions_v1/manifest.json": "9d4f9c6d82dd39cedced2b26291c2dad7088073633ef90b9e1937bdc5797bb5e",
+    "build/m6_system_1x_assertions_v1/run.log": "013ea7311e7c3d73c794642b733772fd2d556d2f26dfe2ee05d623795bef4722",
+    "build/m6_system_1x_assertions_v1/test.bin": "8655870d764b638bf77994b160c427887596793887eb7182668b3768d724ae8f",
+    "build/m6_system_1x_assertions_v1/test.cc": "88b5e06309b4c58c754a50a7d5a89e0a1e443e83ca1d53506ec7ff911d344f39",
+    "build/m6_system_1x_candidate_v1/build.log": "60e7870e8f04541684caeb1d60d29fb5769c34eca58993c83edd11e7c005da68",
+    "build/m6_system_1x_candidate_v1/manifest.json": "9d4f9c6d82dd39cedced2b26291c2dad7088073633ef90b9e1937bdc5797bb5e",
+    "build/m6_system_1x_candidate_v1/run.log": "013ea7311e7c3d73c794642b733772fd2d556d2f26dfe2ee05d623795bef4722",
+    "build/m6_system_1x_candidate_v1/test.bin": "8655870d764b638bf77994b160c427887596793887eb7182668b3768d724ae8f",
+    "build/m6_system_1x_candidate_v1/test.cc": "88b5e06309b4c58c754a50a7d5a89e0a1e443e83ca1d53506ec7ff911d344f39",
+    "build/m6_tikz_figures_v3/architecture.pdf": "7196549a44f6dc02f622aa8400a52d8b3325481a8d79c56eb86866389ac4c7e3",
+    "build/m6_tikz_figures_v3/architecture.svg": "9a92fa434a2568c87475ccf09386b1833356e647b0703331c26d8f403c450ced",
+    "build/m6_tikz_figures_v3/platforms.pdf": "a0ebf0957f169c06fc5d4123617369ccc9a3cb4c8dcf6dc7abac75f58663ebde",
+    "build/m6_tikz_figures_v3/platforms.svg": "72705664afa5d4670d649160e3f7d6c79ecad4d5d73fb3d892dc5aa07a81ecba",
+    "build/m6_vivado_figure_v4.log": "1e46e6e7b9d568b2dcab2db47630a673b4540cb700056ced3709fcc84fc46da6",
+    "build/m6_vivado_figure_v4/cells.tsv": "1a5173e6a7a5bf2aa072bd525b670e0be26349499dfa0554d21ea1ed52cd5ea5",
+    "build/m6_vivado_figure_v4/export.txt": "59c194d5ffcf7444e91b9f51c6af9571e7e46d059ea9b33ed49c92f2fdf6deab",
+    "build/m6_vivado_figure_v4/vivado_system.svg": "67025b92d157e1a2f003eefbe9bc4f6729e16080f4d0e5e8563cf001f30342f8",
+    "build/m6_vivado_figure_v4/vivado_system_cropped.pdf": "6e60621b896e6ced90c22642bdc223b4f955ddd03d3dc4aeaaf02285ee15b834",
+    "docs/evidence/m6_100mhz/binary_default_state.json": "522d8345123ca12b6b8aae343fb28b05bd2c642931846fc62b5f1a4f6deedbee",
+    "docs/evidence/m6_100mhz/binary_default_summary.rpt": "d6abadf74561d504289ea7589e3a027f44793b7451079fbd5e4c73d4ed7a2f9b",
+    "docs/evidence/m6_100mhz/binary_repair_resolved.json": "ec56f53d9bb096c4d6c4baeb6d8cf278890a3825e6bcd8e8dd1cb75f016cbdfe",
+    "docs/evidence/m6_100mhz/binary_repair_ss_checks.rpt": "20b7823a6d5e15bd7bd45ca1e8753972aedb1f074446c9f8a9a05cf7a7567878",
+    "docs/evidence/m6_100mhz/binary_repair_state.json": "86085a3deb79587e4524a4d55510f61980731a2c3f3cc356b5da05499a7ab062",
+    "docs/evidence/m6_100mhz/binary_repair_summary.rpt": "69e1fadbec88044b3d408a2071ddfc82c3565e059df93c47126f1c25f500e2a3",
+    "docs/evidence/m6_100mhz/consumer_manifest.json": "780f73f243128aa991940e7a53b318fb4547dc947657b6222e594d1d9313ca35",
+    "docs/evidence/m6_100mhz/liberty_screen.json": "42c6cf625fd032fdd0ef2b571cc2439ddc94ec1251d865e4f5d5cc6c8e8ac9eb",
+    "docs/evidence/m6_100mhz/manifest.json": "afd8d698818ad90e289f25a501a8cab8f917914723e0de5815e3471f0887ab70",
+    "docs/evidence/m6_100mhz/memory_binary.log": "ddfd4d46e61c70d4023d9e3b5c331e41cab6dbdbf794cb31b90a0985468bf181",
+    "docs/evidence/m6_100mhz/memory_onehot.log": "ddfd4d46e61c70d4023d9e3b5c331e41cab6dbdbf794cb31b90a0985468bf181",
+    "docs/evidence/m6_100mhz/onehot_state.json": "4fa4c7df13779729e064754e76158cfee3966706fbecbcf5dd894c423b110a3f",
+    "docs/evidence/m6_100mhz/onehot_summary.rpt": "3f784a074155e58eb616f685a49eeadd009d2541843652ccd43b3c7e8f0c0029",
+    "docs/evidence/m6_100mhz/system_assertions.log": "013ea7311e7c3d73c794642b733772fd2d556d2f26dfe2ee05d623795bef4722",
+    "docs/evidence/m6_100mhz/system_binary.log": "013ea7311e7c3d73c794642b733772fd2d556d2f26dfe2ee05d623795bef4722",
+    "docs/figures/m6/architecture.pdf": "7196549a44f6dc02f622aa8400a52d8b3325481a8d79c56eb86866389ac4c7e3",
+    "docs/figures/m6/architecture.svg": "9a92fa434a2568c87475ccf09386b1833356e647b0703331c26d8f403c450ced",
+    "docs/figures/m6/architecture.tex": "27cf627261558b90c86d81045ecfa9e5d64134ac089f88db382240ce026d7eed",
+    "docs/figures/m6/asic_floorplan.pdf": "4a1fd33d2e25643d3f7083052412ab6024300a52448c4fade83f0ee5d886a22d",
+    "docs/figures/m6/asic_floorplan.svg": "bed9dbe4cfb5af1a1657fe44d857f9f96f7df1799a7afa8bd022558db2750cbe",
+    "docs/figures/m6/asic_macros.tsv": "8ea190a4b33712385372641f1e8944e3270c2928716991f902426aa1edf1f0c0",
+    "docs/figures/m6/asic_openroad.png": "b9db599fe6ad98a8975ac59a0cfa453985c9ff78e4dce82b25918fe9af5db50e",
+    "docs/figures/m6/manifest.json": "bb24eb24e6841606435587e70136dffa62b40848012750078106866e160574c9",
+    "docs/figures/m6/platforms.pdf": "a0ebf0957f169c06fc5d4123617369ccc9a3cb4c8dcf6dc7abac75f58663ebde",
+    "docs/figures/m6/platforms.svg": "72705664afa5d4670d649160e3f7d6c79ecad4d5d73fb3d892dc5aa07a81ecba",
+    "docs/figures/m6/platforms.tex": "cff87dc3c8fce5de092656513f1e14f977ee9396812e876e28571d85db9b1874",
+    "docs/figures/m6/style.tex": "53948b87e2ceb7dadb3ae253ada98d873c0c947d27e6aa6b22f333a2a6f7b139",
+    "docs/figures/m6/vivado_system.pdf": "6e60621b896e6ced90c22642bdc223b4f955ddd03d3dc4aeaaf02285ee15b834",
+    "docs/figures/m6/vivado_system.svg": "67025b92d157e1a2f003eefbe9bc4f6729e16080f4d0e5e8563cf001f30342f8",
+    "docs/m5_startup_evidence.json": "b89e7ba8eafeaa8b57b8a7bc7ee4c7af79137369ab8135e5384fa49dc542cdcf",
+    "scripts/m6_100mhz_evidence.py": "1fbe4aeb8ede44fac9e87b65171c27245f11aea0abafb71dd8e1c43c5dd484f2",
+    "scripts/m6_add_pr_boundary.py": "7e9d59617492512888a8398d7f89116726e1a3512ee4051065bee87ff192e4ed",
+    "scripts/m6_assemble.sh": "9f754ef86d035f05de9f1cbea7942cb8dafddbaa50dee6a5aaee601b0e9132a0",
+    "scripts/m6_assemble_1x_candidate.sh": "bdaa16fd142f8a1ebe54f66bd572740e0d96476c6633ba36d3ad5681f14a7986",
+    "scripts/m6_block_areas.py": "498ba9ef8f36c66ac83a105f019c175fceb41d79eeeaf92d3dcc5db6e89eb48e",
+    "scripts/m6_check_1x_consumers.py": "e914bcdaceeef1446877e77d655a2f8e0c21a5d0c4686d1e16c8b814a69c1a62",
+    "scripts/m6_check_phase_netlist.py": "a01c2a92a03cfe59092e3b84c54206f1ec91d36a46b66edfd1a771cba0fd0089",
+    "scripts/m6_deduplicate_views.py": "877d250bbbcb5d9885a7df3aea5ab6cd0ed6e7a12cb17f3728a697e1b9871985",
+    "scripts/m6_fetch_sram.sh": "8a52cc0d50c48bf7c80b9760f9812c68e7688731fd2c789a13d11fd9c263822f",
+    "scripts/m6_map_memories.py": "111face0fcde893b255c04dcfbcb08309c3d5acc04f19b428ff979c91917dafe",
+    "scripts/m6_memory_feasibility.py": "467776268f753332d77f8ba2d89381d2aa0fd1c1fa265f5693bf8e4d76b93856",
+    "scripts/m6_memory_inventory.py": "372df62d346193de6963fcf177a5aade63f13e74ae4ce7dc2e38ee061b89b0e3",
+    "scripts/m6_normalize.sh": "7db42bfce93fa14aa2a705bcebefe68520314f3d08bd8ce0523274cd49435873",
+    "scripts/m6_package_figures.py": "5f73437117ea310b5d9ebf3511fe9db0d674504b8bc0fba057591729b0e71779",
+    "scripts/m6_package_results.py": "b2f1eef791234b91b9d2db21ebd2f211b10f24f3c5a5cd7374c2fad4ea74a4cc",
+    "scripts/m6_port_evidence.py": "ea11b1c128e0402ef427689ac1e0fa41904b6607adc1b3aa10ea4782e5aed5a9",
+    "scripts/m6_preflight_evidence.py": "721e04833d61fbf2d42dc335055d3175bfaafd02c6dd6c38e4026cc8f4507557",
+    "scripts/m6_prepare_bank_probe.py": "8c99575bdc15501401db011da047211429ba5c9f112ba8d05bb012cd5d456a01",
+    "scripts/m6_prepare_chip.py": "39ea883709517b3c3d92b8093fe3226d927fb4d6a57b7cc4b98052f3bf0ac83e",
+    "scripts/m6_prepare_physical.py": "43d3d755a8276b9f0c728786eac7376bb06593cad7cdcfa40da61ef58c88aaaf",
+    "scripts/m6_prepare_system_test.py": "38a3d725b3a12c582b63a62044636bc884e650add61834744128782af1892a37",
+    "scripts/m6_render_asic_floorplan.py": "238e699f025ae0b0ce409246d39332ef245838b05e229774155cc8b421fbb995",
+    "scripts/m6_render_tikz.py": "15016b405cadb32e7ed03940f5e42f2b6e296b99922ff44cbf1fd1a3016d8201",
+    "scripts/m6_run_1x_consumer_test.sh": "e6c2cd1bf888d725a4b33ec15f6398abdfdd6a9d5549fda5fc5c41a073493d3d",
+    "scripts/m6_run_1x_memory_test.sh": "c715990400ffc425f99e0e8defe574af8b51639ba1297f5f7bb8d237b36f0cb0",
+    "scripts/m6_run_bank_probe.sh": "c6478f57646077b367330d6e343cc78788291a272cc1180dfbfce77ca9c692da",
+    "scripts/m6_run_chip_test.sh": "7ed60761e2cbb9d9d25006f5764b8986ec8fa320f4ea8929d443dad1e71a1a57",
+    "scripts/m6_run_physical.sh": "3f571a77a9d83133081033576701da4de2d0a119225fc1bce553c38fe3244093",
+    "scripts/m6_run_sram_probe.sh": "0d25f9a6428b7a334ea46e297976af4fa7640bc8b76ead33589ab2e46f14c2a5",
+    "scripts/m6_run_system_test.sh": "7a83a3a80bf22b2d9c22b2372b2eab19bcb88ba408ea2816306748cb0730c1ec",
+    "scripts/m6_spi_host.py": "6b6d12a516aff5342f2294bc5b97240dae3190455b16e608c903f67ec3653875",
+    "scripts/m6_stage_constraints.py": "33e2ecdb38e36e70a96c3795ab22be1dd8f9d7188786aa977ed91da5fea2679e",
+    "scripts/m6_stage_rtl.py": "5381eb279133254b0b8749efa8b87b2f81c492c18e5a52dc3b512b08de7c81ee",
+    "scripts/m6_timing_diagnostic.sh": "38ce4073bc199f6471e52e8ed8737cb1d2fd3cb68a58519d39fd162b9a343275",
+    "tests/m6/host_tb.sv": "972fcec11a5112a5ae9324b80a75ad9f53166c48dd089b11dc5de70f95966c90",
+    "tests/m6/sram_1x_tb.sv": "9e9addb8e0a991c7cc865c5a30aa2e56bf7e92744fe7e4c78b85f3365810037a",
+    "tests/m6/sram_adapter_tb.sv": "ff5ad00109c0262b4553e7838a996d7ce66ee624e728a6eb07120c39616fd358",
+    "tests/m6/test_100mhz_evidence.py": "8a43acb827b20939fb7c0f8fb9506545442f3b29327a50cba987d569b3dd7437",
+    "tests/m6/test_1x_consumers.py": "e106b873011df2f7d62baa0b669ed41ba33f9e84f1c0d568734928641ff40ce1",
+    "tests/m6/test_mapping.py": "034a712cf22ee068a691d356fb53842caaf5934dd5cb325b87259a52b4b0f86a",
+    "tests/m6/test_memory_feasibility.py": "801474b67066110c0a8a14a05c4ed5fa74980bc27e577b517c62ab7c054b264c",
+    "tests/m6/test_phase_netlist.py": "92ed5acd678d6bf9bd9e18126250b4681ceb12295b93931eebe9ba1007b00154",
+    "tests/m6/test_preflight.py": "f2a694f1171ca3834045d5a117b71e4795d3aa9ce803939119f0418606742b59",
+    "tests/m6/test_supervisor.py": "f0d496058b3bcafb3322e6d171d0e4f7826e4be31fd7f5adefee96d082329896"
+  },
+  "figures": {
+    "asic": {
+      "geometry_plot": "Labeled vector view of actual OpenDB-exported macro bounds",
+      "macros": 292,
+      "raw_tool_view": "asic_openroad.png; OpenROAD GUI highlighting only",
+      "routed": false,
+      "run": "m6_core_physical_v4/floorplan_v1",
+      "stage": "MACRO_PLACEMENT_PDN_ONLY_HISTORICAL_2X_ADAPTER",
+      "standard_cells_placed": false,
+      "timing_100mhz_pass": false
+    },
+    "outputs": {
+      "architecture.pdf": {
+        "sha256": "7196549a44f6dc02f622aa8400a52d8b3325481a8d79c56eb86866389ac4c7e3",
+        "source": "build/m6_tikz_figures_v3/architecture.pdf"
+      },
+      "architecture.svg": {
+        "sha256": "9a92fa434a2568c87475ccf09386b1833356e647b0703331c26d8f403c450ced",
+        "source": "build/m6_tikz_figures_v3/architecture.svg"
+      },
+      "asic_floorplan.pdf": {
+        "sha256": "4a1fd33d2e25643d3f7083052412ab6024300a52448c4fade83f0ee5d886a22d",
+        "source": "build/m6_asic_vector_v1/asic_floorplan.pdf"
+      },
+      "asic_floorplan.svg": {
+        "sha256": "bed9dbe4cfb5af1a1657fe44d857f9f96f7df1799a7afa8bd022558db2750cbe",
+        "source": "build/m6_asic_vector_v1/asic_floorplan.svg"
+      },
+      "asic_macros.tsv": {
+        "sha256": "8ea190a4b33712385372641f1e8944e3270c2928716991f902426aa1edf1f0c0",
+        "source": "build/m6_asic_figure_v8/macros.tsv"
+      },
+      "asic_openroad.png": {
+        "sha256": "b9db599fe6ad98a8975ac59a0cfa453985c9ff78e4dce82b25918fe9af5db50e",
+        "source": "build/m6_asic_figure_v8/asic_floorplan.png"
+      },
+      "platforms.pdf": {
+        "sha256": "a0ebf0957f169c06fc5d4123617369ccc9a3cb4c8dcf6dc7abac75f58663ebde",
+        "source": "build/m6_tikz_figures_v3/platforms.pdf"
+      },
+      "platforms.svg": {
+        "sha256": "72705664afa5d4670d649160e3f7d6c79ecad4d5d73fb3d892dc5aa07a81ecba",
+        "source": "build/m6_tikz_figures_v3/platforms.svg"
+      },
+      "vivado_system.pdf": {
+        "sha256": "6e60621b896e6ced90c22642bdc223b4f955ddd03d3dc4aeaaf02285ee15b834",
+        "source": "build/m6_vivado_figure_v4/vivado_system_cropped.pdf"
+      },
+      "vivado_system.svg": {
+        "sha256": "67025b92d157e1a2f003eefbe9bc4f6729e16080f4d0e5e8563cf001f30342f8",
+        "source": "build/m6_vivado_figure_v4/vivado_system.svg"
+      }
+    },
+    "schema": 1,
+    "sources": {
+      "asic/m6/export_asic_view.tcl": "2f9807ac39ae5b9e95b05e96588d24d77999b999aaf9ec6fc964a1a5ad0e734b",
+      "asic/m6/export_vivado_bd.tcl": "882e2a8ceac61a8309147d1e9e390c1454395e436afd9a65863a7a5011137f89",
+      "build/m5_startup_data_direct_pynq_v2/m5_pynq.srcs/sources_1/bd/system/system.bd": "ee74a3ba49ba3d3af3096d1eb553c42106f9dde3b1c9e735ee9444f847bfc252",
+      "build/m6_asic_figure_v8/export.log": "43836c15012fc101a8d5b39051d3395c65e99dfe7f1b84926d6f5fbdffc8911f",
+      "build/m6_asic_figure_v8/macros.tsv": "8ea190a4b33712385372641f1e8944e3270c2928716991f902426aa1edf1f0c0",
+      "build/m6_core_physical_v4/runs/floorplan_v1/12-openroad-generatepdn/pa_m6_soc.odb": "5bd9d83fa13ce8799abe68ea8368617bb6d1a9e3439a3cbe613331b129abd312",
+      "build/m6_vivado_figure_v4.log": "1e46e6e7b9d568b2dcab2db47630a673b4540cb700056ced3709fcc84fc46da6",
+      "build/m6_vivado_figure_v4/cells.tsv": "1a5173e6a7a5bf2aa072bd525b670e0be26349499dfa0554d21ea1ed52cd5ea5",
+      "build/m6_vivado_figure_v4/export.txt": "59c194d5ffcf7444e91b9f51c6af9571e7e46d059ea9b33ed49c92f2fdf6deab",
+      "docs/figures/m6/architecture.tex": "27cf627261558b90c86d81045ecfa9e5d64134ac089f88db382240ce026d7eed",
+      "docs/figures/m6/platforms.tex": "cff87dc3c8fce5de092656513f1e14f977ee9396812e876e28571d85db9b1874",
+      "docs/figures/m6/style.tex": "53948b87e2ceb7dadb3ae253ada98d873c0c947d27e6aa6b22f333a2a6f7b139",
+      "scripts/m6_package_figures.py": "5f73437117ea310b5d9ebf3511fe9db0d674504b8bc0fba057591729b0e71779",
+      "scripts/m6_render_asic_floorplan.py": "238e699f025ae0b0ce409246d39332ef245838b05e229774155cc8b421fbb995",
+      "scripts/m6_render_tikz.py": "15016b405cadb32e7ed03940f5e42f2b6e296b99922ff44cbf1fd1a3016d8201"
+    },
+    "status": "REVIEWED_PRELIMINARY_FIGURES_NOT_M6_CLOSURE",
+    "visual_review": "2026-09-08: native architecture/platform and ASIC geometry checked in color/grayscale; native Vivado crop and actual OpenROAD canvas checked visually",
+    "vivado": {
+      "export": "Vivado write_bd_layout, retained layout, SVG and vector-cropped PDF",
+      "read_only": true,
+      "source_release": "7405919"
+    }
+  },
+  "m6_pass": false,
+  "memory_screen": {
+    "sram22_128x32m4w8": {
+      "corners": {
+        "ff_n40C_1v95": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 3.06366,
+            "min": 2.03116
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 3.00283,
+            "min": 0.0510343
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.243361,
+            "min": 0.0871751
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 1.79079,
+            "min": 1.79053
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.280674,
+            "min": 0.0858422
+          }
+        },
+        "ss_100C_1v60": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 7.85786,
+            "min": 5.71125
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 8.33743,
+            "min": 0.12034
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.484037,
+            "min": 0.409459
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 4.84859,
+            "min": 4.8483
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.52858,
+            "min": 0.192282
+          }
+        },
+        "tt_025C_1v80": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 4.52045,
+            "min": 3.14037
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 4.61776,
+            "min": 0.0728659
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.311944,
+            "min": 0.189884
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 2.72243,
+            "min": 2.72213
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.329077,
+            "min": 0.124318
+          }
+        }
+      },
+      "height_um": 224.32,
+      "macro_area_um2": 93487.6032,
+      "memory_100mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": 5.15141,
+        "period_only_pass": true,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 10.0,
+        "worst_table_minimum_period_ns": 4.84859
+      },
+      "memory_200mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": 0.15141000000000027,
+        "period_only_pass": true,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 5.0,
+        "worst_table_minimum_period_ns": 4.84859
+      },
+      "width_um": 416.76
+    },
+    "sram22_256x32m4w8": {
+      "corners": {
+        "ff_n40C_1v95": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 3.16639,
+            "min": 2.13559
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 3.10735,
+            "min": 0.0511211
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.24332,
+            "min": 0.0872007
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 1.80275,
+            "min": 1.80257
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.280596,
+            "min": 0.0859175
+          }
+        },
+        "ss_100C_1v60": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 8.1864,
+            "min": 6.04101
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 8.67395,
+            "min": 0.120743
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.483782,
+            "min": 0.4095
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 4.96793,
+            "min": 4.9677
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.528522,
+            "min": 0.192433
+          }
+        },
+        "tt_025C_1v80": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 4.68824,
+            "min": 3.30976
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 4.78935,
+            "min": 0.072999
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.311797,
+            "min": 0.190171
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 2.77148,
+            "min": 2.77134
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.328975,
+            "min": 0.124484
+          }
+        }
+      },
+      "height_um": 291.64,
+      "macro_area_um2": 123328.7232,
+      "memory_100mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": 5.03207,
+        "period_only_pass": true,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 10.0,
+        "worst_table_minimum_period_ns": 4.96793
+      },
+      "memory_200mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": 0.03207000000000004,
+        "period_only_pass": true,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 5.0,
+        "worst_table_minimum_period_ns": 4.96793
+      },
+      "width_um": 422.88
+    },
+    "sram22_512x32m4w8": {
+      "corners": {
+        "ff_n40C_1v95": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 3.3671,
+            "min": 2.33557
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 3.4588,
+            "min": 0.0515449
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.243337,
+            "min": 0.0872189
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 1.9873,
+            "min": 1.98689
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.280388,
+            "min": 0.0855447
+          }
+        },
+        "ss_100C_1v60": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 8.76922,
+            "min": 6.62371
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 9.42526,
+            "min": 0.121185
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.483875,
+            "min": 0.409149
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 5.51622,
+            "min": 5.51608
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.527783,
+            "min": 0.191886
+          }
+        },
+        "tt_025C_1v80": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 5.00258,
+            "min": 3.62372
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 5.33453,
+            "min": 0.0733537
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.311837,
+            "min": 0.190011
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 3.05694,
+            "min": 3.05664
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.328464,
+            "min": 0.123992
+          }
+        }
+      },
+      "height_um": 448.72,
+      "macro_area_um2": 198908.6016,
+      "memory_100mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": 4.48378,
+        "period_only_pass": true,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 10.0,
+        "worst_table_minimum_period_ns": 5.51622
+      },
+      "memory_200mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": -0.5162199999999997,
+        "period_only_pass": false,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 5.0,
+        "worst_table_minimum_period_ns": 5.51622
+      },
+      "width_um": 443.28
+    }
+  },
+  "onehot_candidate": {
+    "full_system_test": "NOT_RUN",
+    "local_contract_pass": true,
+    "promoted": false,
+    "reason": "No worst-setup improvement"
+  },
+  "physical_probes": {
+    "binary_clock_repair": {
+      "antenna__violating__nets": 26,
+      "antenna__violating__pins": 27,
+      "corners": {
+        "max_ss_100C_1v60": {
+          "design__max_cap_violation__count": 0,
+          "design__max_slew_violation__count": 3610,
+          "timing__hold__tns": 0,
+          "timing__hold__ws": 0.08526279923425695,
+          "timing__setup__tns": -2.1376447883520724,
+          "timing__setup__ws": -0.28213254753225725
+        },
+        "min_ff_n40C_1v95": {
+          "design__max_cap_violation__count": 0,
+          "design__max_slew_violation__count": 303,
+          "timing__hold__tns": 0,
+          "timing__hold__ws": 0.11709283873932395,
+          "timing__setup__tns": 0,
+          "timing__setup__ws": 5.640654325501191
+        },
+        "nom_tt_025C_1v80": {
+          "design__max_cap_violation__count": 0,
+          "design__max_slew_violation__count": 440,
+          "timing__hold__tns": 0,
+          "timing__hold__ws": 0.05268197138755344,
+          "timing__setup__tns": 0,
+          "timing__setup__ws": 4.357357709094692
+        }
+      },
+      "design__max_cap_violation__count": 0,
+      "design__max_slew_violation__count": 3610,
+      "design__power_grid_violation__count": 0,
+      "qualification": "UNQUALIFIED_PROBE_NOT_FULL_SYSTEM",
+      "route__drc_errors": 0,
+      "source": "build/m6_bank_1x_probe_v2/runs/clock_repair_v2/22-openroad-stapostpnr",
+      "timing__hold__tns": 0,
+      "timing__hold__ws": 0.05268197138755344,
+      "timing__setup__tns": -2.1376447883520724,
+      "timing__setup__ws": -0.28213254753225725,
+      "timing__unannotated_net_filtered__count": 0
+    },
+    "binary_default_cts": {
+      "antenna__violating__nets": 21,
+      "antenna__violating__pins": 24,
+      "corners": {
+        "max_ss_100C_1v60": {
+          "design__max_cap_violation__count": 0,
+          "design__max_slew_violation__count": 3602,
+          "timing__hold__tns": -0.9272850527672365,
+          "timing__hold__ws": -0.1268287732956716,
+          "timing__setup__tns": -4.443951998840039,
+          "timing__setup__ws": -0.4958886774900832
+        },
+        "min_ff_n40C_1v95": {
+          "design__max_cap_violation__count": 0,
+          "design__max_slew_violation__count": 299,
+          "timing__hold__tns": 0,
+          "timing__hold__ws": 0.05747436023118841,
+          "timing__setup__tns": 0,
+          "timing__setup__ws": 6.0148865368690085
+        },
+        "nom_tt_025C_1v80": {
+          "design__max_cap_violation__count": 0,
+          "design__max_slew_violation__count": 411,
+          "timing__hold__tns": -0.323620583935139,
+          "timing__hold__ws": -0.06231715320156688,
+          "timing__setup__tns": 0,
+          "timing__setup__ws": 4.242654792016919
+        }
+      },
+      "design__max_cap_violation__count": 0,
+      "design__max_slew_violation__count": 3602,
+      "design__power_grid_violation__count": 0,
+      "qualification": "UNQUALIFIED_PROBE_NOT_FULL_SYSTEM",
+      "route__drc_errors": 0,
+      "source": "build/m6_bank_1x_probe_v2/runs/route_v2/32-openroad-stapostpnr",
+      "timing__hold__tns": -0.9272850527672365,
+      "timing__hold__ws": -0.1268287732956716,
+      "timing__setup__tns": -4.443951998840039,
+      "timing__setup__ws": -0.4958886774900832,
+      "timing__unannotated_net_filtered__count": 0
+    },
+    "onehot_return": {
+      "antenna__violating__nets": 42,
+      "antenna__violating__pins": 60,
+      "corners": {
+        "max_ss_100C_1v60": {
+          "design__max_cap_violation__count": 0,
+          "design__max_slew_violation__count": 3070,
+          "timing__hold__tns": 0,
+          "timing__hold__ws": 0.049599104005584864,
+          "timing__setup__tns": -1.5171668795149302,
+          "timing__setup__ws": -0.3294928867453689
+        },
+        "min_ff_n40C_1v95": {
+          "design__max_cap_violation__count": 0,
+          "design__max_slew_violation__count": 280,
+          "timing__hold__tns": 0,
+          "timing__hold__ws": 0.1024166336282789,
+          "timing__setup__tns": 0,
+          "timing__setup__ws": 6.108849154992579
+        },
+        "nom_tt_025C_1v80": {
+          "design__max_cap_violation__count": 0,
+          "design__max_slew_violation__count": 394,
+          "timing__hold__tns": 0,
+          "timing__hold__ws": 0.03532430004044543,
+          "timing__setup__tns": 0,
+          "timing__setup__ws": 4.339074999897305
+        }
+      },
+      "design__max_cap_violation__count": 0,
+      "design__max_slew_violation__count": 3070,
+      "design__power_grid_violation__count": 0,
+      "qualification": "UNQUALIFIED_PROBE_NOT_FULL_SYSTEM",
+      "route__drc_errors": 0,
+      "source": "build/m6_bank_1x_onehot_v1/runs/route_v1/55-openroad-stapostpnr",
+      "timing__hold__tns": 0,
+      "timing__hold__ws": 0.03532430004044543,
+      "timing__setup__tns": -1.5171668795149302,
+      "timing__setup__ws": -0.3294928867453689,
+      "timing__unannotated_net_filtered__count": 0
+    }
+  },
+  "remaining": [
+    "SRAM clock/input slew and output-library default transition review",
+    "100-MHz banked-memory setup and antenna closure",
+    "durable disk space: full-core guard 10 GiB; 30 GiB recommended",
+    "full-system 1x physical integration, locality, CTS, route and all-corner checks",
+    "1x chip loader, external-memory/pad integration and useful throughput qualification",
+    "final routed ASIC figure, PPA report and release"
+  ],
+  "schema": 1,
+  "single_clock_functional": {
+    "boots": 2,
+    "chip_loader_requalified_with_1x": false,
+    "consumer_assertion_module_types": 4,
+    "cycle_delta": 0,
+    "firmware_or_oracle_changes": false,
+    "formal_equivalence": false,
+    "full_test_cycles": 16477049,
+    "general_1w2r_equivalence": false,
+    "independent_words_per_boot": 9633,
+    "lifecycle_cases": 14,
+    "logical_arrays": 47,
+    "macro_count": 292,
+    "test_harness": "Retained two-phase harness; candidate SRAM samples system clock only"
+  },
+  "status": "SINGLE_CLOCK_FUNCTIONAL_PASS_PHYSICAL_CLOSURE_OPEN",
+  "target_system_mhz": 100
+}

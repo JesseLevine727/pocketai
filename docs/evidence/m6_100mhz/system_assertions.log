@@ -1,0 +1,8 @@
+M5 ACCEL initial hart=0 state=3 errors=00000000 mailbox_irqs=9 dma_irqs=0 jobs=9 checks=9633 route_checks=0 cause=00000000 address=00000000 pc=00000000 cycles=7844921 gemm_irqs=0 sfpu_irqs=0 unexpected_irqs=0
+M5 ACCEL initial hart=1 state=2 errors=00000000 mailbox_irqs=9 dma_irqs=9 jobs=9 checks=0 route_checks=9 cause=00000000 address=00000000 pc=00000000 cycles=7844708 gemm_irqs=5 sfpu_irqs=4 unexpected_irqs=0
+M5 ACCEL initial independent_words=9633 PASS
+M5 ACCEL remapped_after_packet_abort hart=0 state=3 errors=00000000 mailbox_irqs=9 dma_irqs=0 jobs=9 checks=9633 route_checks=0 cause=00000000 address=00000000 pc=00000000 cycles=7844919 gemm_irqs=0 sfpu_irqs=0 unexpected_irqs=0
+M5 ACCEL remapped_after_packet_abort hart=1 state=2 errors=00000000 mailbox_irqs=9 dma_irqs=9 jobs=9 checks=0 route_checks=9 cause=00000000 address=00000000 pc=00000000 cycles=7844706 gemm_irqs=5 sfpu_irqs=4 unexpected_irqs=0
+M5 ACCEL remapped_after_packet_abort independent_words=9633 PASS
+M5 ACCEL COMPONENT LIFECYCLE PASS cases=14
+M5 ACTUAL DUAL-IBEX ACCELERATOR PASS boots=2 packet_abort=1 cycles=16477049 pte_reads=418 data_reads=20224 writes=132606

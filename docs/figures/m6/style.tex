@@ -1,0 +1,28 @@
+% Native vector figure style. Okabe-Ito-derived colors; labels remain readable
+% without color. Figure meaning must never depend on color alone.
+\usepackage[T1]{fontenc}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+\definecolor{paBlue}{HTML}{0072B2}
+\definecolor{paOrange}{HTML}{E69F00}
+\definecolor{paGreen}{HTML}{009E73}
+\definecolor{paPurple}{HTML}{CC79A7}
+\definecolor{paInk}{HTML}{263441}
+\tikzset{
+  block/.style={draw=paInk,line width=.65pt,rounded corners=2pt,
+    align=center,text=paInk,font=\sffamily\fontsize{9}{11}\selectfont,
+    minimum height=1.15cm,text width=3.0cm,inner sep=5pt,fill=white},
+  cpu/.style={block,fill=paBlue!10},
+  memory/.style={block,fill=paOrange!13},
+  compute/.style={block,fill=paGreen!10},
+  control/.style={block,fill=paPurple!12},
+  link/.style={-{Latex[length=2mm]},draw=paInk,line width=.8pt},
+  duplex/.style={{Latex[length=2mm]}-{Latex[length=2mm]},draw=paInk,line width=.8pt},
+  streaming/.style={duplex,draw=paBlue,line width=1.15pt},
+  boundary/.style={draw=paInk!65,dashed,line width=.65pt,rounded corners=4pt},
+  note/.style={font=\sffamily\fontsize{8}{10}\selectfont,align=center,text=paInk},
+}

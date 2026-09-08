@@ -1,6 +1,6 @@
 # M6 — Sky130 port and evidence-led PPA report
 
-Status: **WAITING FOR STORAGE; research-only scope, not qualified.** Baseline `7405919` was pushed to
+Status: **100-MHz memory-first closure resumed; research-only scope, not qualified.** Baseline `7405919` was pushed to
 `origin/main` on 2026-09-08 before this work began. M1–M5 and every subsequent
 FPGA performance qualification remain frozen. This document records the M6
 acceptance details before the ASIC RTL changes. The current port passes RTL
@@ -29,14 +29,16 @@ available to this workflow. Mark that measurement deferred, never zero and
 never replace it with nominal supply ratings. Any tool power analysis must
 state its activity source, corner, voltage, frequency, scope and coverage.
 
-The user also explicitly deferred the **100-MHz ASIC closure requirement** on
-2026-09-08. Reaching 100 MHz is no longer a hard M6 gate. No replacement clock
-has been qualified. The current candidate is 12.5 MHz system / 25 MHz memory.
+The user initially deferred the **100-MHz ASIC closure requirement** on
+2026-09-08, then explicitly reinstated it by approving the memory-first roadmap
+and asking to execute the goal. **100 MHz is now the required system clock.**
+The earlier candidate was 12.5 MHz system / 25 MHz memory; it remains historical
+and unqualified, not an alternative acceptance clock.
 The previous direct-clock-as-phase revision failed its 25-MHz system candidate;
 the revised separate-phase-data netlist has passed functional/synthesis/PDN
 checks but has not yet completed standard-cell placement or routed timing.
 The port must still close setup and hold timing
-at its declared operating clock, with macro-boundary and constraint coverage
+at 100 MHz, with macro-boundary and constraint coverage
 checked. Report the achieved clock and corresponding performance honestly;
 do not relabel a failed 100-MHz run as passing. The existing 100-MHz SRAM probe
 result and qualified 91-MHz FPGA baseline remain unchanged.
@@ -62,9 +64,11 @@ They do not authorize fabrication or a fabrication-ready claim.
    port, mask and latency behavior; make any adapter changes explicit and test
    them against the qualified memories. No missing/black-box memory may make
    area or timing appear artificially favorable. Preserve fast multipliers.
-3. **Implementation.** Run bounded synthesis/floorplan feasibility before full
-   placement/routing. **100-MHz closure is deferred by the user**; qualify and
-   report the implemented operating clock instead. Declare
+3. **Implementation.** Prove a representative banked-memory subsystem first,
+   then bounded synthesis/floorplan feasibility before full placement/routing.
+   **100-MHz system closure is required.** Target +0.250 ns setup headroom;
+   +0.500 ns is a stretch, not a substitute for all setup/hold checks passing.
+   Declare
    clock/I/O constraints and library/RC/PVT corners; verify setup, hold,
    unconstrained paths and macro boundary timing. Do not present typical-corner
    analysis as worst-corner or tapeout signoff. Timing failure is not a pass.
@@ -78,6 +82,11 @@ They do not authorize fabrication or a fabrication-ready claim.
    tool results, RTL simulation, analytic bounds, historical results and
    unavailable data. LUTs are not converted to mm². Do not scale FPGA token/s
    by an ASIC clock and call it measured ASIC inference.
+   Include actual Vivado block-design and ASIC physical-implementation figures,
+   plus editable native TikZ high-level architecture and platform-boundary
+   figures. Retain export scripts, vector outputs and artifact provenance.
+   Intermediate floorplans must be labeled as such, never presented as routed
+   100-MHz results. Review readability and connections in rendered figures.
 6. **Review and release.** Audit each reported cell against a reproducible
    command and primary artifacts. Check prior frozen audits, review the actual
    diff and commit scoped changes. Push qualified M6 results as requested.
@@ -99,6 +108,23 @@ views, storage, timing, chip integration or another requirement needs a material
 scope/acceptance change, preserve the evidence and request direction. A useful
 partial report is not M6 closure. The goal stays incomplete until the agreed
 gates pass.
+
+## Resumed 100-MHz execution contract
+
+The detailed worklist is [M6_100MHZ_CLOSURE.md](M6_100MHZ_CLOSURE.md). The
+2026-09-08 approval permits ASIC-only latency/handshake adaptations proposed in
+that roadmap, provided architectural results, ordering, capacities, coherence,
+fast multiplication and abort/drain behavior remain correct. Such adaptations
+must not be described as cycle-equivalent; useful workload throughput and
+memory-stall costs must be requalified. No arbitrary bank-conflict assumption,
+hidden lower-frequency compute domain or omitted macro timing may qualify the
+100-MHz target. A changed SRAM choice needs matching characterized timing and
+physical views. Missing suitable IP is a feasibility blocker, not a waiver.
+
+The goal service currently retains the unfinished M6 goal in its earlier
+blocked state and rejects creating a replacement. Continue the same work under
+this approved contract; do not falsely complete the old goal to bypass that
+restriction. The new report-figure deliverables are recorded here explicitly.
 
 ## Preflight decision checkpoint
 

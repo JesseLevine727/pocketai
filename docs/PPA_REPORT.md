@@ -1,15 +1,18 @@
 # PocketAI FPGA results and Sky130 port
 
 Status: **preliminary M6 report; M6 is not closed.** The qualified FPGA release
-is `7405919`. The full SRAM-backed digital system now passes functional tests,
-synthesis and macro-placement/power-grid connectivity checks. These results
-do not describe a routed, timing-closed chip or measured ASIC inference.
+is `7405919`. The historical two-phase SRAM port passes functional tests,
+synthesis and macro-placement/power-grid connectivity checks. The new
+single-clock candidate passes full-system RTL tests but does not yet pass
+the representative banked-memory physical checks. Neither result describes
+a routed, timing-closed full chip or measured ASIC inference.
 Acceptance is recorded in [M6_PLAN.md](M6_PLAN.md).
 
-On 2026-09-08, the user deferred the 100-MHz ASIC closure requirement. M6 must
-still report and verify timing at the implemented clock. The current candidate
-is 12.5 MHz system / 25 MHz memory; it is not yet qualified. This acceptance
-change does not alter the existing
+On 2026-09-08, the user initially deferred and then reinstated the 100-MHz
+ASIC closure requirement, approving a memory-first implementation roadmap.
+**Full-system 100-MHz closure is required and remains unachieved.** The earlier
+12.5-MHz system / 25-MHz memory candidate is historical and unqualified.
+This acceptance change does not alter the existing
 100-MHz SRAM probe results. The user subsequently approved deferring SRAM-internal
 verification and unavailable leakage data for a research-only result. Those
 gaps remain unqualified; the deferrals do not waive our full-system functional,
@@ -35,8 +38,57 @@ hashes and tool outputs. Physical-board measurements come from the frozen
 [startup evidence](m5_startup_evidence.json); implementation area and static
 timing are tool results, not physical ASIC measurements. Missing results are
 marked unavailable. A missing number is not zero.
-The newer [port ledger](m6_port_evidence.json) records full-system functional,
-synthesis, block-area and floorplan evidence separately from that preflight.
+The [port ledger](m6_port_evidence.json) records historical two-phase full-system
+functional, synthesis, block-area and floorplan evidence. The
+[100-MHz experiment ledger](m6_100mhz_evidence.json) separately records the
+single-clock candidate, its consumer assertions and the new routed bank probes.
+Small [primary log/report extracts](evidence/m6_100mhz/manifest.json) are tracked
+with the report; complete EDA runs remain retained locally and hash-bound.
+
+## Architecture and implementation figures
+
+![High-level PocketAI architecture](figures/m6/architecture.svg)
+
+Figure 1. Portable inference architecture. Both fast-multiply Ibex harts,
+coherent read mirrors, scratchpad, GEMM, SFPU and autonomous transfer/control
+are retained. The central band summarizes distinct control, routing and bypass
+paths; it is not a literal single bus. The translated external-memory subsystem
+is portable RTL, while the DRAM controller/PHY is a platform boundary.
+[Editable TikZ](figures/m6/architecture.tex) · [Vector PDF](figures/m6/architecture.pdf).
+
+![Actual Vivado system block design](figures/m6/vivado_system.svg)
+
+Figure 2. Native Vivado export of the qualified-release system block design,
+opened read-only. `pa_cluster_m5_0` contains the inference core. Its AXI master
+reaches Zynq DDR through `hp_smc` and the processing system's HP0 port; the
+GP0/control path provides host access and configuration. Clock/reset and GPIO
+blocks belong to the FPGA shell. The retained layout is exported, not redrawn
+or rebuilt, and “Discontinued” labels are Vivado's IP display annotations.
+[Vector PDF](figures/m6/vivado_system.pdf).
+
+![FPGA and ASIC platform boundaries](figures/m6/platforms.svg)
+
+Figure 3. Architectural reuse and platform-specific implementation boundaries.
+The FPGA's 91-MHz clock is qualified; the ASIC's 100-MHz clock is a target.
+The ASIC loader has digital RTL evidence, while its physical pads and external
+memory interface still require integration. No fabricated-ASIC measurement is
+implied. [Editable TikZ](figures/m6/platforms.tex) · [Vector PDF](figures/m6/platforms.pdf).
+
+![Actual ASIC macro-floorplan geometry](figures/m6/asic_floorplan.svg)
+
+Figure 4. Labeled vector view of actual macro coordinates from the retained
+OpenROAD `m6_core_physical_v4/floorplan_v1` database. All 292 SRAM macros are
+shown, including duplicated read copies. This historical two-phase candidate
+has macro placement and PDN connectivity evidence only; standard cells are
+not placed and signal routing is incomplete. It is neither the new single-clock
+candidate nor a 100-MHz result. Letter labels preserve ownership in grayscale.
+[Vector PDF](figures/m6/asic_floorplan.pdf) · [Actual OpenROAD GUI export](figures/m6/asic_openroad.png).
+
+The [figure manifest](figures/m6/manifest.json) records source and output hashes.
+Native TikZ sources remain editable. Tool exports retain their actual source
+stage, and the [figure reproduction notes](figures/m6/README.md) separate native
+EDA exports from the labeled geometry visualization. A final routed ASIC view
+must replace the preliminary view only after that implementation is qualified.
 
 ## Qualified FPGA implementation
 
@@ -48,10 +100,10 @@ numbers are the qualified implementation, not a new ASIC result.
 
 | Metric | Full FPGA system | Full-system ASIC |
 |---|---:|---|
-| Qualified operating clock | 91 MHz | Unavailable; 100-MHz requirement deferred |
+| Qualified operating clock | 91 MHz | Unavailable; 100-MHz closure required |
 | LUTs / registers | 29,229 / 21,833 | Not applicable |
 | BRAM36 equivalents / DSPs | 127.5 / 0 | Not applicable |
-| Standard-cell and macro area | Not inferred from LUTs | Unavailable |
+| Mapped standard-cell / SRAM instance area | Not inferred from LUTs | Historical 2x synthesis: 2.162388 / 58.081312 mm² |
 | Full-layout setup / hold slack | +0.269 / +0.008 ns | Unavailable |
 | Maximum achievable frequency | Not characterized by a clock sweep | Unavailable |
 | Measured board watts | Explicitly deferred by user | No fabricated ASIC |
@@ -145,13 +197,13 @@ and allocate 4,784,128 physical bits (584 KiB). Twenty-one small asynchronous
 buffers, control arrays and constant ROM instances remain explicit synthesized
 logic. They are included in area, not omitted memories.
 
-SRAM22 has one read-or-write port. The adapter services a read and then a write
+SRAM22 has one read-or-write port. The historical adapter services a read and then a write
 at twice the system clock, preserving simultaneous logical reads/writes and
 read-before-write collisions. Two-read arrays have two physical copies with
 broadcast writes. Banking, byte masks, width padding and duplication are fully
 charged to area. The [memory contract](M6_MEMORY_PORT.md) defines the clock phase
 and reset behavior. This port does not reduce the logical model or memory sizes.
-The current revision uses a separate set-high phase-data register in each
+The retained two-phase revision uses a separate set-high phase-data register in each
 logical adapter. Synthesis retains all 47 phase registers separately from the
 reset-low system-clock divider. The memory test checks their phase alignment
 through reset, and both full-system and digital-chip tests pass again.
@@ -175,7 +227,7 @@ oracle and the synthesis checker. Failed trials remain available.
 
 ## ASIC block area and physical progress
 
-The following values sum actual mapped standard-cell library areas and the
+The following historical two-phase values sum actual mapped standard-cell library areas and the
 pinned SRAM LEF area. They are **synthesis-only instance areas**, not routed
 die areas. The hierarchy-preserving synthesis retains ownership before final
 flattening; every final cell is assigned once. The [area extractor](../scripts/m6_block_areas.py)
@@ -228,7 +280,7 @@ It retains the memory contract and is not an added timing exception.
 
 ## Loading, console and external-memory boundary
 
-The integrated digital chip-core test loads and reads back 188 firmware bytes
+The retained two-phase digital chip-core test loads and reads back 188 firmware bytes
 over SPI into actual SRAM. Both real Ibex harts execute fast multiplies and
 return 5,535 and 5,580 in separate scratchpad words; their two console bytes
 arrive through the UART. The test uses the real clock divider and memory
@@ -311,6 +363,60 @@ The SRAM Liberty leakage value is zero, workload switching activity has not
 been supplied, and source locations for a qualified IR-drop analysis are absent.
 These limitations prevent a credible total power or energy-per-token claim.
 
+## Resumed 100-MHz memory-first results
+
+The doubled-clock 512-word adapter cannot qualify unchanged at a 100-MHz
+system rate: the requested 5-ns SRAM period is below the slow-corner
+minimum-period table maximum of 5.51622 ns. Screening the pinned 256- and
+128-word alternatives gives only 0.03207 and 0.15141 ns of period-only
+headroom. Those table differences are not complete timing margins.
+
+The new candidate instead runs SRAM on the system clock and suppresses reads
+during writes. This is an explicit consumer-specific refinement, not a general
+1W2R-equivalent RAM. GEMM slot ownership, SFPU sequencing, mirror-write
+exclusion and burst-buffer phases separate useful reads from writes. Scratchpad
+store-response data is not a load result. The
+[single-clock contract](M6_SINGLE_CLOCK_MEMORY.md) documents those assumptions
+and their runtime assertions; no FPGA sources or firmware are changed.
+
+The full dual-hart test passes both with and without the additional consumer
+assertions. It retains 47 mapped arrays, all 292 macros, both boots, 9,633
+independently checked words per boot and all 14 lifecycle cases. The cycle
+count remains exactly 16,477,049. This shows no cycle penalty in that bounded
+RTL workload, not measured ASIC token throughput or formal equivalence.
+Three local storage configurations also pass byte masks, bank transitions,
+write-priority conflicts, read holds, synchronous capture and reset retention.
+
+The physical experiment contains eight real SRAM macros with bank-selection
+logic and registered command/result boundaries. It is substantially smaller
+than the full core. All completed trials use a 10-ns system/SRAM clock,
+0.25-ns clock uncertainty, unchanged declared I/O budgets and the same three
+PVT/RC corners. Timing is extracted, not estimated from RTL simulation.
+
+| Banked-memory trial | Worst setup | Worst hold | Setup TNS | Hold TNS |
+|---|---:|---:|---:|---:|
+| Binary bank selector, default CTS | −0.495889 ns | −0.126829 ns | −4.443952 ns | −0.927285 ns |
+| Binary selector, SS CTS and targeted timing repair | −0.282133 ns | +0.052682 ns | −2.137645 ns | 0 ns |
+| One-hot registered selector, same repair settings | −0.329493 ns | +0.035324 ns | −1.517167 ns | 0 ns |
+
+The clock/timing repair eliminates hold violations but does not close setup.
+The one-hot variant passes local storage tests but does not improve worst setup
+slack and is not promoted. No full-system one-hot claim is made.
+
+The binary repair trial has zero detailed-router DRC errors and zero supply
+disconnects, but 26 antenna-violating nets and 3,610 slow-corner slew violations.
+Its critical SRAM clock arrives with 1.216720-ns slew, beyond the macro's
+0.351-ns input limit. The Liberty default output-transition limit of 0.040 ns
+also requires review against the characterized output behavior and loads.
+These checks are not waived. The next experiment must address dedicated local
+SRAM clock leaves and command/return buffering before scaling to the full core.
+
+These results support continuing the single-clock architecture, but **do not
+establish 100-MHz memory or full-system operation**. The 1x chip-wrapper/loader,
+physical memory interface, full placement/routing, useful throughput and final
+PPA qualifications remain open. Existing historical area and loader results
+must not be attributed to the changed candidate.
+
 ## Reproduction and remaining gates
 
 The tool and library revisions are in [tools.json](../asic/m6/tools.json).
@@ -319,6 +425,7 @@ Run the read-only evidence check with:
 ```sh
 python3 -m scripts.m6_preflight_evidence --check docs/m6_preflight_evidence.json
 python3 -m scripts.m6_port_evidence --check docs/m6_port_evidence.json
+python3 -m scripts.m6_100mhz_evidence --check docs/m6_100mhz_evidence.json
 build/m6_tools_venv/bin/python -m unittest discover -s tests/m6 -v
 python3 -m scripts.audit_m5_startup
 ```
@@ -331,16 +438,21 @@ The full memory mapping, whole-system RTL functional checks, digital loader
 test and synthesis/floorplan gates have passed. M6 still needs full-system
 placement/routing and timing closure at the declared operating clock, physical
 pad/chip integration, scoped physical verification, activity-qualified partial
-power and the remaining performance/report entries. The SRAM probe cannot
-replace those gates. Measured board watts and the 100-MHz ASIC requirement are
-explicitly deferred, as are SRAM-internal verification and unavailable leakage
-data under the approved research-only scope. There is no MPW submission or
+power and the remaining performance/report entries. The SRAM probes cannot
+replace those gates. **The 100-MHz full-system requirement is restored.**
+Measured board watts, SRAM-internal verification and unavailable leakage data
+remain deferred under the approved research-only scope. There is no MPW submission or
 fabrication-ready claim in this release.
 
-The current checkpoint is **waiting for storage**, not awaiting another timing
-or SRAM acceptance waiver. On 2026-09-08, approximately 7.4 GiB remained after
+Full-chip implementation is **waiting for storage**, while the representative
+banked-memory candidate still needs setup/electrical/antenna closure. Before
+this resumed pass on 2026-09-08, approximately 7.4 GiB remained after
 byte-identical completed views were consolidated into hard links. Every
 original evidence path and its full-content hash was preserved. The physical
 runner rejected the next placement stage below its 10-GiB minimum. Additional
 working space is required for routing, extraction and chip-level artifacts;
 30 GiB free is a practical recommended starting reserve, not a measured peak.
+The resumed work stayed within bounded small-probe and simulation runs, with
+approximately 5 GiB free after the probe stage and below 3 GiB at the final
+checkpoint audit. No retained evidence or unrelated files
+were deleted. The revised worklist remains [M6_100MHZ_CLOSURE.md](M6_100MHZ_CLOSURE.md).

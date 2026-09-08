@@ -1,0 +1,8 @@
+M6 SRAM 1X PASS width=36 depth=256 ports=1 reads=651 writes=643 conflicts=309 holds=552
+M6 SRAM 1X PASS width=32 depth=2048 ports=2 reads=1320 writes=2423 conflicts=300 holds=1086
+M6 SRAM 1X PASS width=32 depth=16384 ports=2 reads=1320 writes=16759 conflicts=300 holds=1086
+M6 SRAM 1X RETENTION PASS width=36 depth=256
+M6 SRAM 1X RETENTION PASS width=32 depth=2048
+M6 SRAM 1X RETENTION PASS width=32 depth=16384
+M6 SINGLE-CLOCK STORAGE CONTRACT PASS; CONSUMER REFINEMENT SEPARATE
+- tests/m6/sram_1x_tb.sv:96: Verilog $finish

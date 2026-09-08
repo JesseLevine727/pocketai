@@ -1,4 +1,10 @@
-# M6 memory-port implementation contract
+# M6 two-phase memory-port implementation contract (historical)
+
+This page defines the retained **2x adapter**, not the new 100-MHz candidate.
+The user reinstated the full-system 100-MHz requirement on 2026-09-08.
+The consumer-refined single-clock experiment has a different, narrower access
+contract, documented in [M6_SINGLE_CLOCK_MEMORY.md](M6_SINGLE_CLOCK_MEMORY.md).
+Do not mix its functional or physical evidence with the older port below.
 
 This adaptation passes local and full-system RTL checks, but has not closed
 physical timing. The [port ledger](m6_port_evidence.json) records those gates. It keeps
@@ -8,7 +14,7 @@ behavioral and characterized timing views remain required at the boundary.
 
 ## Two-phase memory clock
 
-The current adapter has a separate set-high `write_phase_q` register, toggled
+The retained two-phase adapter has a separate set-high `write_phase_q` register, toggled
 on falling memory-clock edges. The reset-low system divider toggles on those
 same edges, so the phase remains its logical complement without using the
 clock-distribution signal as mux data. This lets physical implementation
@@ -39,7 +45,9 @@ The initial 50-MHz memory / 25-MHz system trial failed setup timing. The
 revised phase-data design is now constrained to 25 MHz memory / 12.5 MHz
 system as a candidate, not an achieved result. Macro response, bank selection,
 clock insertion delay and short memory-service phases must all be checked.
-The user deferred the 100-MHz hard gate, not timing analysis. Both clocks and
+The original 100-MHz deferral was superseded by the approved memory-first
+roadmap. These lower clocks are retained historical trials, not acceptance.
+For this two-phase topology, both clocks and
 their generated-clock relationship must be constrained and checked after route.
 No PLL, free-running oscillator or external DDR controller is implied.
 

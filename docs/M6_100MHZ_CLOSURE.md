@@ -1,0 +1,95 @@
+# M6: full-system 100-MHz closure worklist
+
+Approved by the user on 2026-09-08. Status: in progress, not timing-qualified.
+This supersedes the earlier 100-MHz deferral, not the frozen FPGA release or
+the explicit research-only SRAM-internal verification/power limitations.
+
+## Objective
+
+Implement the complete portable dual-RV32MFast-Ibex/GEMM/SFPU system in Sky130
+at 100 MHz, verify useful functionality and throughput, complete the PPA report
+with implementation and native TikZ figures, audit, commit and push the scoped
+results. Preserve logical capacities, formats, coherent mirrors and autonomous
+control. No fabrication, purchases, model simplification or unrelated edits.
+
+## Ordered work and acceptance
+
+1. **Baseline/resources:** preserve `7405919` and M6 checkpoint `082951b`; audit
+   frozen evidence; provide enough durable storage before large physical runs.
+   Initial free disk is approximately 7.1 GiB, below the 10-GiB physical-run
+   guard. Prefer at least 30 GiB headroom. Do not delete retained evidence.
+2. **Memory feasibility:** inspect the pinned Liberty periods, setup/hold,
+   clock-to-output, transition/load limits and actual access requirements.
+   The current 512x32 1RW macro needs about 5.516 ns minimum period at SS;
+   the current 2x adapter requires 5 ns at a 100-MHz system clock. It cannot
+   qualify unchanged. Compare a bounded smaller-macro/2x candidate with a
+   100-MHz access-scheduled or suitable native independent-port alternative.
+   Route a representative banked cluster including real periphery and clocks
+   before scaling it to the full design. Test collisions, byte masks, holds,
+   bank edges, reset retention and both read ports. Never infer timing from
+   a behavioral memory model alone.
+3. **Locality/block closure:** group memories with consumers, localize address
+   fanout and bank return selection, pipeline only demonstrated critical paths.
+   Preserve both fast multipliers and steady-state accelerator throughput where
+   possible. Revalidate latency/handshake changes and quantify stall costs.
+4. **Full implementation:** integrate proven clusters; place, CTS, route and
+   extract parasitics; analyze all declared PVT/RC corners. Require setup/hold
+   pass with zero negative totals, clock-period/pulse-width and electrical
+   checks, constraint coverage and justified exceptions. Target +0.250 ns WNS;
+   +0.500 ns is stretch. Resolve reset/gating, external-memory timing, loader,
+   pads and power connectivity. Native AXI alone is not a complete physical
+   DDR interface; a loader microtest is not full GPT-2 qualification.
+5. **Bounded functional/performance qualification:** memory tests, real dual-
+   hart firmware, GEMM/SFPU numerical oracles, backpressure and abort/restart;
+   compare representative useful cycle counts with the frozen architecture.
+   Reuse qualified FPGA full-model evidence; no new hours-long inference sweep.
+6. **Report/release:** source-traceable full and per-block area/timing/throughput,
+   explicit power coverage, tool/PDK/IP hashes, figures below, reproducible build,
+   evidence audit and scoped commit/push. A passing probe is not M6 closure.
+
+## Required figures
+
+| Figure | Source | Required distinction |
+|---|---|---|
+| Vivado system block design | Actual qualified-release BD, exported by Vivado | Zynq PS/DDR shell versus portable inference core |
+| ASIC physical implementation | Actual OpenROAD/KLayout database | Floorplan/placed/routed stage and exact run identity |
+| High-level architecture | Native editable TikZ | Both harts, mirrors/scratchpad, GEMM, SFPU, transfer/control and external memory |
+| FPGA/ASIC platform boundary | Native editable TikZ | Reused compute versus platform-specific clock/host/memory/pad integration |
+
+Retain native sources and vector PDF/SVG exports, readable labels, consistent
+colorblind-friendly styling, accurate arrows, captions and source hashes.
+Render and visually inspect at report size. Tool screenshots/exports are real
+implementation evidence; TikZ drawings are explanatory schematics. Neither
+is a fabricated-silicon micrograph. A preliminary ASIC view must retain its
+unqualified stage label until a qualified final view exists.
+
+## Execution limits
+
+Prefer one or two well-motivated candidates per decision, checkpointed physical
+stages and finite timeouts over large sweeps. Report major gates or material
+blockers. If SRAM/IP, storage or physical-interface resources prevent closure,
+retain evidence and request the missing resource; never reduce acceptance or
+claim full-system PASS. The goal remains unfinished until all gates pass.
+
+## First bounded execution checkpoint
+
+- Frozen FPGA audit: passed again; no FPGA source or firmware changes.
+- Single-clock binary-selector candidate: local storage and full dual-hart
+  oracle passed, including runtime assertions in four consumer module types.
+  Both runs retained the exact 16,477,049-cycle baseline.
+- Representative 8-macro P&R: three completed trials. Best worst setup is
+  −0.282133 ns at 100 MHz; worst hold is +0.052682 ns. Setup, electrical and
+  antenna checks remain open. The one-hot-return experiment did not improve
+  worst setup and is not promoted.
+- Figure package: native editable TikZ architecture and platform boundaries,
+  actual read-only Vivado BD export, actual OpenROAD macro-floorplan view and
+  labeled vector geometry are included in the preliminary report. The final
+  routed ASIC figure still requires the final implementation.
+- Full-chip runs: not launched below the unchanged 10-GiB guard. Approximately
+  3 GiB remains (below that level at the final audit); request enough durable
+  space, preferably 30 GiB free. No
+  original artifacts or unrelated files were deleted.
+
+Details: [single-clock contract/results](M6_SINGLE_CLOCK_MEMORY.md),
+[experiment ledger](m6_100mhz_evidence.json), [report](PPA_REPORT.md).
+This checkpoint is not M6 closure and does not revive the 100-MHz deferral.

@@ -1,0 +1,15 @@
+{
+  "assembly": "build/m6_portable_1x_candidate_v1",
+  "assertion_targets": {
+    "pa_gemm": "\\$paramod\\pa_gemm\\EnableWide=1'1 (clk_i, rst_ni, req_i, we_i, be_i, addr_i, wdata_i, rvalid_o, rdata_o, err_o, s_axis_data_i, s_axis_keep_i, s_axis_last_i, s_axis_valid_i, s_axis_ready_o, m_axis_data_o, m_axis_keep_o, m_axis_last_o, m_axis_valid_o, m_axis_ready_i, irq_o",
+    "pa_m5_axi_burst": "pa_m5_axi_burst(clk_i, rst_ni, abort_i, cmd_valid_i, cmd_ready_o, cmd_addr_i, cmd_words_i, cmd_write_i, in_valid_i, in_ready_o, in_data_i, in_strb_i, out_valid_o, out_ready_i, out_data_o, out_last_o, done_valid_o, done_ready_i, done_fault_o, busy_o, poisoned_o",
+    "pa_m6_cluster_core": "pa_m6_cluster_core(IO_CLK, IO_RST_N, CORE_RST_N, awaddr_i, awvalid_i, awready_o, wdata_i, wstrb_i, wvalid_i, wready_o, bresp_o, bvalid_o, bready_i, araddr_i, arvalid_i, arready_o, rdata_o, rresp_o, rvalid_o, rready_i, gemm_s_axis_data_i",
+    "pa_sfpu": "pa_sfpu(clk_i, rst_ni, req_i, we_i, be_i, addr_i, wdata_i, rvalid_o, rdata_o, err_o, s_axis_data_i, s_axis_keep_i, s_axis_last_i, s_axis_valid_i, s_axis_ready_o, m_axis_data_o, m_axis_keep_o, m_axis_last_o, m_axis_valid_o, m_axis_ready_i, gemm_busy_i"
+  },
+  "formal_proof": false,
+  "input_sha256": "d4eb30c3dfce8ee8b96c1f45ac9dc3485eace952b4f77d19aa383a50199ae7b6",
+  "output_sha256": "7c7f5aa02e383f84c9831ca9669f8ae038c5ebfe6d975e6d8e31291c6b3c12e3",
+  "read_use_scope": "Runtime checks for mirror requests, GEMM active slot, SFPU operand/output issue, AXI burst exclusion",
+  "scratchpad_contract": "Store response data is not an architectural load result; byte writes/acknowledgments retained.",
+  "status": "INSTRUMENTED_NOT_RUN"
+}

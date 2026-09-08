@@ -1,5 +1,10 @@
 # M6 full-port reproduction and retained checkpoints
 
+The commands below reproduce the **historical two-phase port**. The user has
+reinstated 100-MHz full-system closure; the lower clocks below are retained
+unqualified trials, not an alternative acceptance. For the new single-clock
+candidate and its separate tests, see [M6_SINGLE_CLOCK_MEMORY.md](M6_SINGLE_CLOCK_MEMORY.md).
+
 This is an intermediate port, not qualified M6 closure. All commands run from
 the repository root and require the pinned tools and macro views described in
 [preflight reproduction](M6_PREFLIGHT_REPRODUCE.md). Choose fresh `build/m6_*`

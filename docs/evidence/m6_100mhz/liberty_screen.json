@@ -1,0 +1,389 @@
+{
+  "artifacts": {
+    "sram22_128x32m4w8.lef": {
+      "sha256": "8dbd4d9e2db1e7617303cc7b493f530ba1275b5d364081a59daeb9907deb10c8",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_128x32m4w8/sram22_128x32m4w8.lef"
+    },
+    "sram22_128x32m4w8.v": {
+      "sha256": "31ee21255cbe9471cccb25fdddbaec6ba93309445456a5e062a3b8920d7c30f9",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_128x32m4w8/sram22_128x32m4w8.v"
+    },
+    "sram22_128x32m4w8_ff_n40C_1v95.lib": {
+      "sha256": "d583b81af0b0c33f9bace0b6d22ff2ca7dfad971a201e786055f61ef6b5e19b7",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_128x32m4w8/sram22_128x32m4w8_ff_n40C_1v95.lib"
+    },
+    "sram22_128x32m4w8_ss_100C_1v60.lib": {
+      "sha256": "794c89833a8f1c0adeac86e0f6d67df98dbc37b19a5857782b9064db5c790f45",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_128x32m4w8/sram22_128x32m4w8_ss_100C_1v60.lib"
+    },
+    "sram22_128x32m4w8_tt_025C_1v80.lib": {
+      "sha256": "223c0d289638bd078be25e21f5f8f8547335a52935c98ac217e417991e78e612",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_128x32m4w8/sram22_128x32m4w8_tt_025C_1v80.lib"
+    },
+    "sram22_256x32m4w8.lef": {
+      "sha256": "4d3a5cfbbb9f3616c6c9c3bafe1ba1fedbbabe7a9aedebdd50c7e84a87d9375d",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_256x32m4w8/sram22_256x32m4w8.lef"
+    },
+    "sram22_256x32m4w8.v": {
+      "sha256": "75d925b9ad4977e8b20cbe612e77b2020ba20b217bd3db5b33c9f0c53b2ec972",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_256x32m4w8/sram22_256x32m4w8.v"
+    },
+    "sram22_256x32m4w8_ff_n40C_1v95.lib": {
+      "sha256": "ccb37c30f650c019f10a07794a91ee2584a81deeb0f42b2b18eb028935962a6a",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_256x32m4w8/sram22_256x32m4w8_ff_n40C_1v95.lib"
+    },
+    "sram22_256x32m4w8_ss_100C_1v60.lib": {
+      "sha256": "c9dfddc7b9326bd3ee6ecf3dfd3265f23da81d911633bc7cb61b834248e22572",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_256x32m4w8/sram22_256x32m4w8_ss_100C_1v60.lib"
+    },
+    "sram22_256x32m4w8_tt_025C_1v80.lib": {
+      "sha256": "eeaaf36ed62a2cdf88fb1031626887c2b403cc881ddfe280ef916f6f32cebb4c",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_256x32m4w8/sram22_256x32m4w8_tt_025C_1v80.lib"
+    },
+    "sram22_512x32m4w8.lef": {
+      "sha256": "09ccad5be8a496091763dfc2656e008ab7169f94f8ae797503794a4117fad56b",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_512x32m4w8/sram22_512x32m4w8.lef"
+    },
+    "sram22_512x32m4w8.v": {
+      "sha256": "e60858b7b783c626d783674c56fd578b3785febfe025fac2f5dff47d8e9ddbef",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_512x32m4w8/sram22_512x32m4w8.v"
+    },
+    "sram22_512x32m4w8_ff_n40C_1v95.lib": {
+      "sha256": "7986a128c686c65adffd2564b988a9c5163d513e987cceeffc7064d67b7e7481",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_512x32m4w8/sram22_512x32m4w8_ff_n40C_1v95.lib"
+    },
+    "sram22_512x32m4w8_ss_100C_1v60.lib": {
+      "sha256": "75de15985f27c7f1232c50b2fae4324a3e6ef51b770ab113ee8beaaa25a24ba8",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_512x32m4w8/sram22_512x32m4w8_ss_100C_1v60.lib"
+    },
+    "sram22_512x32m4w8_tt_025C_1v80.lib": {
+      "sha256": "3dcbc059294e0f54a7f5111046d23c4e759ea9f053f353b01a00a1fb1da32e68",
+      "url": "https://raw.githubusercontent.com/ucb-substrate/sram22_sky130_macros/75cbe961e18ee00d5a6c73fa455505f0bcdf4c05/sram22_512x32m4w8/sram22_512x32m4w8_tt_025C_1v80.lib"
+    }
+  },
+  "current_adapter_command_window_ns": 2.5,
+  "current_adapter_read_return_window_ns": 7.5,
+  "macros": {
+    "sram22_128x32m4w8": {
+      "corners": {
+        "ff_n40C_1v95": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 3.06366,
+            "min": 2.03116
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 3.00283,
+            "min": 0.0510343
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.243361,
+            "min": 0.0871751
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 1.79079,
+            "min": 1.79053
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.280674,
+            "min": 0.0858422
+          }
+        },
+        "ss_100C_1v60": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 7.85786,
+            "min": 5.71125
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 8.33743,
+            "min": 0.12034
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.484037,
+            "min": 0.409459
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 4.84859,
+            "min": 4.8483
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.52858,
+            "min": 0.192282
+          }
+        },
+        "tt_025C_1v80": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 4.52045,
+            "min": 3.14037
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 4.61776,
+            "min": 0.0728659
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.311944,
+            "min": 0.189884
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 2.72243,
+            "min": 2.72213
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.329077,
+            "min": 0.124318
+          }
+        }
+      },
+      "height_um": 224.32,
+      "macro_area_um2": 93487.6032,
+      "memory_100mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": 5.15141,
+        "period_only_pass": true,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 10.0,
+        "worst_table_minimum_period_ns": 4.84859
+      },
+      "memory_200mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": 0.15141000000000027,
+        "period_only_pass": true,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 5.0,
+        "worst_table_minimum_period_ns": 4.84859
+      },
+      "width_um": 416.76
+    },
+    "sram22_256x32m4w8": {
+      "corners": {
+        "ff_n40C_1v95": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 3.16639,
+            "min": 2.13559
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 3.10735,
+            "min": 0.0511211
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.24332,
+            "min": 0.0872007
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 1.80275,
+            "min": 1.80257
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.280596,
+            "min": 0.0859175
+          }
+        },
+        "ss_100C_1v60": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 8.1864,
+            "min": 6.04101
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 8.67395,
+            "min": 0.120743
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.483782,
+            "min": 0.4095
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 4.96793,
+            "min": 4.9677
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.528522,
+            "min": 0.192433
+          }
+        },
+        "tt_025C_1v80": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 4.68824,
+            "min": 3.30976
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 4.78935,
+            "min": 0.072999
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.311797,
+            "min": 0.190171
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 2.77148,
+            "min": 2.77134
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.328975,
+            "min": 0.124484
+          }
+        }
+      },
+      "height_um": 291.64,
+      "macro_area_um2": 123328.7232,
+      "memory_100mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": 5.03207,
+        "period_only_pass": true,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 10.0,
+        "worst_table_minimum_period_ns": 4.96793
+      },
+      "memory_200mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": 0.03207000000000004,
+        "period_only_pass": true,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 5.0,
+        "worst_table_minimum_period_ns": 4.96793
+      },
+      "width_um": 422.88
+    },
+    "sram22_512x32m4w8": {
+      "corners": {
+        "ff_n40C_1v95": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 3.3671,
+            "min": 2.33557
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 3.4588,
+            "min": 0.0515449
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.243337,
+            "min": 0.0872189
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 1.9873,
+            "min": 1.98689
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.280388,
+            "min": 0.0855447
+          }
+        },
+        "ss_100C_1v60": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 8.76922,
+            "min": 6.62371
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 9.42526,
+            "min": 0.121185
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.483875,
+            "min": 0.409149
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 5.51622,
+            "min": 5.51608
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.527783,
+            "min": 0.191886
+          }
+        },
+        "tt_025C_1v80": {
+          "clock_to_output": {
+            "entries": 98,
+            "max": 5.00258,
+            "min": 3.62372
+          },
+          "hold_rising": {
+            "entries": 588,
+            "max": 5.33453,
+            "min": 0.0733537
+          },
+          "min_pulse_width": {
+            "entries": 14,
+            "max": 0.311837,
+            "min": 0.190011
+          },
+          "minimum_period": {
+            "entries": 14,
+            "max": 3.05694,
+            "min": 3.05664
+          },
+          "setup_rising": {
+            "entries": 588,
+            "max": 0.328464,
+            "min": 0.123992
+          }
+        }
+      },
+      "height_um": 448.72,
+      "macro_area_um2": 198908.6016,
+      "memory_100mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": 4.48378,
+        "period_only_pass": true,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 10.0,
+        "worst_table_minimum_period_ns": 5.51622
+      },
+      "memory_200mhz": {
+        "full_timing_pass": null,
+        "period_only_headroom_ns": -0.5162199999999997,
+        "period_only_pass": false,
+        "qualification": "UNQUALIFIED_PERIOD_SCREEN_ONLY",
+        "requested_period_ns": 5.0,
+        "worst_table_minimum_period_ns": 5.51622
+      },
+      "width_um": 443.28
+    }
+  },
+  "notes": [
+    "Table extrema span loads/slews; they are not one timing path.",
+    "Setup/hold, wiring, skew, electrical limits and macro boundaries still need STA.",
+    "The internal-verification and unavailable-leakage research deferrals remain."
+  ],
+  "revision": "75cbe961e18ee00d5a6c73fa455505f0bcdf4c05",
+  "schema": 1,
+  "status": "LIBERTY_SCREEN_NOT_PHYSICAL_QUALIFICATION",
+  "system_clock_target_mhz": 100
+}

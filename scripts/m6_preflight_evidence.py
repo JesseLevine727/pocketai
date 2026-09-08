@@ -140,7 +140,7 @@ def collect():
             "power_limitation": "Default activity only; SRAM Liberty leakage is zero/unqualified; no VSRC placement."},
         "full_system_asic": {"memory_mapping": "NOT_IMPLEMENTED", "chip_interface": "NOT_IMPLEMENTED",
             "functional_equivalence": "NOT_RUN", "pnr": "NOT_RUN", "timing_100mhz": "NOT_RUN",
-            "timing_100mhz_gate": "USER_DEFERRED",
+            "timing_100mhz_gate": "REQUIRED_REINSTATED_2026_09_08",
             "timing_at_declared_operating_clock": "REQUIRED_NOT_RUN",
             "declared_operating_clock_mhz": None,
             "area": None, "power": None, "throughput": None, "mpw_submission": "NONE"}}
@@ -149,9 +149,14 @@ def collect():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", type=Path)
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     value = collect()
-    if args.check:
+    assert not (args.check and args.output)
+    if args.output:
+        assert args.output.resolve() == ROOT / "docs/m6_preflight_evidence.json"
+        args.output.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+    elif args.check:
         assert json.loads(args.check.read_text()) == value, "preflight ledger differs from retained evidence"
         print("M6 PREFLIGHT EVIDENCE MATCH; M6 REMAINS INCOMPLETE")
     else:
