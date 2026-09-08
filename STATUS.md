@@ -1,6 +1,26 @@
 # Current project status
 
-**Latest qualified system:** [maximum-context M5 extension](docs/M5_CONTEXT_RESULTS.md),
+**Latest qualified system:** [M5 startup and prompt-inclusive performance](docs/M5_STARTUP_RESULTS.md),
+**CLOSED / PASS.** All three plain repetitions of each original request pass:
+science/computing deliver one output in **9.990–9.997 s (~0.10005 token/s)**;
+story delivers two in **16.602–16.605 s (~0.12046 token/s)**, with actual prompt
+prefill and first-use preparation included. The worst margin is only **3.1 ms**:
+this is measured qualification, not a robust/sustained/arbitrary-prompt guarantee.
+Required cold derived preparation is **5.27–5.42 s** and cold delivery **~10.5 s**;
+the optional <=5-s preparation stretch remains unmet. All six final warm
+maximum-context forwards reach 1024 valid KV in **5.084–5.338 s**.
+Exact scalar/cache/row-reuse changes plus qualified instruction/data BRAM mirrors
+retain both fast-multiply Ibex harts, the full W8A8/int16 model, 91 MHz and DSP0.
+New routing closes at **+0.269-ns WNS / +0.008-ns hold**, using **127.5 BRAM36s**.
+All logits/KV, original traces, native/threaded/boundary tests, byte-identical
+rebuild, stack bounds and normal zero-resource release pass. All 38 physical
+campaigns and rejected trials are retained; earlier audits remain intact.
+Validate with `python3 -m scripts.audit_m5_startup`; see
+[evidence](docs/m5_startup_evidence.json) and [reproduction](docs/M5_STARTUP_REPRODUCE.md).
+**M6 and its report remain unstarted.** Provisioning/loading/checking are
+separately recorded, not included in these inference-request throughput claims.
+
+**Previous qualified system:** [maximum-context M5 extension](docs/M5_CONTEXT_RESULTS.md),
 **CLOSED / PASS — >=0.1 delivered token/s at the measured maximum cached context.**
 All six final unprofiled past-1023 forwards reach 1024 valid K/V positions in
 <=9.469 s. Story averages **8.974859 s / 0.111422 token/s**; the harder science
