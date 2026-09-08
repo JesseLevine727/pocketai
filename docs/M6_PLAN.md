@@ -1,6 +1,6 @@
 # M6 — Sky130 port and evidence-led PPA report
 
-Status: **Storage recovered; single-clock RTL/loader passed; SRAM contract and physical closure open.** Baseline `7405919` was pushed to
+Status: **95-MHz ASIC target approved; single-clock RTL/loader passed; physical closure open.** Baseline `7405919` was pushed to
 `origin/main` on 2026-09-08 before this work began. M1–M5 and every subsequent
 FPGA performance qualification remain frozen. This document records the M6
 acceptance details before the ASIC RTL changes. The current port passes RTL
@@ -31,14 +31,21 @@ state its activity source, corner, voltage, frequency, scope and coverage.
 
 The user initially deferred the **100-MHz ASIC closure requirement** on
 2026-09-08, then explicitly reinstated it by approving the memory-first roadmap
-and asking to execute the goal. **100 MHz is now the required system clock.**
+and asking to execute the goal. On the same date, after reviewing the routed
+probe results, the user explicitly accepted **95 MHz as the required ASIC
+system clock** ("ok 95MHz is fine"). This supersedes the 100-MHz requirement.
+The user also explicitly accepted approximately +0.244 ns setup headroom:
++0.250 ns is preferred, not an exact hard cutoff; do not chase the final 6 ps.
+This approval does not waive hold, electrical, antenna, DRC, functional or
+chip-integration gates, or authorize further margin reductions. Preserve
+all historical 100-MHz results with their original clock labels.
 The earlier candidate was 12.5 MHz system / 25 MHz memory; it remains historical
 and unqualified, not an alternative acceptance clock.
 The previous direct-clock-as-phase revision failed its 25-MHz system candidate;
 the revised separate-phase-data netlist has passed functional/synthesis/PDN
 checks but has not yet completed standard-cell placement or routed timing.
 The port must still close setup and hold timing
-at 100 MHz, with macro-boundary and constraint coverage
+at 95 MHz, with macro-boundary and constraint coverage
 checked. Report the achieved clock and corresponding performance honestly;
 do not relabel a failed 100-MHz run as passing. The existing 100-MHz SRAM probe
 result and qualified 91-MHz FPGA baseline remain unchanged.
@@ -66,7 +73,8 @@ They do not authorize fabrication or a fabrication-ready claim.
    area or timing appear artificially favorable. Preserve fast multipliers.
 3. **Implementation.** Prove a representative banked-memory subsystem first,
    then bounded synthesis/floorplan feasibility before full placement/routing.
-   **100-MHz system closure is required.** Target +0.250 ns setup headroom;
+   **95-MHz system closure is required.** Approximately +0.244 ns setup
+   headroom is explicitly accepted; +0.250 ns is preferred, not a hard cutoff;
    +0.500 ns is a stretch, not a substitute for all setup/hold checks passing.
    Declare
    clock/I/O constraints and library/RC/PVT corners; verify setup, hold,
@@ -118,7 +126,7 @@ fast multiplication and abort/drain behavior remain correct. Such adaptations
 must not be described as cycle-equivalent; useful workload throughput and
 memory-stall costs must be requalified. No arbitrary bank-conflict assumption,
 hidden lower-frequency compute domain or omitted macro timing may qualify the
-100-MHz target. A changed SRAM choice needs matching characterized timing and
+approved 95-MHz target. A changed SRAM choice needs matching characterized timing and
 physical views. Missing suitable IP is a feasibility blocker, not a waiver.
 
 The goal service currently retains the unfinished M6 goal in its earlier
@@ -132,6 +140,14 @@ SRAM sizes/corners; the local-clock physical candidate is not promoted because
 worst setup worsens despite improved clock slew. Full routing remains gated on
 usable SRAM characterization and representative memory closure, not disk space.
 See [M6_SRAM_ELECTRICAL.md](M6_SRAM_ELECTRICAL.md). No electrical waiver is added.
+
+The subsequent user-approved bounded SRAM-contract pass derives an output-only
+project integration view from the unchanged timing tables. This is not full
+macro recharacterization or supplier approval. Its load/input-slew envelope
+must also pass in the physical design; the routed candidates do not yet do so.
+See [M6_SRAM_CONTRACT.md](M6_SRAM_CONTRACT.md). The current 95-MHz requirement
+is authoritative even where historical script, ledger and roadmap filenames
+still contain `100mhz`.
 
 ## Preflight decision checkpoint
 

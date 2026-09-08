@@ -10,7 +10,11 @@ Acceptance is recorded in [M6_PLAN.md](M6_PLAN.md).
 
 On 2026-09-08, the user initially deferred and then reinstated the 100-MHz
 ASIC closure requirement, approving a memory-first implementation roadmap.
-**Full-system 100-MHz closure is required and remains unachieved.** The earlier
+After the subsequent bounded contract pass, the user explicitly accepted
+**95 MHz with approximately +0.244 ns setup headroom**. The +0.250-ns margin
+is preferred, not an exact cutoff; +0.500 ns remains stretch. Full-system
+closure at this revised clock remains unachieved. This changes frequency and
+the accepted setup margin, not the other qualification gates. The earlier
 12.5-MHz system / 25-MHz memory candidate is historical and unqualified.
 This acceptance change does not alter the existing
 100-MHz SRAM probe results. The user subsequently approved deferring SRAM-internal
@@ -46,6 +50,11 @@ Small [primary log/report extracts](evidence/m6_100mhz/manifest.json) are tracke
 with the report; complete EDA runs remain retained locally and hash-bound.
 The [post-storage extracts](evidence/m6_memory_resumed_v2/manifest.json) add the
 electrical screen, local-clock trial and single-clock loader evidence.
+The [SRAM-contract ledger](m6_sram_contract_evidence.json) adds the output-only
+metadata correction, isolated-inverter sanity check, failed physical repair
+trials and direct 95-MHz setup/hold result. Its
+[primary extracts](evidence/m6_sram_contract/manifest.json) are separate from
+the unchanged historical bundles.
 
 ## Architecture and implementation figures
 
@@ -71,7 +80,9 @@ or rebuilt, and “Discontinued” labels are Vivado's IP display annotations.
 ![FPGA and ASIC platform boundaries](figures/m6/platforms.svg)
 
 Figure 3. Architectural reuse and platform-specific implementation boundaries.
-The FPGA's 91-MHz clock is qualified; the ASIC's 100-MHz clock is a target.
+The FPGA's 91-MHz clock is qualified. The figure's ASIC 100-MHz target label
+predates the user's subsequent 95-MHz approval; neither is an achieved ASIC
+clock. The final figure must reflect the qualified implementation.
 The ASIC loader has digital RTL evidence, while its physical pads and external
 memory interface still require integration. No fabricated-ASIC measurement is
 implied. [Editable TikZ](figures/m6/platforms.tex) · [Vector PDF](figures/m6/platforms.pdf).
@@ -416,7 +427,9 @@ of the 128-, 256- or 512-word alternatives. For the 512-word macro, the minimum
 SS/TT/FF output transitions are 0.163674/0.088208/0.062843 ns. These are table
 extrema, not extracted path results. The finding identifies an inconsistent IP
 contract; it does not establish a physical SRAM defect or a process-frequency
-limit. The original libraries and all electrical checks remain unchanged.
+limit. The original libraries and checks in these historical runs remain
+unchanged. The separately derived integration views below are not substituted
+into those retained results.
 
 The subsequent local-clock experiment inserts one non-inverting pair of clock
 inverters per SRAM. The new critical macro's rising clock slew is 0.348873 ns,
@@ -442,6 +455,49 @@ interface, full placement/routing, useful throughput and final
 PPA qualifications remain open. Existing historical area and loader results
 must not be attributed to the changed candidate.
 
+## Restricted SRAM contract and approved 95-MHz target
+
+The user-approved correction creates separate integration views with explicit
+350-ps output slew and a 7–13-fF output-load domain. It changes only output-pin
+metadata. Every input constraint and timing/power table remains byte-identical
+to the supplied characterization. Across all three corners and both output
+edges, the largest characterized transition in the restricted domain is
+0.266969 ns. The resulting 0.083031-ns transition headroom is not setup slack.
+This is a project contract derived from supplied tables, not supplier approval
+or complete SRAM recharacterization.
+
+A controlled analysis of the same best 100-MHz route gives identical setup/hold
+results after the metadata change. The slew count decreases from 3,610 to
+3,405, while the restricted load domain exposes 57 capacitance violations.
+Twelve short ngspice cases of the supplied isolated output-inverter topology
+also complete, with maximum 10–90% output transition of 0.1859479 ns. Those
+cases use ideal internal inputs and lumped loads; they do not characterize
+the complete memory, clock-to-output behavior or extracted macro parasitics.
+
+The subsequent output-buffer, clock-pair and design-repair trials remain
+unqualified. The final 100-MHz continuation reports −0.287342 ns setup and
+−0.000275 ns hold, 1,268 slew violations and one capacitance violation. Its
+complete SRAM boundary audit still finds 324 out-of-domain input pins at SS,
+despite every output meeting 350 ps. Its route continuation skipped the earlier
+antenna-repair stage and reports 389 antenna nets; it is not evidence that a
+matched antenna-repair pass became less effective.
+
+At the user's revised 95-MHz clock, direct analysis of the best retained route
+reports **+0.244183 ns setup, +0.052682 ns hold and zero negative totals**.
+Only the clock period changes; uncertainty and all I/O/electrical budgets are
+unchanged. The user accepts this setup margin. The same analysis still has
+3,405 slew and 57 capacitance violations, so it does **not** qualify the probe
+or the full ASIC. A subsequent local-input-buffer candidate regresses to
+−0.074310 ns setup and −0.143300 ns hold at 95 MHz and is not promoted.
+It retains electrical and antenna failures; zero detailed-router DRC errors
+are not equivalent to clean physical qualification.
+
+The [contract and reproduction note](M6_SRAM_CONTRACT.md) records each failed
+trial, exact source identities, full pin coverage and limitations. Further
+work must close the representative command/clock/return network within legal
+electrical conditions before full-chip implementation. No measured ASIC
+frequency, inference rate, total power or tapeout claim follows from these tests.
+
 ## Reproduction and remaining gates
 
 The tool and library revisions are in [tools.json](../asic/m6/tools.json).
@@ -451,6 +507,7 @@ Run the read-only evidence check with:
 python3 -m scripts.m6_preflight_evidence --check docs/m6_preflight_evidence.json
 python3 -m scripts.m6_port_evidence --check docs/m6_port_evidence.json
 python3 -m scripts.m6_100mhz_evidence --check docs/m6_100mhz_evidence.json
+python3 -m scripts.m6_contract_evidence --check docs/m6_sram_contract_evidence.json
 build/m6_tools_venv/bin/python -m unittest discover -s tests/m6 -v
 python3 -m scripts.audit_m5_startup
 ```
@@ -464,13 +521,14 @@ test and synthesis/floorplan gates have passed. M6 still needs full-system
 placement/routing and timing closure at the declared operating clock, physical
 pad/chip integration, scoped physical verification, activity-qualified partial
 power and the remaining performance/report entries. The SRAM probes cannot
-replace those gates. **The 100-MHz full-system requirement is restored.**
+replace those gates. **The current approved full-system target is 95 MHz,
+with approximately +0.244 ns setup headroom accepted.**
 Measured board watts, SRAM-internal verification and unavailable leakage data
 remain deferred under the approved research-only scope. There is no MPW submission or
 fabrication-ready claim in this release.
 
-Full-chip implementation is **waiting for a resolved SRAM timing contract and
-representative memory closure**, not storage. The user-authorized cleanup
+Full-chip implementation is **waiting for representative memory closure
+within the restricted SRAM contract**, not storage. The user-authorized cleanup
 recovered approximately 132 GiB, leaving about 135 GiB available at resumption.
 Before the earlier checkpoint on 2026-09-08, approximately 7.4 GiB remained after
 byte-identical completed views were consolidated into hard links. Every
@@ -482,7 +540,7 @@ The earlier checkpoint stayed within bounded small-probe and simulation runs, wi
 approximately 5 GiB free after the probe stage and below 3 GiB at the final
 checkpoint audit. Those historical observations are not the current storage
 status. No retained evidence was deleted. Further full-system routing is gated
-on reviewed corrected SRAM characterization or suitable replacement IP, then
-banked-memory setup, electrical and antenna closure. An arbitrary relaxation
-of the 40-ps output limit is not a validated replacement contract.
+on banked-memory timing, electrical/domain and antenna closure. The derived
+output contract does not permit extrapolated inputs or arbitrary output loads;
+if that restricted contract cannot be met, additional IP work remains necessary.
 The revised worklist remains [M6_100MHZ_CLOSURE.md](M6_100MHZ_CLOSURE.md).

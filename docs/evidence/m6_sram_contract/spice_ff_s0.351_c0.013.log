@@ -1,0 +1,45 @@
+Note: can't find the initialization file spinit.
+Using SPARSE 1.3 as Direct Linear Solver
+
+Note: No compatibility mode selected!
+
+
+Circuit: * isolated supplied output inverter, not complete sram
+
+Doing analysis at TEMP = -40.000000 and TNOM = 27.000000
+
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+vdd                                       1.95
+in                                           0
+out                                       1.95
+vin#branch                                   0
+vdd#branch                        -3.96083e-12
+
+ Reference value :  0.00000e+00
+No. of Data Rows : 12026
+
+  Measurements for Transient Analysis
+
+fall_s              =  9.527195e-11 targ=  1.297227e-09 trig=  1.201955e-09
+rise_s              =  1.215642e-10 targ=  4.811130e-09 trig=  4.689566e-09
+
+
+Total analysis time (seconds) = 0.052
+
+Total elapsed time (seconds) = 2.473 
+
+Total DRAM available = 61907.051 MB.
+DRAM currently available = 1426.312 MB.
+Maximum ngspice program size =  155.898 MB.
+Current ngspice program size =  139.758 MB.
+
+Shared ngspice pages =   10.918 MB.
+Text (code) pages =    6.156 MB.
+Stack = 0 bytes.
+Library pages =  137.008 MB.
+

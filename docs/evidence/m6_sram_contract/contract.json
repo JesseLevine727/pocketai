@@ -1,0 +1,58 @@
+{
+  "all_32_outputs_explicitly_constrained": true,
+  "authority": "User approved bounded SRAM-library correction/validation on 2026-09-08",
+  "envelope": {
+    "design_transition_limit_ns": 0.35,
+    "grid_loads_pf": [
+      0.007,
+      0.013,
+      0.033,
+      0.065,
+      0.13,
+      0.26,
+      0.52
+    ],
+    "input_slew_max_ns": 0.351,
+    "input_slew_min_ns": 0.002,
+    "output_load_max_pf": 0.013,
+    "output_load_min_pf": 0.007,
+    "table_transition_headroom_ns": 0.08303099999999997,
+    "worst_characterized_transition_ns": 0.266969,
+    "worst_transition_by_load_ns": [
+      0.214341,
+      0.266969,
+      0.444916,
+      0.733511,
+      1.32393,
+      2.5069,
+      4.87235
+    ]
+  },
+  "macro": "sram22_512x32m4w8",
+  "new_transistor_characterization": false,
+  "outputs": {
+    "sram22_512x32m4w8_ff_n40C_1v95.lib": "1fde4de76202ebac6e06029ea17f79bfcc6d5727c7912864b1e81d2e09687e5e",
+    "sram22_512x32m4w8_ss_100C_1v60.lib": "1b41844218404352be5ff91e5a111f4a29df9767f51a86e801c66a64b5ff3014",
+    "sram22_512x32m4w8_tt_025C_1v80.lib": "6b8f0e342f29e6b27023a49e8e203363f2ac87091d41622757335360f19e534f"
+  },
+  "physical_pass": false,
+  "required_physical_checks": [
+    "all input slews inside original characterization",
+    "all output loads inside restricted characterized envelope",
+    "all receiver limits",
+    "setup, hold, period, pulse, DRC, antenna, connectivity and coverage"
+  ],
+  "schema": 1,
+  "sources": {
+    "asic/m6/bank_probe.sdc": "0c8ade49227fe741cb8343206025c4149dcc77ee97bae5eb8e9789403e59a8b5",
+    "build/m6_sram512_v1/sram22_512x32m4w8_ff_n40C_1v95.lib": "7986a128c686c65adffd2564b988a9c5163d513e987cceeffc7064d67b7e7481",
+    "build/m6_sram512_v1/sram22_512x32m4w8_ss_100C_1v60.lib": "75de15985f27c7f1232c50b2fae4324a3e6ef51b770ab113ee8beaaa25a24ba8",
+    "build/m6_sram512_v1/sram22_512x32m4w8_tt_025C_1v80.lib": "3dcbc059294e0f54a7f5111046d23c4e759ea9f053f353b01a00a1fb1da32e68",
+    "scripts/m6_electrical_screen.py": "7f54f5e6bb21aa104f61696ca1d794642dae8ba66b51575dab1c5ae47c53398d",
+    "scripts/m6_memory_feasibility.py": "467776268f753332d77f8ba2d89381d2aa0fd1c1fa265f5693bf8e4d76b93856",
+    "scripts/m6_sram_contract.py": "0cdd1b29846a8685fe06982844c3a2820d131760f0eeb4c79e13c995fe40e435"
+  },
+  "status": "TABLE_VALIDATED_PROJECT_CONTRACT_NOT_RECHARACTERIZATION",
+  "supplier_approved": false,
+  "unchanged_timing_power_tables_and_input_constraints": true
+}

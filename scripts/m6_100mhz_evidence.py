@@ -164,8 +164,9 @@ def collect():
         for path in sorted((ROOT/"scripts").glob(pattern)):
             record(str(path.relative_to(ROOT)))
     return {"schema": 1, "status": "SINGLE_CLOCK_FUNCTIONAL_PASS_PHYSICAL_CLOSURE_OPEN",
-            "m6_pass": False, "target_system_mhz": 100,
-            "acceptance": {"asic_100mhz": "REQUIRED", "wns_target_ns": 0.25,
+            "m6_pass": False, "target_system_mhz": 95, "historical_probe_clock_mhz": 100,
+            "acceptance": {"asic_95mhz": "REQUIRED", "accepted_approximate_wns_ns": 0.244,
+                           "wns_preferred_ns": 0.25,
                            "wns_stretch_ns": 0.5, "electrical_checks_waived": False},
             "single_clock_functional": {"full_test_cycles": 16477049, "cycle_delta": 0,
                 "boots": 2, "independent_words_per_boot": 9633, "lifecycle_cases": 14,
@@ -181,8 +182,8 @@ def collect():
             "onehot_candidate": {"local_contract_pass": True, "full_system_test": "NOT_RUN",
                                   "promoted": False, "reason": "No worst-setup improvement"},
             "figures": figures,
-            "remaining": ["SRAM clock/input slew and output-library default transition review",
-                          "100-MHz banked-memory setup and antenna closure",
+            "remaining": ["SRAM clock/input slew and restricted output-contract physical closure; see m6_sram_contract_evidence.json",
+                          "95-MHz banked-memory timing, electrical and antenna qualification",
                           "full-system 1x physical integration, locality, CTS, route and all-corner checks",
                           "physical external-memory/pad integration and useful throughput qualification",
                           "final routed ASIC figure, PPA report and release"],

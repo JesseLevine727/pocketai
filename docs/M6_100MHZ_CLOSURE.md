@@ -1,13 +1,18 @@
-# M6: full-system 100-MHz closure worklist
+# M6: full-system ASIC closure worklist
 
 Approved by the user on 2026-09-08. Status: in progress, not timing-qualified.
+Later that day the user explicitly accepted **95 MHz instead of 100 MHz**.
+The filename and historical checkpoint clocks are retained for provenance.
+The current target is 95 MHz. The user also accepted approximately +0.244 ns
+setup headroom; +0.250 ns is preferred, not an exact hard cutoff. All other
+checks remain, and further margin reductions are not automatically authorized.
 This supersedes the earlier 100-MHz deferral, not the frozen FPGA release or
 the explicit research-only SRAM-internal verification/power limitations.
 
 ## Objective
 
 Implement the complete portable dual-RV32MFast-Ibex/GEMM/SFPU system in Sky130
-at 100 MHz, verify useful functionality and throughput, complete the PPA report
+at 95 MHz, verify useful functionality and throughput, complete the PPA report
 with implementation and native TikZ figures, audit, commit and push the scoped
 results. Preserve logical capacities, formats, coherent mirrors and autonomous
 control. No fabrication, purchases, model simplification or unrelated edits.
@@ -124,3 +129,23 @@ This checkpoint is not M6 closure and does not revive the 100-MHz deferral.
 See [electrical diagnosis and reproduction](M6_SRAM_ELECTRICAL.md) and the
 [new primary extracts](evidence/m6_memory_resumed_v2/manifest.json). M6 remains
 unfinished; the 100-MHz acceptance and frozen FPGA release are unchanged.
+
+## Approved clock and library-contract revision
+
+The user subsequently approved a bounded library-correction pass and accepted
+95 MHz as the ASIC system target. The statements above describe earlier
+checkpoints, not the current clock requirement. New constraints are separate
+from the unchanged 100-MHz SDC. Approximately +0.244-ns setup headroom is
+explicitly acceptable; +0.250 ns is preferred and +0.500 ns is stretch. Positive
+hold, electrical/domain, antenna, DRC and full-system gates remain.
+
+The correction changes only the 32 output-pin metadata entries per library,
+restricting load to 7–13 fF and transition to 350 ps. Input constraints and every
+timing/power table remain unchanged. All three corners support that restricted
+table domain, but the routed implementation still violates its input/load
+conditions. The isolated output-inverter SPICE check is not full SRAM
+recharacterization. No repaired physical candidate is promoted.
+
+See [contract, trials and remaining work](M6_SRAM_CONTRACT.md). Memory-local
+command distribution, clock/return timing and antenna repair remain the next
+physical gate; lowering frequency is not a substitute for these checks.

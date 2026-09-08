@@ -1,0 +1,7 @@
+# Native reports are byte-identical primary extracts, including trailing spaces.
+*_ss_clock.rpt -whitespace
+*_ss_checks.rpt -whitespace
+*_summary.rpt -whitespace
+spice_*.log -whitespace
+output_driver.spice -whitespace
+ss_pin_report.tcl -whitespace

@@ -1,0 +1,25 @@
+.SUBCKT mos_w1000_l150_m1_nf1_id1 d g s b
+
+  X0 d g s b sky130_fd_pr__pfet_01v8 l=0.150 nf=1 w=1.000
+
+
+.ENDS mos_w1000_l150_m1_nf1_id1
+
+
+.SUBCKT mos_w600_l150_m1_nf1_id0 d g s b
+
+  X0 d g s b sky130_fd_pr__nfet_01v8 l=0.150 nf=1 w=0.600
+
+
+.ENDS mos_w600_l150_m1_nf1_id0
+
+
+.SUBCKT folded_inv_9 vdd vss a y
+
+  XMP0 y a vdd vdd mos_w1000_l150_m1_nf1_id1
+  XMN0 y a vss vss mos_w600_l150_m1_nf1_id0
+  XMP1 y a vdd vdd mos_w1000_l150_m1_nf1_id1
+  XMN1 y a vss vss mos_w600_l150_m1_nf1_id0
+
+.ENDS folded_inv_9
+

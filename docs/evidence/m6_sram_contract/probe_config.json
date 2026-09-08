@@ -1,0 +1,132 @@
+{
+  "DESIGN_NAME": "pa_m6_bank_probe",
+  "VERILOG_FILES": [
+    "/work/pa_m6_sram_1x_candidate.sv",
+    "/work/pa_m6_bank_probe.sv"
+  ],
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 10,
+  "FP_SIZING": "absolute",
+  "DIE_AREA": [
+    0,
+    0,
+    1200,
+    2200
+  ],
+  "FP_CORE_UTIL": 35,
+  "PL_TARGET_DENSITY_PCT": 40,
+  "VDD_NETS": [
+    "vdd"
+  ],
+  "GND_NETS": [
+    "vss"
+  ],
+  "FP_PDN_MULTILAYER": true,
+  "FP_PDN_CFG": "/work/sram_probe_pdn.tcl",
+  "STA_MACRO_PRIORITIZE_NL": false,
+  "STA_CORNERS": [
+    "min_ff_n40C_1v95",
+    "nom_tt_025C_1v80",
+    "max_ss_100C_1v60"
+  ],
+  "MACROS": {
+    "sram22_512x32m4w8": {
+      "gds": [
+        "/work/sram22_512x32m4w8_boundary.gds.gz"
+      ],
+      "lef": [
+        "/work/sram22_512x32m4w8.lef"
+      ],
+      "vh": [
+        "/work/sram22_512x32m4w8.v"
+      ],
+      "spice": [
+        "/work/sram22_512x32m4w8.spice"
+      ],
+      "lib": {
+        "*_ff_n40C_1v95": [
+          "/candidate/sram22_512x32m4w8_ff_n40C_1v95.lib"
+        ],
+        "*_tt_025C_1v80": [
+          "/candidate/sram22_512x32m4w8_tt_025C_1v80.lib"
+        ],
+        "*_ss_100C_1v60": [
+          "/candidate/sram22_512x32m4w8_ss_100C_1v60.lib"
+        ]
+      },
+      "instances": {
+        "u_memory.g_read[0].g_bank[0].g_slice[0].u_sram": {
+          "location": [
+            100,
+            100
+          ],
+          "orientation": "N"
+        },
+        "u_memory.g_read[0].g_bank[1].g_slice[0].u_sram": {
+          "location": [
+            100,
+            600
+          ],
+          "orientation": "N"
+        },
+        "u_memory.g_read[0].g_bank[2].g_slice[0].u_sram": {
+          "location": [
+            100,
+            1100
+          ],
+          "orientation": "N"
+        },
+        "u_memory.g_read[0].g_bank[3].g_slice[0].u_sram": {
+          "location": [
+            100,
+            1600
+          ],
+          "orientation": "N"
+        },
+        "u_memory.g_read[1].g_bank[0].g_slice[0].u_sram": {
+          "location": [
+            650,
+            100
+          ],
+          "orientation": "N"
+        },
+        "u_memory.g_read[1].g_bank[1].g_slice[0].u_sram": {
+          "location": [
+            650,
+            600
+          ],
+          "orientation": "N"
+        },
+        "u_memory.g_read[1].g_bank[2].g_slice[0].u_sram": {
+          "location": [
+            650,
+            1100
+          ],
+          "orientation": "N"
+        },
+        "u_memory.g_read[1].g_bank[3].g_slice[0].u_sram": {
+          "location": [
+            650,
+            1600
+          ],
+          "orientation": "N"
+        }
+      }
+    }
+  },
+  "FALLBACK_SDC_FILE": "/work/bank_probe.sdc",
+  "PNR_SDC_FILE": "/work/bank_probe.sdc",
+  "SIGNOFF_SDC_FILE": "/work/bank_probe.sdc",
+  "PRIMARY_GDSII_STREAMOUT_TOOL": "klayout",
+  "RUN_MAGIC_STREAMOUT": false,
+  "RUN_KLAYOUT_XOR": false,
+  "MAGIC_LEF_WRITE_USE_GDS": false,
+  "MAGIC_DRC_USE_GDS": false,
+  "MAGIC_EXT_ABSTRACT_CELLS": [
+    "sram22_512x32m4w8"
+  ],
+  "PDN_MACRO_CONNECTIONS": [
+    ".*u_sram vdd vss vdd vss"
+  ],
+  "SYNTH_HIERARCHY_MODE": "deferred_flatten"
+}

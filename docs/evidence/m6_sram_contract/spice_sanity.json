@@ -1,0 +1,152 @@
+{
+  "artifacts": {
+    "ff_s0.002_c0.007.log": "88dc2423f2f5fd8e12c7b6ded403ebbe5ab92366f85822c875f3f1877c652777",
+    "ff_s0.002_c0.007.spice": "49dc7b2b0f73c9661c5a788bc60ced1bf806eacea2365326098b4376b0757f5d",
+    "ff_s0.002_c0.013.log": "c0dae1d34cad5b229c4dc38ae3a406834abc5c6e1f1a05001b4b0567be297cc7",
+    "ff_s0.002_c0.013.spice": "a9cccfd6af4abd965767e4ad139a6c0be4cad825fbbb79abb419c475b45939f9",
+    "ff_s0.351_c0.007.log": "4fb13eb5ec3c7677958c6963918da36a9a75f1a51a507c0960a6c1bccbdf9a62",
+    "ff_s0.351_c0.007.spice": "17a143a1bf55f88867fab277400a7691d65de9c5491e056ddd3fb019e12bf619",
+    "ff_s0.351_c0.013.log": "6c0737d0202e888e92cac6de0951ccb637c6ac2ac35cff5799ef7e02a1c44f89",
+    "ff_s0.351_c0.013.spice": "672e31ca77900ec7afb53d85dfdfa288063941a18c6c54b637c7741f58f3066b",
+    "model_sources.sha256": "61f728d81b850c793d67a4ab15067b3d4e2b6def272b86286090575dbc435a73",
+    "ngspice_version.txt": "d18ced87a01768ec53b4682c549f1182be38030c71159f071a008b747a8f04be",
+    "output_driver.spice": "97f84ebbd50a7a2d7f2c7a94ec93e672386592535dcef158a83b1efd928fe6f9",
+    "ss_s0.002_c0.007.log": "98b09cdc3c94e32442a50e76d1d86fe599d88dd9dea2230149c192db8368358c",
+    "ss_s0.002_c0.007.spice": "327679ce36d0e9784df9aac9932e07c7a3c9a27533590cbcb6d2afed76bd95bf",
+    "ss_s0.002_c0.013.log": "4bdd1aca86e420c01e863918e0c228f43888d4da1be93b22d9df67f20a251aff",
+    "ss_s0.002_c0.013.spice": "6ba81935f70ef31b151ad5cc0f1384814837261c06610d1597babb2f8aeff35f",
+    "ss_s0.351_c0.007.log": "cc6a6007ee991bf958e4b4916ca381b4d74756c599685535f0f6588586a31df7",
+    "ss_s0.351_c0.007.spice": "14d2c1532a3ec43a6088e728f2616415ff41d2177f5626a14bfd83e98610e4cd",
+    "ss_s0.351_c0.013.log": "192f84aff5f61c889872d4c4d1447abb53d5f4421fcc3aa61d54bc0a70598096",
+    "ss_s0.351_c0.013.spice": "620e57f77c1872c0cdd159de9025da28afbb2b3cf096847ff63a3c2774799043",
+    "tt_s0.002_c0.007.log": "929288d651f3c28ece23eaac1cd97fbca175fc4d9b1191a827826e91b4ef4489",
+    "tt_s0.002_c0.007.spice": "434b55bcb30f7470f9ac31b67a5f0bbcdea0047d5c57cc4db3a5d261bb876cec",
+    "tt_s0.002_c0.013.log": "3748f23644ca8c36ce9ce499ad703e231eb57d7d4e06c28bae6b87a1242e83ce",
+    "tt_s0.002_c0.013.spice": "b72d9bb7b6c288333fbfb95df3b7d0765137966ab97ce80eeb0c3c027777e61f",
+    "tt_s0.351_c0.007.log": "34dd33a4f78e8dc53c25b70eff43bfa462fe13771c7003c7a8960810e89dc13f",
+    "tt_s0.351_c0.007.spice": "2cd1cf2a730f7d589569cf0e7f5516cce15fa3f15a31a8a6b4aecd3ba0a96998",
+    "tt_s0.351_c0.013.log": "cb34bfd3c682078316ee6753d4747766643d100cad31ffa1ab1fbb7a976d59e7",
+    "tt_s0.351_c0.013.spice": "c6ca4fd0e33e77af954bae0ef76dcb3c8b41c66f566379cd3b48306fe810078f"
+  },
+  "extracted_macro_parasitics": false,
+  "full_sram_pass": false,
+  "model_tree_files_fingerprinted": 821,
+  "results": [
+    {
+      "corner": "ss",
+      "fall_transition_ns": 0.04880686,
+      "ideal_internal_input_slew_ns": 0.002,
+      "output_load_pf": 0.007,
+      "rise_transition_ns": 0.07091812,
+      "temperature_c": 100,
+      "voltage_v": 1.6
+    },
+    {
+      "corner": "ss",
+      "fall_transition_ns": 0.08484480999999999,
+      "ideal_internal_input_slew_ns": 0.002,
+      "output_load_pf": 0.013,
+      "rise_transition_ns": 0.12176830000000001,
+      "temperature_c": 100,
+      "voltage_v": 1.6
+    },
+    {
+      "corner": "ss",
+      "fall_transition_ns": 0.1066412,
+      "ideal_internal_input_slew_ns": 0.351,
+      "output_load_pf": 0.007,
+      "rise_transition_ns": 0.1488756,
+      "temperature_c": 100,
+      "voltage_v": 1.6
+    },
+    {
+      "corner": "ss",
+      "fall_transition_ns": 0.1365444,
+      "ideal_internal_input_slew_ns": 0.351,
+      "output_load_pf": 0.013,
+      "rise_transition_ns": 0.1859479,
+      "temperature_c": 100,
+      "voltage_v": 1.6
+    },
+    {
+      "corner": "tt",
+      "fall_transition_ns": 0.02400315,
+      "ideal_internal_input_slew_ns": 0.002,
+      "output_load_pf": 0.007,
+      "rise_transition_ns": 0.045171499999999996,
+      "temperature_c": 25,
+      "voltage_v": 1.8
+    },
+    {
+      "corner": "tt",
+      "fall_transition_ns": 0.04176813,
+      "ideal_internal_input_slew_ns": 0.002,
+      "output_load_pf": 0.013,
+      "rise_transition_ns": 0.07791279,
+      "temperature_c": 25,
+      "voltage_v": 1.8
+    },
+    {
+      "corner": "tt",
+      "fall_transition_ns": 0.08484182,
+      "ideal_internal_input_slew_ns": 0.351,
+      "output_load_pf": 0.007,
+      "rise_transition_ns": 0.11889330000000001,
+      "temperature_c": 25,
+      "voltage_v": 1.8
+    },
+    {
+      "corner": "tt",
+      "fall_transition_ns": 0.10836900000000001,
+      "ideal_internal_input_slew_ns": 0.351,
+      "output_load_pf": 0.013,
+      "rise_transition_ns": 0.15278930000000002,
+      "temperature_c": 25,
+      "voltage_v": 1.8
+    },
+    {
+      "corner": "ff",
+      "fall_transition_ns": 0.01603545,
+      "ideal_internal_input_slew_ns": 0.002,
+      "output_load_pf": 0.007,
+      "rise_transition_ns": 0.033929680000000004,
+      "temperature_c": -40,
+      "voltage_v": 1.95
+    },
+    {
+      "corner": "ff",
+      "fall_transition_ns": 0.02794126,
+      "ideal_internal_input_slew_ns": 0.002,
+      "output_load_pf": 0.013,
+      "rise_transition_ns": 0.058725040000000006,
+      "temperature_c": -40,
+      "voltage_v": 1.95
+    },
+    {
+      "corner": "ff",
+      "fall_transition_ns": 0.07661644000000001,
+      "ideal_internal_input_slew_ns": 0.351,
+      "output_load_pf": 0.007,
+      "rise_transition_ns": 0.09195177,
+      "temperature_c": -40,
+      "voltage_v": 1.95
+    },
+    {
+      "corner": "ff",
+      "fall_transition_ns": 0.09527195,
+      "ideal_internal_input_slew_ns": 0.351,
+      "output_load_pf": 0.013,
+      "rise_transition_ns": 0.12156420000000001,
+      "temperature_c": -40,
+      "voltage_v": 1.95
+    }
+  ],
+  "scope": "Original folded_inv_9 transistor topology, ideal internal input, lumped output load",
+  "sources": {
+    "build/m6_ngspice_v1/root/usr/bin/ngspice": "820658317b0b54035208da41936fd6871ce924036e5ea4113a4168b821b7fc45",
+    "build/m6_pdks/sky130A/libs.tech/ngspice/sky130.lib.spice": "5efa041a988893c1a3580d0ecd57870ea3146b27741c7d42b56baaa336b9549e",
+    "build/m6_sram512_v1/sram22_512x32m4w8.spice": "3199c16367d0c156a5cf56104fc8a1ae8b0ea7411492b88dd4c02c62908e68b8",
+    "scripts/m6_output_driver_spice.py": "29a38fd70c2645773b0ecb746761b27dd81e25e9eea60b9de18b55445bfd9370"
+  },
+  "status": "OUTPUT_INVERTER_SCHEMATIC_SANITY_ONLY_NOT_MACRO_CHARACTERIZATION"
+}

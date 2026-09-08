@@ -1,0 +1,13 @@
+* Isolated supplied output inverter, not complete SRAM
+.lib /home/elfo/pocketai/build/m6_pdks/sky130A/libs.tech/ngspice/sky130.lib.spice ff
+.include output_driver.spice
+.option scale=1e-6
+.temp -40
+VDD vdd 0 1.95
+VIN in 0 PULSE(0 1.95 1n 0.0025n 0.0025n 3n 8n)
+XOUT vdd 0 in out folded_inv_9
+CLOAD out 0 0.007p
+.tran 1p 12n
+.meas tran fall_s TRIG v(out) VAL=1.755 FALL=1 TARG v(out) VAL=0.195 FALL=1
+.meas tran rise_s TRIG v(out) VAL=0.195 RISE=1 TARG v(out) VAL=1.755 RISE=1
+.end
