@@ -1,5 +1,9 @@
 # M6 — Sky130 port and evidence-led PPA report
 
+The renewed [three-gate closure goal](M6_CLOSURE_GOAL.md) is the current
+execution contract: complete memory qualification, full ASIC implementation,
+and interface/PPA/report/release work. Progress checkpoints are not its exit.
+
 Status: **95-MHz ASIC target approved; single-clock RTL/loader passed; physical closure open.** Baseline `7405919` was pushed to
 `origin/main` on 2026-09-08 before this work began. M1–M5 and every subsequent
 FPGA performance qualification remain frozen. This document records the M6
@@ -129,10 +133,11 @@ hidden lower-frequency compute domain or omitted macro timing may qualify the
 approved 95-MHz target. A changed SRAM choice needs matching characterized timing and
 physical views. Missing suitable IP is a feasibility blocker, not a waiver.
 
-The goal service currently retains the unfinished M6 goal in its earlier
-blocked state and rejects creating a replacement. Continue the same work under
-this approved contract; do not falsely complete the old goal to bypass that
-restriction. The new report-figure deliverables are recorded here explicitly.
+The goal service initially rejected a replacement while the earlier M6 goal
+remained unfinished and blocked. Following the user's retry request, that
+entry was absent and the new [three-gate closure goal](M6_CLOSURE_GOAL.md) was
+successfully created in active state. Its objective uses the current 95-MHz
+acceptance. No unfinished objective was falsely marked complete.
 
 The post-storage pass now also qualifies the 1x digital SPI-loader integration.
 It confirms an output-transition contract inconsistency in all three screened

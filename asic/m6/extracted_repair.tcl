@@ -1,0 +1,298 @@
+# Instrument the exact pinned repair stage; preserve every clock/library limit.
+proc pa_m6_report_rc {label} {
+    puts "M6-RC-DIAGNOSTIC $label BEGIN"
+    foreach corner [sta::corners] {
+        puts "M6-RC-CORNER [$corner name]"
+        report_checks -corner [$corner name] -path_delay max -digits 9
+    }
+    report_check_types -max_slew -max_capacitance
+    puts "M6-RC-DIAGNOSTIC $label END"
+}
+proc pa_m6_read_extracted {} {
+    foreach corner [sta::corners] {
+        set name [$corner name]
+        read_spef -corner $name $::env(M6_REPAIR_SPEF_$name)
+    }
+}
+proc pa_m6_prepare_route_copy {} {
+    remove_fillers
+    # Reusing detailed wires after cell resizing confuses incremental antenna
+    # routing. Remove SIGNAL/CLOCK dbWires only from this new in-memory copy;
+    # preserve every original artifact, cell, net, connection and PG dbSWire.
+    set count 0
+    foreach net [[ord::get_db_block] getNets] {
+        if {[$net getSigType] ni {SIGNAL CLOCK}} { continue }
+        set wire [$net getWire]
+        if {$wire ne "NULL"} {
+            odb::dbWire_destroy $wire
+            incr count
+        }
+    }
+    puts "M6 REROUTE COPY: cleared $count signal/clock detailed wires; PG unchanged"
+}
+proc pa_m6_compare_rc {} {
+    puts "M6-RC-DIAGNOSTIC ESTIMATED BEGIN"
+    pa_m6_report_rc ESTIMATED_ALL_CORNERS
+    puts "M6-RC-DIAGNOSTIC ESTIMATED END"
+    if {$::env(M6_REPAIR_USE_SPEF)} {
+        pa_m6_read_extracted
+        puts "M6-RC-DIAGNOSTIC EXTRACTED BEGIN"
+        pa_m6_report_rc EXTRACTED_ALL_CORNERS
+        puts "M6-RC-DIAGNOSTIC EXTRACTED END"
+    }
+}
+proc pa_m6_selective_drivers {} {
+    set block [ord::get_db_block]
+    set db [ord::get_db]
+    set corner [sta::find_corner max_ss_100C_1v60]
+    set plan {}
+    # Capture the plan before changing any loads. Receiver/other-corner checks
+    # remain mandatory after routing; this plan is an SS optimization input.
+    foreach cell [get_cells -hierarchical -filter {ref_name =~ sky130_fd_sc_hd__*}] {
+        set name [get_full_name $cell]
+        if {[string match m6_leaf_* $name] || [string match clkbuf_* $name]} { continue }
+        foreach pin [get_pins -of_objects $cell] {
+            if {[sta::pin_direction $pin] ne "output"} { continue }
+            set vertex [lindex [$pin vertices] 0]
+            if {$vertex eq ""} { continue }
+            set slew [expr {max([$vertex slew_corner rise $corner max],[$vertex slew_corner fall $corner max])*1e9}]
+            if {$slew <= 0.33} { continue }
+            set master [get_property $cell ref_name]
+            set cap [expr {[[$pin net] capacitance $corner max]*1e12}]
+            lappend plan [list $name [get_full_name $pin] $master $slew $cap]
+        }
+    }
+    set stream [open $::env(STEP_DIR)/selective_drivers.tsv w]
+    puts $stream "instance\tpin\tmaster\tslew_ns\tload_pf\taction\treplacement"
+    set count 0
+    foreach row $plan {
+        lassign $row name pin master slew cap
+        set replacement ""
+        if {[regexp {^(sky130_fd_sc_hd__[a-z0-9]+)_([0-9]+)$} $master -> family strength]} {
+            foreach size {4 8 12 16} {
+                if {$size <= $strength || $size < min(16,4*$strength)} { continue }
+                if {[$db findMaster ${family}_$size] ne "NULL"} {
+                    set replacement ${family}_$size
+                    break
+                }
+            }
+        }
+        if {$replacement ne ""} {
+            replace_cell $name $replacement
+            puts $stream [join [concat $row [list upsize $replacement]] "\t"]
+        } else {
+            set source [$block findInst $name]
+            if {$source eq "NULL"} { error "missing planned driver" }
+            set port [lindex [split $pin /] end]
+            set terminal [$source findITerm $port]
+            set original [[$terminal getNet] getName]
+            set buffer $::env(M6_REPAIR_PREFIX)_$count
+            set local ${buffer}_local
+            if {[$block findInst $buffer] ne "NULL" || [$block findNet $local] ne "NULL"} {
+                error "selective driver names already present"
+            }
+            set box [$source getBBox]
+            set bx [expr {[$box xMax]+920}]
+            set by [$box yMin]
+            make_instance $buffer sky130_fd_sc_hd__buf_16
+            make_net $local
+            disconnect_pin $original $pin
+            connect_pin $local $pin
+            connect_pin $local $buffer/A
+            connect_pin $original $buffer/X
+            set instance [$block findInst $buffer]
+            $instance setOrient [$source getOrient]
+            $instance setLocation $bx $by
+            $instance setPlacementStatus PLACED
+            foreach {pg supply} {VPWR vdd VPB vdd VGND vss VNB vss} {
+                [$instance findITerm $pg] connect [$block findNet $supply]
+            }
+            set_dont_touch $local
+            puts $stream [join [concat $row [list isolate_load sky130_fd_sc_hd__buf_16]] "\t"]
+        }
+        incr count
+    }
+    close $stream
+    puts "M6 SELECTIVE DRIVERS: $count measured output drivers repaired; original plan in selective_drivers.tsv"
+}
+proc pa_m6_compress_read_chains {} {
+    set block [ord::get_db_block]
+    set corner [sta::find_corner max_ss_100C_1v60]
+    set plan [dict create]
+    # Only combinational, non-inverting read-return chains after the mandatory
+    # local SRAM output receiver. Never remove a clock, state element, explicit
+    # hold delay, logic gate, or the load-contract isolation receiver itself.
+    foreach start [get_cells m6_out_*] {
+        set current [[ord::get_db_block] findInst [get_full_name $start]]
+        set selected 0
+        for {set depth 0} {$depth < 12 && $selected < 2} {incr depth} {
+            set master [[$current getMaster] getName]
+            if {![regexp {^sky130_fd_sc_hd__(?:clkbuf|buf)_([0-9]+)$} $master -> drive]} { break }
+            set net [[$current findITerm X] getNet]
+            if {[llength [$net getBTerms]]} { break }
+            set sinks {}
+            foreach term [$net getITerms] {
+                if {[[$term getMTerm] getIoType] ne "INPUT"} { continue }
+                if {[string match *diode* [[[$term getInst] getMaster] getName]]} { continue }
+                lappend sinks $term
+            }
+            if {[llength $sinks] != 1} { break }
+            set next [[lindex $sinks 0] getInst]
+            set next_name [$next getName]
+            set next_master [[$next getMaster] getName]
+            if {![regexp {^sky130_fd_sc_hd__(?:clkbuf|buf)_([0-9]+)$} $next_master -> size]} { break }
+            set input_pin [lindex [get_pins [get_full_name $start]/X] 0]
+            # Resolve these unescaped repair-generated names directly in STA.
+            set a [lindex [get_pins [$current getName]/X] 0]
+            set b [lindex [get_pins $next_name/X] 0]
+            set cap [expr {([[$a net] capacitance $corner max]+[[$b net] capacitance $corner max])*1e12}]
+            if {$drive >= 8 && $size <= 6 && $cap < 0.10 && [regexp {^wire[0-9]+$} $next_name]} {
+                dict set plan $next_name [list [$current getName] $cap]
+                incr selected
+            }
+            set current $next
+        }
+    }
+    foreach name [dict keys $plan] {
+        unset_dont_touch $name
+        remove_buffers [get_cells $name]
+        puts "M6 READ CHAIN: removed combinational $name, upstream/load [dict get $plan $name]; all-corner hold recheck required"
+    }
+    puts "M6 READ CHAIN: [dict size $plan] low-strength buffers removed from read-return chains"
+}
+# Preserve the pinned stage's libraries, constraints, repair margins and final
+# legalization/routing. Deliberately do NOT estimate routing parasitics before
+# loading SPEF: replacing an already-estimated model did not reproduce the
+# untouched extracted model in the retained v2 diagnostic.
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+source $::env(SCRIPTS_DIR)/openroad/common/resizer.tcl
+load_rsz_corners
+read_current_odb
+# The pinned DRT writer's dbAccessPoint::destroy follows its stored ITerm IDs.
+# Cell removal can leave those IDs stale. Clear only derived pin-access cache
+# before *any* cell/net edits, while all original terminals are still valid.
+# Pin access is regenerated by detailed routing; original ODB remains intact.
+set m6_access_points [[ord::get_db_block] getAccessPoints]
+foreach point $m6_access_points { odb::dbAccessPoint_destroy $point }
+puts "M6 REROUTE COPY: cleared [llength $m6_access_points] cached pin-access points before cell edits"
+set_propagated_clock [all_clocks]
+set_dont_touch_objects
+source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
+if {$::env(M6_REPAIR_USE_SPEF)} {
+    if {$::env(M6_REPAIR_PRIME_ESTIMATE)} { estimate_parasitics -placement }
+    pa_m6_read_extracted
+    pa_m6_report_rc DIRECT_EXTRACTED
+} else {
+    pa_m6_prepare_route_copy
+    source $::env(SCRIPTS_DIR)/openroad/common/grt.tcl
+    estimate_parasitics -global_routing
+    pa_m6_report_rc ESTIMATED_ONLY
+}
+if {$::env(M6_REPAIR_CLOCK_PREDRIVER) ne ""} {
+    set master $::env(M6_REPAIR_CLOCK_PREDRIVER)
+    if {$master ni {sky130_fd_sc_hd__clkinv_4 sky130_fd_sc_hd__clkinv_8 sky130_fd_sc_hd__clkinv_16}} {
+        error "reviewed paired-clock predriver required"
+    }
+    for {set index 0} {$index < 8} {incr index} {
+        set name m6_leaf_${index}_pre
+        set instance [[ord::get_db_block] findInst $name]
+        if {$instance eq "NULL" || [[$instance getMaster] getName] ni {sky130_fd_sc_hd__clkinv_2 sky130_fd_sc_hd__clkinv_4 sky130_fd_sc_hd__clkinv_8}} {
+            error "expected original clock predriver"
+        }
+        unset_dont_touch $name
+        replace_cell $name $master
+        set_dont_touch $name
+    }
+    puts "M6 CLOCK PREDRIVER: eight reviewed predrivers replaced by $master; paired polarity retained"
+}
+if {$::env(M6_REPAIR_MACRO_LOADS)} {
+    set corner [sta::find_corner max_ss_100C_1v60]
+    set plan {}
+    foreach cell [get_cells -hierarchical -filter {ref_name == sram22_512x32m4w8}] {
+        foreach pin [get_pins -of_objects $cell] {
+            if {[sta::pin_direction $pin] ne "output"} { continue }
+            set cap [expr {[[$pin net] capacitance $corner max]*1e12}]
+            if {$cap <= 0.013} { continue }
+            set net [[ord::get_db_block] findNet [get_full_name [$pin net]]]
+            set receivers {}
+            foreach term [$net getITerms] {
+                if {[[$term getMTerm] getIoType] eq "INPUT"} { lappend receivers $term }
+            }
+            if {[llength $receivers] != 1} { error "expected one local SRAM receiver" }
+            set receiver [[lindex $receivers 0] getInst]
+            if {[[$receiver getMaster] getName] ne "sky130_fd_sc_hd__buf_12" || ![string match m6_out_* [$receiver getName]]} {
+                error "unexpected overloaded SRAM receiver"
+            }
+            lappend plan [list [$receiver getName] $cap]
+        }
+    }
+    foreach row $plan {
+        lassign $row name cap
+        unset_dont_touch $name
+        replace_cell $name sky130_fd_sc_hd__buf_8
+        set_dont_touch $name
+        puts "M6 MACRO LOAD: $name buf12->buf8, original SS load $cap pF; re-extracted 7-13 fF checks required"
+    }
+}
+if {$::env(M6_REPAIR_SELECTIVE)} { pa_m6_selective_drivers }
+if {$::env(M6_REPAIR_READ_CHAINS)} { pa_m6_compress_read_chains }
+set m6_before_instances [dict create]
+foreach instance [[ord::get_db_block] getInsts] {
+    dict set m6_before_instances [$instance getName] 1
+}
+if {$::env(M6_REPAIR_ELECTRICAL)} {
+    repair_design -verbose \
+        -max_wire_length $::env(GRT_DESIGN_REPAIR_MAX_WIRE_LENGTH) \
+        -slew_margin $::env(GRT_DESIGN_REPAIR_MAX_SLEW_PCT) \
+        -cap_margin $::env(GRT_DESIGN_REPAIR_MAX_CAP_PCT)
+}
+if {$::env(M6_REPAIR_NEW_BUFFER_MIN8)} {
+    set count 0
+    foreach instance [[ord::get_db_block] getInsts] {
+        set name [$instance getName]
+        if {[dict exists $m6_before_instances $name]} { continue }
+        set master [[$instance getMaster] getName]
+        if {[regexp {^(sky130_fd_sc_hd__(?:clkbuf|buf))_(1|2|3|4|6)$} $master -> family]} {
+            replace_cell $name ${family}_8
+            incr count
+        }
+    }
+    puts "M6 NEW WIRE BUFFER STRENGTH: $count new buffers raised to drive-8"
+}
+if {$::env(M6_REPAIR_TIMING)} {
+    repair_timing -setup -setup_margin 0.25 -repair_tns 100 -max_passes 40 \
+        -skip_gate_cloning -skip_buffering
+    repair_timing -hold -hold_margin 0.15 -max_passes 40 -max_buffer_percent 20
+}
+if {$::env(M6_LOCAL_CLOCK_NDR)} {
+    # Existing minimum widths are 0.14 um. Wider physical routes must still
+    # pass detailed routing, extraction and all original electrical limits.
+    # DEF round-trip for per-corner RCX requires a rule on every routing layer.
+    # Keep each other layer's real technology width, including li1 access.
+    set widths {}
+    set tech [[ord::get_db] getTech]
+    set units [[ord::get_db_block] getDbUnitsPerMicron]
+    foreach layer [$tech getLayers] {
+        if {[$layer getRoutingLevel] == 0} { continue }
+        set name [$layer getName]
+        set width [expr {double([$layer getWidth])/$units}]
+        if {$name in {met1 met2}} { set width 0.28 }
+        lappend widths $name $width
+    }
+    create_ndr -name m6_local_clock_2w -width $widths
+    for {set index 0} {$index < 8} {incr index} {
+        set name m6_leaf_${index}_local
+        if {[[ord::get_db_block] findNet $name] eq "NULL"} { error "missing local clock net" }
+        assign_ndr -ndr m6_local_clock_2w -net $name
+    }
+    puts "M6 LOCAL CLOCK NDR: eight local clock nets, 0.28-um met1/met2 width"
+}
+pa_m6_prepare_route_copy
+if {$::env(M6_REPAIR_ELECTRICAL) || $::env(M6_REPAIR_TIMING) || $::env(M6_REPAIR_SELECTIVE) || $::env(M6_REPAIR_READ_CHAINS) || $::env(M6_REPAIR_MACRO_LOADS) || $::env(M6_REPAIR_CLOCK_PREDRIVER) ne ""} {
+    source $::env(SCRIPTS_DIR)/openroad/common/dpl.tcl
+} else {
+    check_placement -verbose
+}
+unset_dont_touch_objects
+source $::env(SCRIPTS_DIR)/openroad/common/grt.tcl
+write_views

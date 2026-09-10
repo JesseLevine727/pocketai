@@ -1,5 +1,9 @@
 # M6: full-system ASIC closure worklist
 
+The user renewed the goal to finish all remaining work in
+[M6_CLOSURE_GOAL.md](M6_CLOSURE_GOAL.md). That three-gate contract is current;
+the dated experiments below remain historical evidence.
+
 Approved by the user on 2026-09-08. Status: in progress, not timing-qualified.
 Later that day the user explicitly accepted **95 MHz instead of 100 MHz**.
 The filename and historical checkpoint clocks are retained for provenance.
