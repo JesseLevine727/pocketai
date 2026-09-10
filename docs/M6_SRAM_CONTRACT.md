@@ -266,6 +266,19 @@ long input nets or an antenna-aware router; the diode-only repair in the pinned
 build is insufficient. This is recorded as an open probe-architecture/toolset
 limitation, not a design or electrical failure.
 
+Upsizing the `m6_in_*` receivers from `buf_4` to `buf_16` (increasing the
+victim gate area) was then tried. It fixed the long met4 input nets and cut the
+residual antenna from 16 to **7**, and improved setup to **+0.2095 ns**, but it
+raised the receivers' input capacitance and introduced 7 SRAM `dout` load
+violations, and the remaining 7 antenna nets are now internal/clock nets
+(`net254`, `clknet_4_9__leaf_clk`, `net1331`, `net1565`, `net1373`, `net1433`,
+`net106`) that diode insertion cannot clear. No single setting closes antenna,
+cap and fanout together: the diode/receiver antenna fixes trade against the
+SRAM load and fanout contracts. The antenna gate therefore remains open as a
+documented probe-architecture limitation; the cleanest candidate is
+`srfix12_route_95_v1` (antenna 16, everything else closed) or
+`srfix18_route_95_v1` (antenna 7, setup +0.2095, but 7 cap and 2 fanout).
+
 ## Reproduction and provenance
 
 The original source is pinned in [tools.json](../asic/m6/tools.json), including

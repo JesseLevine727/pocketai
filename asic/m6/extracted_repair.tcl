@@ -259,6 +259,21 @@ proc pa_m6_split_high_fanout {} {
     }
     puts "M6 FANOUT SPLIT: [llength $split] nets split: $split"
 }
+proc pa_m6_upsize_input_receivers {} {
+    # The long met4 input nets violate the antenna ratio at the small buf_4
+    # gate of the m6_in receivers. Upsizing the receiver increases its gate
+    # area, which lowers the ratio, and drives the SRAM input more strongly.
+    set count 0
+    foreach cell [get_cells -hierarchical -filter {ref_name =~ sky130_fd_sc_hd__buf_*}] {
+        set name [get_full_name $cell]
+        if {![string match *m6_in_* $name]} { continue }
+        unset_dont_touch $name
+        replace_cell $name sky130_fd_sc_hd__buf_16
+        set_dont_touch $name
+        incr count
+    }
+    puts "M6 ANTENNA BUFFERS: $count m6_in receivers upsized to buf_16"
+}
 # Preserve the pinned stage's libraries, constraints, repair margins and final
 # legalization/routing. Deliberately do NOT estimate routing parasitics before
 # loading SPEF: replacing an already-estimated model did not reproduce the
@@ -361,6 +376,7 @@ if {$::env(M6_REPAIR_SELECTIVE)} { pa_m6_selective_drivers }
 if {$::env(M6_REPAIR_READ_CHAINS)} { pa_m6_compress_read_chains }
 if {$::env(M6_REPAIR_RETURN_CHAINS)} { pa_m6_upsize_return_chains }
 if {$::env(M6_REPAIR_SPLIT_FANOUT)} { pa_m6_split_high_fanout }
+if {$::env(M6_REPAIR_ANTENNA_BUFFERS)} { pa_m6_upsize_input_receivers }
 set m6_before_instances [dict create]
 foreach instance [[ord::get_db_block] getInsts] {
     dict set m6_before_instances [$instance getName] 1
@@ -413,7 +429,7 @@ if {$::env(M6_LOCAL_CLOCK_NDR)} {
     puts "M6 LOCAL CLOCK NDR: eight local clock nets, 0.28-um met1/met2 width"
 }
 pa_m6_prepare_route_copy
-if {$::env(M6_REPAIR_ELECTRICAL) || $::env(M6_REPAIR_TIMING) || $::env(M6_REPAIR_SELECTIVE) || $::env(M6_REPAIR_READ_CHAINS) || $::env(M6_REPAIR_RETURN_CHAINS) || $::env(M6_REPAIR_SPLIT_FANOUT) || $::env(M6_REPAIR_MACRO_LOADS) || $::env(M6_REPAIR_CLOCK_PREDRIVER) ne "" || $::env(M6_REPAIR_CLOCK_LEAF_CELL) ne ""} {
+if {$::env(M6_REPAIR_ELECTRICAL) || $::env(M6_REPAIR_TIMING) || $::env(M6_REPAIR_SELECTIVE) || $::env(M6_REPAIR_READ_CHAINS) || $::env(M6_REPAIR_RETURN_CHAINS) || $::env(M6_REPAIR_SPLIT_FANOUT) || $::env(M6_REPAIR_ANTENNA_BUFFERS) || $::env(M6_REPAIR_MACRO_LOADS) || $::env(M6_REPAIR_CLOCK_PREDRIVER) ne "" || $::env(M6_REPAIR_CLOCK_LEAF_CELL) ne ""} {
     source $::env(SCRIPTS_DIR)/openroad/common/dpl.tcl
 } else {
     check_placement -verbose

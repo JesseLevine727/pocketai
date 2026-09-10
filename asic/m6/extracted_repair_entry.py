@@ -44,7 +44,10 @@ class M6ExtractedRepair(OpenROAD.RepairDesignPostGRT):
         Variable("M6_REPAIR_SPLIT_FANOUT", bool,
                  "Split single-driver nets whose fanout exceeds 16", default=False),
         Variable("M6_REPAIR_ANTENNA", bool,
-                 "Insert antenna diodes after the rip-up and re-global-route", default=False)]
+                 "Insert antenna diodes after the rip-up and re-global-route", default=False),
+        Variable("M6_REPAIR_ANTENNA_BUFFERS", bool,
+                 "Upsize the m6_in SRAM input receivers to buf_16 for antenna area",
+                 default=False)]
 
     def get_script_path(self):
         original = Path(super().get_script_path())
