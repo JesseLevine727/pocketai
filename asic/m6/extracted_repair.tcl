@@ -201,6 +201,64 @@ proc pa_m6_upsize_return_chains {} {
     }
     puts "M6 RETURN UPSIZE: [dict size $plan] read-return buffers upsized"
 }
+proc pa_m6_split_high_fanout {} {
+    set block [ord::get_db_block]
+    set max_fanout 16
+    set index 0
+    while {[$block findInst "m6_fs_$index"] ne "NULL"} { incr index }
+    set split {}
+    # Only single-driver signal/clock nets are split, by inserting one reviewed
+    # buffer and moving the excess input sinks onto it. Placement is finalized
+    # by the following detailed placement; all-corner STA rechecks skew.
+    foreach net [$block getNets] {
+        set net_name [$net getName]
+        if {[string match m6_fs_* $net_name]} { continue }
+        set sinks {}
+        set driver ""
+        foreach term [$net getITerms] {
+            set io [[$term getMTerm] getIoType]
+            if {$io eq "INPUT"} { lappend sinks $term } elseif {$io eq "OUTPUT"} { set driver $term }
+        }
+        if {$driver eq ""} { continue }
+        set count [llength $sinks]
+        if {$count <= $max_fanout} { continue }
+        set dmaster [[[$driver getInst] getMaster] getName]
+        set cell "sky130_fd_sc_hd__buf_16"
+        if {[string match *clk* $dmaster] || [string match *clk* $net_name]} {
+            set cell "sky130_fd_sc_hd__clkbuf_16"
+        }
+        # The inserted buffer input is itself one new load on the original net,
+        # so move one extra sink to land at the limit.
+        set move [expr {$count - $max_fanout + 1}]
+        set selected [lrange $sinks 0 [expr {$move-1}]]
+        set bname "m6_fs_$index"
+        set bnet "m6_fs_${index}_net"
+        if {[$block findInst $bname] ne "NULL" || [$block findNet $bnet] ne "NULL"} {
+            error "fanout-split names already present"
+        }
+        make_instance $bname $cell
+        make_net $bnet
+        connect_pin $net_name "$bname/A"
+        connect_pin $bnet "$bname/X"
+        foreach term $selected {
+            set iname [[$term getInst] getName]
+            set pname [[$term getMTerm] getName]
+            disconnect_pin $net_name "$iname/$pname"
+            connect_pin $bnet "$iname/$pname"
+        }
+        set binst [$block findInst $bname]
+        lassign [[lindex $selected 0] getInst] ignored
+        lassign [[[lindex $selected 0] getInst] getLocation] fx fy
+        $binst setLocation [expr {$fx+1840}] $fy
+        $binst setPlacementStatus PLACED
+        foreach {pg supply} {VPWR vdd VPB vdd VGND vss VNB vss} {
+            [$binst findITerm $pg] connect [$block findNet $supply]
+        }
+        lappend split "$net_name->$bname"
+        incr index
+    }
+    puts "M6 FANOUT SPLIT: [llength $split] nets split: $split"
+}
 # Preserve the pinned stage's libraries, constraints, repair margins and final
 # legalization/routing. Deliberately do NOT estimate routing parasitics before
 # loading SPEF: replacing an already-estimated model did not reproduce the
@@ -302,6 +360,7 @@ if {$::env(M6_REPAIR_MACRO_LOADS)} {
 if {$::env(M6_REPAIR_SELECTIVE)} { pa_m6_selective_drivers }
 if {$::env(M6_REPAIR_READ_CHAINS)} { pa_m6_compress_read_chains }
 if {$::env(M6_REPAIR_RETURN_CHAINS)} { pa_m6_upsize_return_chains }
+if {$::env(M6_REPAIR_SPLIT_FANOUT)} { pa_m6_split_high_fanout }
 set m6_before_instances [dict create]
 foreach instance [[ord::get_db_block] getInsts] {
     dict set m6_before_instances [$instance getName] 1
@@ -354,7 +413,7 @@ if {$::env(M6_LOCAL_CLOCK_NDR)} {
     puts "M6 LOCAL CLOCK NDR: eight local clock nets, 0.28-um met1/met2 width"
 }
 pa_m6_prepare_route_copy
-if {$::env(M6_REPAIR_ELECTRICAL) || $::env(M6_REPAIR_TIMING) || $::env(M6_REPAIR_SELECTIVE) || $::env(M6_REPAIR_READ_CHAINS) || $::env(M6_REPAIR_RETURN_CHAINS) || $::env(M6_REPAIR_MACRO_LOADS) || $::env(M6_REPAIR_CLOCK_PREDRIVER) ne "" || $::env(M6_REPAIR_CLOCK_LEAF_CELL) ne ""} {
+if {$::env(M6_REPAIR_ELECTRICAL) || $::env(M6_REPAIR_TIMING) || $::env(M6_REPAIR_SELECTIVE) || $::env(M6_REPAIR_READ_CHAINS) || $::env(M6_REPAIR_RETURN_CHAINS) || $::env(M6_REPAIR_SPLIT_FANOUT) || $::env(M6_REPAIR_MACRO_LOADS) || $::env(M6_REPAIR_CLOCK_PREDRIVER) ne "" || $::env(M6_REPAIR_CLOCK_LEAF_CELL) ne ""} {
     source $::env(SCRIPTS_DIR)/openroad/common/dpl.tcl
 } else {
     check_placement -verbose

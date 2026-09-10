@@ -40,7 +40,9 @@ class M6ExtractedRepair(OpenROAD.RepairDesignPostGRT):
                  "Upsize read-return buffer chains to drive-16 only", default=False),
         Variable("M6_REPAIR_CLOCK_LEAF_CELL", str,
                  "Replace both local clock leaf cells with this reviewed cell, or empty",
-                 default="")]
+                 default=""),
+        Variable("M6_REPAIR_SPLIT_FANOUT", bool,
+                 "Split single-driver nets whose fanout exceeds 16", default=False)]
 
     def get_script_path(self):
         original = Path(super().get_script_path())

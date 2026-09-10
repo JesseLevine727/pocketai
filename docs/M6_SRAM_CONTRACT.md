@@ -223,6 +223,28 @@ alternative (re-mapping to a different SRAM macro) is a larger scope change.
 The three fanout and fifteen antenna violations are **not** covered by this
 decision and remain open. This acceptance does not qualify full-system M6.
 
+### Fanout split and the post-DRT antenna floor
+
+A targeted `M6_REPAIR_SPLIT_FANOUT` pass (insert one reviewed buffer on each
+single-driver net above the 16-load limit and move the excess sinks; the
+inserted buffer's own input is counted, so one extra sink is moved) closes the
+fanout gate. On the retained `srfix12_route_95_v1` it reports **zero** fanout
+violations with setup +0.1679 ns, hold +0.1702 ns, zero TNS, zero router DRC
+and zero `dout`-load violations; only the accepted SRAM clock slew and the
+antenna nets remain. A second split iteration (`srfix15_route_95_v1`) reaches
+fanout 1, cap 0 and antenna 8 at setup +0.1584 ns.
+
+The antenna violations cannot be fully closed with the pinned flow. The diode
+repair runs during global routing, but detailed routing then adds wire and
+re-introduces violations; `repair_antennas` in the pinned OpenROAD build
+accepts only a diode cell (there is no jumper/reroute mode), and increasing
+`GRT_ANTENNA_MARGIN` from 10 to 50 to 100 lowers the residual count to a floor
+of ~7-8 nets and no further. Closing them requires a post-detailed-routing
+antenna repair step (custom flow) or an antenna-aware router, neither of which
+exists in this build. The residual antenna count and the single remaining
+fanout violation are recorded as an open flow limitation, separate from the
+accepted clock-slew corner.
+
 ## Reproduction and provenance
 
 The original source is pinned in [tools.json](../asic/m6/tools.json), including
