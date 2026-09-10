@@ -341,7 +341,7 @@
     "scripts/m6_run_bank_probe.sh": "c6478f57646077b367330d6e343cc78788291a272cc1180dfbfce77ca9c692da",
     "scripts/m6_run_chip_test.sh": "7ed60761e2cbb9d9d25006f5764b8986ec8fa320f4ea8929d443dad1e71a1a57",
     "scripts/m6_run_contract_buffers.sh": "2b4ec3c514d1d3ddabaaad8f6e4ec0278826a8b5bbd35f5ab147ea4d233e2e20",
-    "scripts/m6_run_contract_probe.sh": "19b59aa3026a588ddd1d702626c1ff2c5a1b107344d16d585f60decf722f283b",
+    "scripts/m6_run_contract_probe.sh": "39aec8c26d26e4c6e536cad2b5583ad9ed7345997fb534dcbdea9db28cec0d8d",
     "scripts/m6_run_extracted_repair.sh": "65fd50fbdc0b5bb266b43a280dc26bfc1a662f8f3bbddebac16378d3f9a9995a",
     "scripts/m6_run_leaf_probe.sh": "ded365afaa24a2d60197391eabec3c960b3586b78933118462fa412f1fe3bf21",
     "scripts/m6_run_local95_probe.sh": "60df5a544019f98ce6a555d0a52a626b171c635ffaa093aa11668a4295bf8b47",

@@ -245,6 +245,17 @@ exists in this build. The residual antenna count and the single remaining
 fanout violation are recorded as an open flow limitation, separate from the
 accepted clock-slew corner.
 
+A post-detailed-routing repair was attempted. Running the pinned
+`OpenROAD.RepairAntennas` on the pre-filler post-DRT state (step 06) succeeds
+— it inserts diodes and re-runs DPL and global routing — but the subsequent
+detailed-routing re-run does not converge: the pre-existing detailed wires
+conflict with the newly inserted diodes and the pinned flow has no clean
+rip-up-and-reroute path after detailed routing. The run was killed after
+remaining stalled for over an hour. Closing the antenna therefore requires an
+antenna-aware detailed router or a purpose-built rip-up/reroute flow, neither
+of which exists in the pinned toolset. The residual antenna count is recorded
+as an open flow limitation, not a design or electrical failure.
+
 ## Reproduction and provenance
 
 The original source is pinned in [tools.json](../asic/m6/tools.json), including

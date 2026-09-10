@@ -13,7 +13,7 @@ free_kb=$(df -Pk "$output" | awk 'NR==2 {print $4}')
 image=$(jq -r .container asic/m6/tools.json)
 container="pocketai-$(basename "$output")-$tag"
 trap 'docker stop --time 10 "$container" >/dev/null 2>&1 || true' EXIT
-timeout --signal=TERM --kill-after=20s 900s docker run --rm --name "$container" \
+timeout --signal=TERM --kill-after=20s "${M6_TIMEOUT:-900s}" docker run --rm --name "$container" \
   --network none --cpus 4 --memory 8g --user "$(id -u):$(id -g)" \
   --mount "type=bind,src=$PWD/build/m6_bank_1x_probe_v2,dst=/work,readonly" \
   --mount "type=bind,src=$PWD/$output,dst=/candidate" \
