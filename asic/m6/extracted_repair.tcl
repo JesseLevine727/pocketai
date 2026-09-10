@@ -420,4 +420,15 @@ if {$::env(M6_REPAIR_ELECTRICAL) || $::env(M6_REPAIR_TIMING) || $::env(M6_REPAIR
 }
 unset_dont_touch_objects
 source $::env(SCRIPTS_DIR)/openroad/common/grt.tcl
+if {$::env(M6_REPAIR_ANTENNA)} {
+    # Detailed wires were already ripped up by pa_m6_prepare_route_copy, so the
+    # diodes inserted here can be placed and globally routed cleanly; the
+    # following detailed-routing step then wires them without stale conflicts.
+    set diode_split [split $::env(DIODE_CELL) "/"]
+    repair_antennas "[lindex $diode_split 0]" \
+        -iterations $::env(GRT_ANTENNA_ITERS) -ratio_margin $::env(GRT_ANTENNA_MARGIN)
+    source $::env(SCRIPTS_DIR)/openroad/common/dpl.tcl
+    source $::env(SCRIPTS_DIR)/openroad/common/grt.tcl
+    puts "M6 REPAIR ANTENNA: diode insertion after rip-up completed"
+}
 write_views

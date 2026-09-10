@@ -248,13 +248,23 @@ accepted clock-slew corner.
 A post-detailed-routing repair was attempted. Running the pinned
 `OpenROAD.RepairAntennas` on the pre-filler post-DRT state (step 06) succeeds
 — it inserts diodes and re-runs DPL and global routing — but the subsequent
-detailed-routing re-run does not converge: the pre-existing detailed wires
-conflict with the newly inserted diodes and the pinned flow has no clean
-rip-up-and-reroute path after detailed routing. The run was killed after
-remaining stalled for over an hour. Closing the antenna therefore requires an
-antenna-aware detailed router or a purpose-built rip-up/reroute flow, neither
-of which exists in the pinned toolset. The residual antenna count is recorded
-as an open flow limitation, not a design or electrical failure.
+detailed-routing re-run does not converge when the existing detailed wires are
+left in place: the stale wires conflict with the newly inserted diodes. That
+run was killed after remaining stalled for over an hour.
+
+The repair was then integrated into the extracted-repair step, which already
+rips up signal/clock detailed wires (`pa_m6_prepare_route_copy`) before
+editing, so the following detailed routing starts clean. This variant does
+converge. On `srfix17_route_95_v1` it reaches antenna 13, fanout 2, cap 0,
+setup +0.1334 ns and hold +0.1872 ns with zero router DRC. However, the
+`repair_antennas` loop reports **1 persistent violation for all 10 iterations**
+while inserting two diodes per pass — it cannot clear that net. The residual
+violations are dominated by long met4 nets feeding the `m6_in_*` SRAM input
+buffers (ratio ~4.06 against a 400 limit), which the diode repair cannot
+reduce. Closing them needs either a mid-net buffer/rip-up on those specific
+long input nets or an antenna-aware router; the diode-only repair in the pinned
+build is insufficient. This is recorded as an open probe-architecture/toolset
+limitation, not a design or electrical failure.
 
 ## Reproduction and provenance
 

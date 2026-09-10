@@ -42,7 +42,9 @@ class M6ExtractedRepair(OpenROAD.RepairDesignPostGRT):
                  "Replace both local clock leaf cells with this reviewed cell, or empty",
                  default=""),
         Variable("M6_REPAIR_SPLIT_FANOUT", bool,
-                 "Split single-driver nets whose fanout exceeds 16", default=False)]
+                 "Split single-driver nets whose fanout exceeds 16", default=False),
+        Variable("M6_REPAIR_ANTENNA", bool,
+                 "Insert antenna diodes after the rip-up and re-global-route", default=False)]
 
     def get_script_path(self):
         original = Path(super().get_script_path())
