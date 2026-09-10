@@ -130,6 +130,52 @@ The 292-macro full chip, physical pads/external memory, useful throughput,
 activity-qualified partial power and final routed figure remain separate gates.
 The existing FPGA and historical ASIC figures retain their original scope.
 
+## Scoped-transition diagnostic (2026-09-10)
+
+The probe SDC applied `set_max_transition 0.35` to the **entire design**. The
+sky130_fd_sc_hd library `default_max_transition` is 1.5 ns and the project's
+OpenLane `MAX_TRANSITION_CONSTRAINT` is 0.75 ns, so that global 0.35-ns limit is
+far tighter than standard-cell logic requires. It is also redundant for the
+SRAM: the supplied SRAM Liberty already carries `max_transition : 0.351` on the
+macro input pins (for example `pin (clk)`), and the derived output contract
+enforces the 0.013-pF/350-ps limit on the `dout` pins.
+
+Re-analysing the retained `read_chain_route_95_v1` route with a scoped SDC
+(`asic/m6/bank_probe_95_scoped.sdc`) that uses 0.75 ns for standard-cell logic
+reduces the reported violations from **124 slew / 2 cap** to exactly the real
+SRAM boundary:
+
+| Violation | Count | Limit | Worst | Enforced by |
+|---|---:|---:|---:|---|
+| SRAM clock input slew | 5 | 0.351 ns | 0.353102 ns | SRAM Liberty input domain |
+| SRAM `dout` load | 2 | 0.013 pF | 0.013617 pF | derived output contract |
+| Fanout | 3 | 16 | 18 | probe SDC |
+
+Setup (+0.103414 ns), hold (+0.146145 ns), zero setup/hold TNS and zero
+detailed-router DRC are unchanged because this is a read-only STA re-analysis of
+the same route (`build/m6_contract_probe_v1/runs/scoped_sta_95_v3`). The scoping
+does not relax the SRAM boundary: the SRAM input domain (0.351 ns) and output
+load contract (7–13 fF) remain enforced by the SRAM Liberty and the reviewed
+contract-boundary diagnostic. The original `bank_probe_95.sdc` and every result
+produced with it are preserved. The 117 internal-logic slew violations that the
+global 0.35-ns limit reported were an artifact of applying an SRAM-specific
+limit to standard cells, not a physical memory failure.
+
+Reproduce the diagnostic (read-only; does not modify any retained route):
+
+```sh
+bash scripts/m6_run_contract_probe.sh build/m6_contract_probe_v1 scoped_sta_95_v3 \
+  --only OpenROAD.STAPostPNR \
+  --with-initial-state /candidate/runs/read_chain_route_95_v1/17-openroad-stapostpnr/state_out.json \
+  -c CLOCK_PERIOD=10.526315789474 \
+  -c PNR_SDC_FILE=/m6_flow/bank_probe_95_scoped.sdc \
+  -c SIGNOFF_SDC_FILE=/m6_flow/bank_probe_95_scoped.sdc
+```
+
+The remaining work is to clear the 5 SRAM clock-slew, 2 `dout`-load and 3
+fanout violations in a routed implementation. These are the only real boundary
+violations; the memory gate is otherwise timing-closed and DRC-clean.
+
 ## Reproduction and provenance
 
 The original source is pinned in [tools.json](../asic/m6/tools.json), including
