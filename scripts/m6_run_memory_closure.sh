@@ -11,10 +11,12 @@ shift 2
 [[ $(jq -r .macro_count "$output/manifest.json") == 8 ]] || exit 2
 free_kb=$(df -Pk "$output" | awk 'NR==2 {print $4}')
 (( free_kb >= 4*1024*1024 )) || exit 2
+sdc=${M6_SDC:-bank_probe_95.sdc}
+[[ "$sdc" =~ ^[A-Za-z0-9_.-]+$ && -f "asic/m6/$sdc" ]] || exit 2
 mkdir "$output/${tag}_flow"
-cp asic/m6/local95_probe_entry.py asic/m6/local95_probe_cts.tcl asic/m6/bank_probe_95.sdc \
+cp asic/m6/local95_probe_entry.py asic/m6/local95_probe_cts.tcl "asic/m6/$sdc" \
    asic/m6/contract_probe_entry.py asic/m6/contract_probe_cts.tcl asic/m6/leaf_probe_cts.tcl "$output/${tag}_flow/"
-sha256sum asic/m6/local95_probe_entry.py asic/m6/local95_probe_cts.tcl asic/m6/bank_probe_95.sdc \
+sha256sum asic/m6/local95_probe_entry.py asic/m6/local95_probe_cts.tcl "asic/m6/$sdc" \
    asic/m6/contract_probe_entry.py asic/m6/contract_probe_cts.tcl asic/m6/leaf_probe_cts.tcl \
    scripts/m6_run_memory_closure.sh > "$output/${tag}_flow_sources.sha256"
 image=$(jq -r .container asic/m6/tools.json)
@@ -29,8 +31,8 @@ timeout --signal=TERM --kill-after=20s 900s docker run --rm --name "$container" 
   --workdir /candidate --entrypoint python3 "$image" /m6_flow/local95_probe_entry.py --flow M6Local95Probe \
   --pdk-root /pdk --pdk sky130A --scl sky130_fd_sc_hd --design-dir /candidate \
   --run-tag "$tag" \
-  -c CLOCK_PERIOD=10.526315789474 -c PNR_SDC_FILE=/m6_flow/bank_probe_95.sdc \
-  -c SIGNOFF_SDC_FILE=/m6_flow/bank_probe_95.sdc \
+  -c CLOCK_PERIOD=10.526315789474 -c PNR_SDC_FILE=/m6_flow/$sdc \
+  -c SIGNOFF_SDC_FILE=/m6_flow/$sdc \
   -c M6_CONTRACT_CLOCK_LEAVES=true -c CTS_SINK_CLUSTERING_SIZE=1 \
   -c CTS_SINK_CLUSTERING_MAX_DIAMETER=20 -c CTS_CORNERS=max_ss_100C_1v60 \
   -c 'CTS_CLK_BUFFERS=sky130_fd_sc_hd__clkbuf_16 sky130_fd_sc_hd__clkbuf_8 sky130_fd_sc_hd__clkbuf_4' \

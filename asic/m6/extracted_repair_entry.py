@@ -35,7 +35,12 @@ class M6ExtractedRepair(OpenROAD.RepairDesignPostGRT):
         Variable("M6_REPAIR_MACRO_LOADS", bool,
                  "Reduce only overloaded local SRAM receiver input capacitance", default=False),
         Variable("M6_REPAIR_READ_CHAINS", bool,
-                 "Compress redundant low-strength read-return buffers only", default=False)]
+                 "Compress redundant low-strength read-return buffers only", default=False),
+        Variable("M6_REPAIR_RETURN_CHAINS", bool,
+                 "Upsize read-return buffer chains to drive-16 only", default=False),
+        Variable("M6_REPAIR_CLOCK_LEAF_CELL", str,
+                 "Replace both local clock leaf cells with this reviewed cell, or empty",
+                 default="")]
 
     def get_script_path(self):
         original = Path(super().get_script_path())

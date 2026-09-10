@@ -160,6 +160,47 @@ proc pa_m6_compress_read_chains {} {
     }
     puts "M6 READ CHAIN: [dict size $plan] low-strength buffers removed from read-return chains"
 }
+proc pa_m6_upsize_return_chains {} {
+    set block [ord::get_db_block]
+    set plan [dict create]
+    # Walk the single-fanout buffer chains that follow each mandatory local SRAM
+    # output receiver and upsize the repair-inserted wire buffers. Upsizing
+    # keeps the topology (no slew risk from removing a long-wire buffer) while
+    # shortening the read-return delay. The SRAM output load is set by the
+    # receiver, not these downstream buffers, so the load contract is unchanged.
+    foreach start [get_cells m6_out_*] {
+        set current [$block findInst [get_full_name $start]]
+        if {$current eq "NULL"} { continue }
+        for {set depth 0} {$depth < 16} {incr depth} {
+            set master [[$current getMaster] getName]
+            if {![regexp {^sky130_fd_sc_hd__buf_([0-9]+)$} $master -> size]} { break }
+            set net [[$current findITerm X] getNet]
+            if {$net eq "NULL"} { break }
+            set sinks {}
+            foreach term [$net getITerms] {
+                if {[[$term getMTerm] getIoType] ne "INPUT"} { continue }
+                if {[string match *diode* [[[$term getInst] getMaster] getName]]} { continue }
+                lappend sinks $term
+            }
+            if {[llength $sinks] != 1} { break }
+            set next [[lindex $sinks 0] getInst]
+            set next_name [$next getName]
+            set next_master [[$next getMaster] getName]
+            if {![regexp {^sky130_fd_sc_hd__buf_([0-9]+)$} $next_master -> nsize]} { break }
+            if {[string match wire* $next_name] && $nsize < 16} {
+                dict set plan $next_name $nsize
+            }
+            set current $next
+        }
+    }
+    foreach name [dict keys $plan] {
+        unset_dont_touch $name
+        replace_cell $name sky130_fd_sc_hd__buf_16
+        set_dont_touch $name
+        puts "M6 RETURN UPSIZE: $name buf_[dict get $plan $name]->buf_16"
+    }
+    puts "M6 RETURN UPSIZE: [dict size $plan] read-return buffers upsized"
+}
 # Preserve the pinned stage's libraries, constraints, repair margins and final
 # legalization/routing. Deliberately do NOT estimate routing parasitics before
 # loading SPEF: replacing an already-estimated model did not reproduce the
@@ -205,6 +246,24 @@ if {$::env(M6_REPAIR_CLOCK_PREDRIVER) ne ""} {
     }
     puts "M6 CLOCK PREDRIVER: eight reviewed predrivers replaced by $master; paired polarity retained"
 }
+if {$::env(M6_REPAIR_CLOCK_LEAF_CELL) ne ""} {
+    set master $::env(M6_REPAIR_CLOCK_LEAF_CELL)
+    if {$master ni {sky130_fd_sc_hd__clkbuf_4 sky130_fd_sc_hd__clkbuf_8 sky130_fd_sc_hd__clkbuf_16 sky130_fd_sc_hd__clkinv_4 sky130_fd_sc_hd__clkinv_8 sky130_fd_sc_hd__clkinv_16}} {
+        error "reviewed clock leaf cell required"
+    }
+    # Replace both leaf cells together so the leaf polarity is preserved
+    # (two inverters and zero buffers are both non-inverting).
+    for {set index 0} {$index < 8} {incr index} {
+        foreach name [list m6_leaf_${index}_pre m6_leaf_${index}_drive] {
+            set instance [[ord::get_db_block] findInst $name]
+            if {$instance eq "NULL"} { error "missing local clock leaf instance $name" }
+            unset_dont_touch $name
+            replace_cell $name $master
+            set_dont_touch $name
+        }
+    }
+    puts "M6 CLOCK LEAF CELL: sixteen leaf cells replaced by $master; polarity preserved"
+}
 if {$::env(M6_REPAIR_MACRO_LOADS)} {
     set corner [sta::find_corner max_ss_100C_1v60]
     set plan {}
@@ -220,22 +279,29 @@ if {$::env(M6_REPAIR_MACRO_LOADS)} {
             }
             if {[llength $receivers] != 1} { error "expected one local SRAM receiver" }
             set receiver [[lindex $receivers 0] getInst]
-            if {[[$receiver getMaster] getName] ne "sky130_fd_sc_hd__buf_12" || ![string match m6_out_* [$receiver getName]]} {
+            set rmaster [[$receiver getMaster] getName]
+            if {![regexp {^sky130_fd_sc_hd__buf_([0-9]+)$} $rmaster -> rsize] || ![string match m6_out_* [$receiver getName]]} {
                 error "unexpected overloaded SRAM receiver"
             }
-            lappend plan [list [$receiver getName] $cap]
+            set next_size ""
+            foreach {from to} {16 12 12 8 8 6 6 4 4 3 3 2 2 1} {
+                if {$rsize == $from} { set next_size $to; break }
+            }
+            if {$next_size eq ""} { error "no smaller reviewed receiver for $rmaster" }
+            lappend plan [list [$receiver getName] $rmaster $next_size $cap]
         }
     }
     foreach row $plan {
-        lassign $row name cap
+        lassign $row name master next_size cap
         unset_dont_touch $name
-        replace_cell $name sky130_fd_sc_hd__buf_8
+        replace_cell $name sky130_fd_sc_hd__buf_$next_size
         set_dont_touch $name
-        puts "M6 MACRO LOAD: $name buf12->buf8, original SS load $cap pF; re-extracted 7-13 fF checks required"
+        puts "M6 MACRO LOAD: $name $master->buf_$next_size, original SS load $cap pF; re-extracted 7-13 fF checks required"
     }
 }
 if {$::env(M6_REPAIR_SELECTIVE)} { pa_m6_selective_drivers }
 if {$::env(M6_REPAIR_READ_CHAINS)} { pa_m6_compress_read_chains }
+if {$::env(M6_REPAIR_RETURN_CHAINS)} { pa_m6_upsize_return_chains }
 set m6_before_instances [dict create]
 foreach instance [[ord::get_db_block] getInsts] {
     dict set m6_before_instances [$instance getName] 1
@@ -288,7 +354,7 @@ if {$::env(M6_LOCAL_CLOCK_NDR)} {
     puts "M6 LOCAL CLOCK NDR: eight local clock nets, 0.28-um met1/met2 width"
 }
 pa_m6_prepare_route_copy
-if {$::env(M6_REPAIR_ELECTRICAL) || $::env(M6_REPAIR_TIMING) || $::env(M6_REPAIR_SELECTIVE) || $::env(M6_REPAIR_READ_CHAINS) || $::env(M6_REPAIR_MACRO_LOADS) || $::env(M6_REPAIR_CLOCK_PREDRIVER) ne ""} {
+if {$::env(M6_REPAIR_ELECTRICAL) || $::env(M6_REPAIR_TIMING) || $::env(M6_REPAIR_SELECTIVE) || $::env(M6_REPAIR_READ_CHAINS) || $::env(M6_REPAIR_RETURN_CHAINS) || $::env(M6_REPAIR_MACRO_LOADS) || $::env(M6_REPAIR_CLOCK_PREDRIVER) ne "" || $::env(M6_REPAIR_CLOCK_LEAF_CELL) ne ""} {
     source $::env(SCRIPTS_DIR)/openroad/common/dpl.tcl
 } else {
     check_placement -verbose
