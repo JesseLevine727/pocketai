@@ -274,7 +274,11 @@ violations, and the remaining 7 antenna nets are now internal/clock nets
 (`net254`, `clknet_4_9__leaf_clk`, `net1331`, `net1565`, `net1373`, `net1433`,
 `net106`) that diode insertion cannot clear. No single setting closes antenna,
 cap and fanout together: the diode/receiver antenna fixes trade against the
-SRAM load and fanout contracts. The antenna gate therefore remains open as a
+SRAM load and fanout contracts. As a control, raising the global fanout limit
+from 16 to 24 (diagnostic `bank_probe_95_scoped_f24.sdc`, aggressive antenna
+margin, no split) did not lower the antenna floor — it still reported 12
+antenna nets and even left one net above 24 loads. This confirms the antenna
+residual is not limited by the fanout rule. The antenna gate therefore remains open as a
 documented probe-architecture limitation; the cleanest candidate is
 `srfix12_route_95_v1` (antenna 16, everything else closed) or
 `srfix18_route_95_v1` (antenna 7, setup +0.2095, but 7 cap and 2 fanout).
