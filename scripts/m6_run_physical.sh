@@ -20,7 +20,7 @@ sha256sum asic/m6/openlane_entry.py asic/m6/cts.tcl asic/m6/clock_data_boundarie
   > "$output/${tag}_flow_sources.sha256"
 trap 'docker stop --time 10 "$container" >/dev/null 2>&1 || true' EXIT
 timeout --signal=TERM --kill-after=20s "${M6_TIMEOUT:-1800s}" docker run --rm --name "$container" \
-  --network none --cpus 8 --memory 12g --user "$(id -u):$(id -g)" \
+  --network none --cpus "${M6_CPUS:-8}" --memory "${M6_MEMORY:-12g}" --user "$(id -u):$(id -g)" \
   --mount "type=bind,src=$PWD/$output,dst=/work" \
   --mount "type=bind,src=$PWD/build/m6_pdks,dst=/pdk,readonly" \
   --mount "type=bind,src=$PWD/asic/m6,dst=/m6_flow,readonly" \

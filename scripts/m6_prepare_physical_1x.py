@@ -61,7 +61,7 @@ def prepare(assembly, output):
         FALLBACK_SDC_FILE="dir::soc_1x.sdc", PNR_SDC_FILE="dir::soc_1x.sdc",
         SIGNOFF_SDC_FILE="dir::soc_1x.sdc",
         SYNTH_HIERARCHY_MODE="deferred_flatten",
-        DIE_AREA=[0, 0, 9100, 9900], FP_CORE_UTIL=35, PL_TARGET_DENSITY_PCT=45,
+        DIE_AREA=[0, 0, 13000, 14000], FP_CORE_UTIL=30, PL_TARGET_DENSITY_PCT=40,
         PDN_MACRO_CONNECTIONS=[r".*u_sram vdd vss vdd vss"],
         FP_PDN_CFG="dir::sram_probe_pdn.tcl",
         PRIMARY_GDSII_STREAMOUT_TOOL="klayout", RUN_MAGIC_STREAMOUT=False,
@@ -70,8 +70,11 @@ def prepare(assembly, output):
         MAGIC_EXT_ABSTRACT_CELLS=[MACRO])
     config.pop("FP_PDN_MACRO_HOOKS", None)
     config["MACROS"][MACRO]["gds"] = ["dir::sram22_512x32m4w8_boundary.gds.gz"]
+    x_start = int((13000 - 17 * 620) / 2)
+    y_start = int((14000 - 18 * 620) / 2)
     config["MACROS"][MACRO]["instances"] = {
-        name: {"location": [180 + (index % 17) * 520, 180 + (index // 17) * 530],
+        name: {"location": [x_start + (index % 17) * 620,
+                            y_start + (index // 17) * 620],
                "orientation": "N"}
         for index, name in enumerate(macros)}
     output.mkdir()
