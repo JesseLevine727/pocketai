@@ -61,7 +61,11 @@ def prepare(assembly, output):
         FALLBACK_SDC_FILE="dir::soc_1x.sdc", PNR_SDC_FILE="dir::soc_1x.sdc",
         SIGNOFF_SDC_FILE="dir::soc_1x.sdc",
         SYNTH_HIERARCHY_MODE="deferred_flatten",
-        DIE_AREA=[0, 0, 13000, 14000], FP_CORE_UTIL=30, PL_TARGET_DENSITY_PCT=40,
+        DIE_AREA=[0, 0, 13000, 14000], FP_CORE_UTIL=30, PL_TARGET_DENSITY_PCT=25,
+        # Timing-driven global placement diverges on this 292-macro design
+        # (RePlAce GPL-0305); a lower target density removes the routing
+        # congestion that a denser, timing-driven placement produced.
+        PL_TIME_DRIVEN=False,
         PDN_MACRO_CONNECTIONS=[r".*u_sram vdd vss vdd vss"],
         FP_PDN_CFG="dir::sram_probe_pdn.tcl",
         PRIMARY_GDSII_STREAMOUT_TOOL="klayout", RUN_MAGIC_STREAMOUT=False,
